@@ -4,5 +4,10 @@
 			"path": "Project"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"string.h": "c",
+			"freertos.h": "c"
+		}
+	}
 }

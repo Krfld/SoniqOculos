@@ -13,9 +13,9 @@
 #include "esp_a2dp_api.h"
 #include "esp_avrc_api.h"
 
-#define BT_AV_TAG               "BT_AV"
-#define BT_RC_TG_TAG            "RCTG"
-#define BT_RC_CT_TAG            "RCCT"
+#define BT_AV_TAG "BT_AV"
+#define BT_RC_TG_TAG "RCTG"
+#define BT_RC_CT_TAG "RCCT"
 
 /**
  * @brief     callback function for A2DP sink

@@ -1,0 +1,3 @@
+source "D:/ISEL/PFC/Code/.tools/esp-idf/components/bootloader/Kconfig.projbuild"
+source "D:/ISEL/PFC/Code/.tools/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "D:/ISEL/PFC/Code/.tools/esp-idf/components/partition_table/Kconfig.projbuild"

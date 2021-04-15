@@ -1,0 +1,20 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "D:/ISEL/PFC/Code/.tools/esp-idf/components/bootloader/subproject",
+    "build_dir":          "D:/ISEL/PFC/Code/a2dp_sink/build/bootloader",
+    "config_file":        "D:/ISEL/PFC/Code/a2dp_sink/sdkconfig",
+    "config_defaults":    "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v4.2-dirty",
+    "target":             "esp32",
+    "phy_data_partition": "",
+    "monitor_baud" :      "115200",
+    "monitor_toolprefix": "xtensa-esp32-elf-",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : "D:/ISEL/PFC/Code/.tools/esp-idf/components/efuse/Kconfig;D:/ISEL/PFC/Code/.tools/esp-idf/components/esp32/Kconfig;D:/ISEL/PFC/Code/.tools/esp-idf/components/esp_common/Kconfig;D:/ISEL/PFC/Code/.tools/esp-idf/components/log/Kconfig;D:/ISEL/PFC/Code/.tools/esp-idf/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "D:/ISEL/PFC/Code/.tools/esp-idf/components/bootloader/Kconfig.projbuild;D:/ISEL/PFC/Code/.tools/esp-idf/components/esptool_py/Kconfig.projbuild;D:/ISEL/PFC/Code/.tools/esp-idf/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "bootloader", "bootloader_support", "efuse", "esp32", "esp_common", "esp_rom", "esptool_py", "log", "main", "micro-ecc", "partition_table", "soc", "spi_flash", "xtensa", "" ],
+    "build_component_paths" : [ "D:/ISEL/PFC/Code/.tools/esp-idf/components/bootloader", "D:/ISEL/PFC/Code/.tools/esp-idf/components/bootloader_support", "D:/ISEL/PFC/Code/.tools/esp-idf/components/efuse", "D:/ISEL/PFC/Code/.tools/esp-idf/components/esp32", "D:/ISEL/PFC/Code/.tools/esp-idf/components/esp_common", "D:/ISEL/PFC/Code/.tools/esp-idf/components/esp_rom", "D:/ISEL/PFC/Code/.tools/esp-idf/components/esptool_py", "D:/ISEL/PFC/Code/.tools/esp-idf/components/log", "D:/ISEL/PFC/Code/.tools/esp-idf/components/bootloader/subproject/main", "D:/ISEL/PFC/Code/.tools/esp-idf/components/bootloader/subproject/components/micro-ecc", "D:/ISEL/PFC/Code/.tools/esp-idf/components/partition_table", "D:/ISEL/PFC/Code/.tools/esp-idf/components/soc", "D:/ISEL/PFC/Code/.tools/esp-idf/components/spi_flash", "D:/ISEL/PFC/Code/.tools/esp-idf/components/xtensa", "" ]
+}

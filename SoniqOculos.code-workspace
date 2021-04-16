@@ -8,6 +8,7 @@
 		"files.associations": {
 			"string.h": "c",
 			"freertos.h": "c"
-		}
+		},
+		"idf.espAdfPathWin": "c:\\Users\\Kiko\\esp\\esp-adf"
 	}
 }

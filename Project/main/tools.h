@@ -25,13 +25,15 @@
 #include "esp_gatt_common_api.h"
 
 #define BT_BLE_COEX_TAG "SoniqOculos"
+
 #define BT_DEVICE_NAME "SoniqOculos"
 #define BLE_ADV_NAME "[CONFIG] SoniqOculos"
 
-#define I2S_BCK_PIN(i2s_num) (i2s_num ? 26 : 26)
-#define I2S_WS_PIN(i2s_num) (i2s_num ? 25 : 25)
-#define I2S_DATA_PIN(i2s_num) (i2s_num ? 22 : 22)
+#define I2S_WS_PIN(i2s_num) (!i2s_num ? 27 : 13)
+#define I2S_BCK_PIN(i2s_num) (!i2s_num ? 26 : 12)
+#define I2S_DATA_PIN(i2s_num) (!i2s_num ? 25 : 14)
 
+/// Delay in milliseconds
 void delay(int millis);
 
 void i2s_setup();

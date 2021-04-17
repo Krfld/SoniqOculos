@@ -142,6 +142,7 @@ static void bt_i2s_task_handler(void *arg)
         data = (uint8_t *)xRingbufferReceive(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY);
         if (item_size != 0)
         {
+            //TODO Process data and write to both I2S
             i2s_write(0, data, item_size, &bytes_written, portMAX_DELAY);
             vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);
         }

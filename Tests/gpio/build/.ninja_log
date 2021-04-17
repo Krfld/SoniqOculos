@@ -939,3 +939,12 @@
 95	535	6403888854310475	bootloader/bootloader.elf	d86fd962e0e7dbf3
 95	535	6403888854310475	bootloader/bootloader.bin	d86fd962e0e7dbf3
 95	535	6403888854310475	bootloader/bootloader.map	d86fd962e0e7dbf3
+72	173	6403888854310475	bootloader-prefix/src/bootloader-stamp/bootloader-build	d86fd962e0e7dbf3
+72	173	6403888854310475	bootloader/bootloader.elf	d86fd962e0e7dbf3
+72	173	6403888854310475	bootloader/bootloader.bin	d86fd962e0e7dbf3
+72	173	6403888854310475	bootloader/bootloader.map	d86fd962e0e7dbf3
+81	750	6404004091022590	esp-idf/app_update/CMakeFiles/__idf_app_update.dir/esp_app_desc.c.obj	469637e0348c78cc
+750	851	6404004092199696	esp-idf/app_update/libapp_update.a	346c981a67083273
+852	3453	6404004117742824	esp-idf/esp32/ld/esp32.project.ld	7b0797d1b6379f81
+3454	4704	6404004130549226	gpio.elf	6d845d3156e71112
+4705	5010	6404004133807155	.bin_timestamp	ee79aacb39caae7f

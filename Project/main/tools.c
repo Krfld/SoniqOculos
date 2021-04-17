@@ -7,6 +7,7 @@ void delay(int millis)
 
 void tools()
 {
+    printf("START\n");
     i2s_setup();
 }
 
@@ -24,19 +25,25 @@ void i2s_setup()
         .tx_desc_auto_clear = true,
         .use_apll = false};
 
-    i2s_driver_install(I2S_NUM_0, &i2s_output_config, 0, NULL);
-    i2s_pin_config_t i2s0_pin_config = {
-        .ws_io_num = I2S_WS_PIN(0),
-        .bck_io_num = I2S_WS_PIN(0),
-        .data_out_num = I2S_WS_PIN(0),
-        .data_in_num = I2S_PIN_NO_CHANGE};
-    i2s_set_pin(I2S_NUM_0, &i2s0_pin_config);
+    if (i2s_driver_install(I2S_NUM_0, &i2s_output_config, 0, NULL) != ESP_OK)
+        printf("I2S0 Driver install failed\n");
 
-    i2s_driver_install(I2S_NUM_1, &i2s_output_config, 0, NULL);
-    i2s_pin_config_t i2s1_pin_config = {
-        .ws_io_num = I2S_WS_PIN(1),
-        .bck_io_num = I2S_WS_PIN(1),
-        .data_out_num = I2S_WS_PIN(1),
+    i2s_pin_config_t i2s0_pin_config = {
+        .ws_io_num = I2S_WS_PIN(I2S_NUM_0),
+        .bck_io_num = I2S_BCK_PIN(I2S_NUM_0),
+        .data_out_num = I2S_DATA_PIN(I2S_NUM_0),
         .data_in_num = I2S_PIN_NO_CHANGE};
-    i2s_set_pin(I2S_NUM_1, &i2s1_pin_config);
+    if (i2s_set_pin(I2S_NUM_0, &i2s0_pin_config) != ESP_OK)
+        printf("I2S0 Set pin failed\n");
+
+    if (i2s_driver_install(I2S_NUM_1, &i2s_output_config, 0, NULL) != ESP_OK)
+        printf("I2S1 Driver install failed\n");
+
+    i2s_pin_config_t i2s1_pin_config = {
+        .ws_io_num = I2S_WS_PIN(I2S_NUM_1),
+        .bck_io_num = I2S_BCK_PIN(I2S_NUM_1),
+        .data_out_num = I2S_DATA_PIN(I2S_NUM_1),
+        .data_in_num = I2S_PIN_NO_CHANGE};
+    if (i2s_set_pin(I2S_NUM_1, &i2s1_pin_config) != ESP_OK)
+        printf("I2S1 Set pin failed\n");
 }

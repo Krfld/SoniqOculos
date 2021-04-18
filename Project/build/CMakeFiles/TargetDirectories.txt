@@ -604,10 +604,3 @@ D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/main/CMakeFiles/__idf_main.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/main/CMakeFiles/rebuild_cache.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/main/CMakeFiles/list_install_components.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/main/CMakeFiles/install/strip.dir
-D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/esp-dsp/CMakeFiles/install/strip.dir
-D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/esp-dsp/CMakeFiles/__idf_esp-dsp.dir
-D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/esp-dsp/CMakeFiles/install/local.dir
-D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/esp-dsp/CMakeFiles/install.dir
-D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/esp-dsp/CMakeFiles/edit_cache.dir
-D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/esp-dsp/CMakeFiles/rebuild_cache.dir
-D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/esp-dsp/CMakeFiles/list_install_components.dir

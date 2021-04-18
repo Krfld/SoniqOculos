@@ -27,6 +27,8 @@ void app_main(void)
 {
     bt_a2dp_init();
     ble_gatts_init();
+
+    printf("READY\n");
 }
 
 void delay(int millis)

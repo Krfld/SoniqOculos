@@ -19,9 +19,7 @@
 #include "driver/i2s.h"
 #include "freertos/ringbuf.h"
 
-//! Added
-#include "tools.h"
-//!
+#include "tools.h" //! Added
 
 static void bt_app_task_handler(void *arg);
 static bool bt_app_send_msg(bt_app_msg_t *msg);
@@ -147,9 +145,8 @@ static void bt_i2s_task_handler(void *arg)
         if (item_size != 0)
         {
             //TODO Process data and write to both I2S
-            //! Added
-            process_data(data, item_size);
-            //!
+
+            process_data(data, item_size); //! Added
 
             //// i2s_write(0, data, item_size, &bytes_written, portMAX_DELAY);
             vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);

@@ -50,10 +50,9 @@
     #define BT_DEVICE_NAME "ESP_COEX_A2DP_DEMO"
     #define BLE_ADV_NAME "ESP_COEX_BLE_DEMO"
 */
-
-//! Added
-#include "tools.h"
 //!
+
+#include "tools.h" //! Added
 
 #define GATTS_SERVICE_UUID_A 0x00FF
 #define GATTS_CHAR_UUID_A 0xFF01
@@ -858,7 +857,5 @@ void app_main(void)
     //gatt server init
     ble_gatts_init();
 
-    //! Added
-    tools();
-    //!
+    tools(); //! Added
 }

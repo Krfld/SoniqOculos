@@ -108,6 +108,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/unity/cmake_install.cmake")
   include("D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/wifi_provisioning/cmake_install.cmake")
   include("D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/main/cmake_install.cmake")
+  include("D:/ISEL/PFC/SoniqOculos/Project/build/esp-idf/esp-dsp/cmake_install.cmake")
 
 endif()
 

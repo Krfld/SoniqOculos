@@ -24,6 +24,8 @@
 #include "esp_bt_defs.h"
 #include "esp_gatt_common_api.h"
 
+//#include "esp_dsp.h"
+
 #define BT_BLE_COEX_TAG "SoniqOculos"
 
 #define BT_DEVICE_NAME "SoniqOculos"

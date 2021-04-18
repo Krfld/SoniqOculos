@@ -183,8 +183,8 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
             {
                 sample_rate = 48000;
             }
-            i2s_set_clk(0, sample_rate, 16, 2);
-            i2s_set_clk(1, sample_rate, 16, 2); //! Added
+            i2s_set_clk(I2S_NUM_0, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+            i2s_set_clk(I2S_NUM_1, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); //! Added
 
             ESP_LOGI(BT_AV_TAG, "Configure audio player %x-%x-%x-%x",
                      a2d->audio_cfg.mcc.cie.sbc[0],

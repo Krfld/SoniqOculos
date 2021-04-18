@@ -11,14 +11,20 @@ void tools()
     i2s_setup();
 }
 
+void process_data(const uint8_t *data, size_t len)
+{
+    //TODO size_t bytes_written = 0; to i2s_write(0, data, item_size, &bytes_written, portMAX_DELAY);
+    //TODO Write to i2s
+}
+
 void i2s_setup()
 {
     i2s_config_t i2s_output_config = {
         .mode = I2S_MODE_MASTER | I2S_MODE_TX,
-        .communication_format = I2S_COMM_FORMAT_STAND_MSB,
         .sample_rate = 44100,
-        .bits_per_sample = 16,
+        .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .dma_buf_count = 8,
         .dma_buf_len = 64,
         .intr_alloc_flags = 0, // default interrupt priority

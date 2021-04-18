@@ -18,7 +18,42 @@
 * of audio data packets.
 ****************************************************************************/
 
+//! Moved to tools.h
+/*
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <unistd.h>
+    #include <string.h>
+    #include "freertos/FreeRTOS.h"
+    #include "freertos/task.h"
+    #include "nvs.h"
+    #include "nvs_flash.h"
+    #include "esp_system.h"
+    #include "esp_log.h"
+
+    #include "esp_bt.h"
+    #include "bt_app_core.h"
+    #include "bt_app_av.h"
+    #include "esp_bt_main.h"
+    #include "esp_bt_device.h"
+    #include "esp_gap_bt_api.h"
+    #include "esp_a2dp_api.h"
+    #include "esp_avrc_api.h"
+    #include "driver/i2s.h"
+
+    #include "esp_gap_ble_api.h"
+    #include "esp_gatts_api.h"
+    #include "esp_bt_defs.h"
+    #include "esp_gatt_common_api.h"
+
+    #define BT_BLE_COEX_TAG "BT_BLE_COEX"
+    #define BT_DEVICE_NAME "ESP_COEX_A2DP_DEMO"
+    #define BLE_ADV_NAME "ESP_COEX_BLE_DEMO"
+*/
+
+//! Added
 #include "tools.h"
+//!
 
 #define GATTS_SERVICE_UUID_A 0x00FF
 #define GATTS_CHAR_UUID_A 0xFF01
@@ -735,6 +770,41 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
+    //! Moved to tools.c
+    /*
+            i2s_config_t i2s_config = {
+        #ifdef CONFIG_EXAMPLE_A2DP_SINK_OUTPUT_INTERNAL_DAC
+                .mode = I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN,
+        #else
+                .mode = I2S_MODE_MASTER | I2S_MODE_TX, // Only TX
+        #endif
+                .communication_format = I2S_COMM_FORMAT_STAND_MSB,
+                .sample_rate = 44100,
+                .bits_per_sample = 16,
+                .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT, //2-channels
+                .dma_buf_count = 6,
+                .dma_buf_len = 60,
+                .intr_alloc_flags = 0,     //Default interrupt priority
+                .tx_desc_auto_clear = true //Auto clear tx descriptor on underflow
+            };
+
+            i2s_driver_install(0, &i2s_config, 0, NULL);
+        #ifdef CONFIG_EXAMPLE_A2DP_SINK_OUTPUT_INTERNAL_DAC
+            i2s_set_dac_mode(I2S_DAC_CHANNEL_BOTH_EN);
+            i2s_set_pin(0, NULL);
+        #else
+            i2s_pin_config_t pin_config = {
+                .bck_io_num = CONFIG_EXAMPLE_I2S_BCK_PIN,
+                .ws_io_num = CONFIG_EXAMPLE_I2S_LRCK_PIN,
+                .data_out_num = CONFIG_EXAMPLE_I2S_DATA_PIN,
+                .data_in_num = -1 //Not used
+            };
+
+            i2s_set_pin(0, &pin_config);
+        #endif
+    */
+    //!
+
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     if ((err = esp_bt_controller_init(&bt_cfg)) != ESP_OK)
     {
@@ -788,5 +858,7 @@ void app_main(void)
     //gatt server init
     ble_gatts_init();
 
+    //! Added
     tools();
+    //!
 }

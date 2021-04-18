@@ -36,6 +36,8 @@
 /// Delay in milliseconds
 void delay(int millis);
 
-void i2s_setup();
-
 void tools();
+
+void process_data(const uint8_t *data, size_t len);
+
+void i2s_setup();

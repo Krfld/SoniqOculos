@@ -7,25 +7,7 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include "esp_log.h"
-
-#include "bt_app_core.h"
-#include "bt_app_av.h"
-#include "esp_bt_main.h"
-#include "esp_bt_device.h"
-#include "esp_gap_bt_api.h"
-#include "esp_a2dp_api.h"
-#include "esp_avrc_api.h"
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/i2s.h"
-
-#include "sys/lock.h"
+#include "main.h"
 
 // AVRCP used transaction label
 #define APP_RC_CT_TL_GET_CAPS (0)
@@ -183,8 +165,9 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
             {
                 sample_rate = 48000;
             }
+            //! I2S
             i2s_set_clk(I2S_NUM_0, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
-            i2s_set_clk(I2S_NUM_1, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); //! Added
+            i2s_set_clk(I2S_NUM_1, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
 
             ESP_LOGI(BT_AV_TAG, "Configure audio player %x-%x-%x-%x",
                      a2d->audio_cfg.mcc.cie.sbc[0],

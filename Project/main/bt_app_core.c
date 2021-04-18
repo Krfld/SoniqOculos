@@ -6,20 +6,7 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
-#include <stdint.h>
-#include <string.h>
-#include <stdbool.h>
-#include "freertos/xtensa_api.h"
-#include "freertos/FreeRTOSConfig.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include "bt_app_core.h"
-#include "driver/i2s.h"
-#include "freertos/ringbuf.h"
-
-#include "tools.h" //! Added
+#include "main.h"
 
 static void bt_app_task_handler(void *arg);
 static bool bt_app_send_msg(bt_app_msg_t *msg);
@@ -146,7 +133,8 @@ static void bt_i2s_task_handler(void *arg)
         {
             //TODO Process data and write to both I2S
 
-            process_data(data, item_size); //! Added
+            //! Process
+            process_data(data, item_size);
 
             //// i2s_write(0, data, item_size, &bytes_written, portMAX_DELAY);
             vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);

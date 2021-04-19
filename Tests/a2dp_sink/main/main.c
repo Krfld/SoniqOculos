@@ -33,6 +33,8 @@
 #include "esp_avrc_api.h"
 #include "driver/i2s.h"
 
+#include <driver/dac.h>
+
 /* event for handler "bt_av_hdl_stack_up */
 enum
 {
@@ -44,6 +46,7 @@ static void bt_av_hdl_stack_evt(uint16_t event, void *p_param);
 
 void app_main(void)
 {
+
     /* Initialize NVS — it is used to store PHY calibration data */
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -62,7 +65,7 @@ void app_main(void)
         .sample_rate = 44100,
         .bits_per_sample = 16,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT, //2-channels
-        .communication_format = I2S_COMM_FORMAT_STAND_MSB,
+        .communication_format = I2S_COMM_FORMAT_I2S,
         .dma_buf_count = 6,
         .dma_buf_len = 60,
         .intr_alloc_flags = 0,     //Default interrupt priority
@@ -75,9 +78,9 @@ void app_main(void)
     i2s_set_pin(0, NULL);
 #else
     i2s_pin_config_t pin_config = {
-        .bck_io_num = CONFIG_EXAMPLE_I2S_BCK_PIN,
-        .ws_io_num = CONFIG_EXAMPLE_I2S_LRCK_PIN,
-        .data_out_num = CONFIG_EXAMPLE_I2S_DATA_PIN,
+        .bck_io_num = 12,
+        .ws_io_num = 13,
+        .data_out_num = 14,
         .data_in_num = -1 //Not used
     };
 
@@ -136,7 +139,10 @@ void app_main(void)
     pin_code[3] = '4';
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
-    while (true)
+    //! Testing
+    dac_output_enable(DAC_CHANNEL_1);
+    dac_output_voltage(DAC_CHANNEL_1, 120);
+    /*while (true)
     {
         vTaskDelay(10000 / portTICK_PERIOD_MS);
         esp_avrc_ct_send_passthrough_cmd(0, ESP_AVRC_PT_CMD_PAUSE, ESP_AVRC_PT_CMD_STATE_PRESSED);
@@ -147,7 +153,7 @@ void app_main(void)
         esp_avrc_ct_send_passthrough_cmd(0, ESP_AVRC_PT_CMD_BACKWARD, ESP_AVRC_PT_CMD_STATE_PRESSED);
         vTaskDelay(10000 / portTICK_PERIOD_MS);
         esp_avrc_ct_send_passthrough_cmd(0, ESP_AVRC_PT_CMD_FORWARD, ESP_AVRC_PT_CMD_STATE_PRESSED);
-    }
+    }*/
 }
 
 void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)

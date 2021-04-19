@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/Code/.tools/esp-idf/components/libsodium
+# Install script for directory: C:/Users/Kiko/esp/esp-idf/components/libsodium
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

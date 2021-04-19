@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/Code/.tools/esp-idf/components/soc
+# Install script for directory: C:/Users/Kiko/esp/esp-idf/components/soc
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,8 +34,8 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("D:/ISEL/PFC/Code/a2dp_sink/build/bootloader/esp-idf/soc/src/esp32/cmake_install.cmake")
-  include("D:/ISEL/PFC/Code/a2dp_sink/build/bootloader/esp-idf/soc/soc/cmake_install.cmake")
+  include("D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader/esp-idf/soc/src/esp32/cmake_install.cmake")
+  include("D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader/esp-idf/soc/soc/cmake_install.cmake")
 
 endif()
 

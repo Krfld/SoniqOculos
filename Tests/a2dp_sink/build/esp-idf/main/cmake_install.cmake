@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/Code/a2dp_sink/main
+# Install script for directory: D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

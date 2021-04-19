@@ -347,7 +347,7 @@ static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param)
         if (rc->conn_stat.connected)
         {
             // create task to simulate volume change
-            xTaskCreate(volume_change_simulation, "vcsT", 2048, NULL, 5, &s_vcs_task_hdl);
+            //// xTaskCreate(volume_change_simulation, "vcsT", 2048, NULL, 5, &s_vcs_task_hdl);
         }
         else
         {

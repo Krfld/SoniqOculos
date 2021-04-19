@@ -25,6 +25,14 @@
 
 void app_main(void)
 {
+    dac_output_enable(DAC_CHANNEL_1);
+    dac_output_voltage(DAC_CHANNEL_1, 75);
+
+    dac_output_enable(DAC_CHANNEL_2);
+    dac_output_voltage(DAC_CHANNEL_2, 125);
+
+    i2s_setup();
+
     bt_a2dp_init();
     ble_gatts_init();
 
@@ -38,7 +46,7 @@ void delay(int millis)
 
 void process_data(const uint8_t *data, size_t len)
 {
-    //size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
+    size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
 
     /*for (size_t i = 0; i < len; i += 4)
     {
@@ -48,6 +56,8 @@ void process_data(const uint8_t *data, size_t len)
         printf("Right %c ", (signed char)data[i + 2]);
         printf("%c\n", (signed char)data[i + 3]);
     }*/
+
+    i2s_write(0, data, len, &i2s0_bytes_written, portMAX_DELAY);
 
     //TODO size_t bytes_written = 0; to i2s_write(0, data, item_size, &bytes_written, portMAX_DELAY);
     //TODO Write to i2s
@@ -67,6 +77,7 @@ void i2s_setup()
         .tx_desc_auto_clear = true,
         .use_apll = false};
 
+    /// I2S0
     if (i2s_driver_install(I2S_NUM_0, &i2s_output_config, 0, NULL) != ESP_OK)
         printf("I2S0 Driver install failed\n");
 
@@ -78,6 +89,7 @@ void i2s_setup()
     if (i2s_set_pin(I2S_NUM_0, &i2s0_pin_config) != ESP_OK)
         printf("I2S0 Set pin failed\n");
 
+    /// I2S1
     if (i2s_driver_install(I2S_NUM_1, &i2s_output_config, 0, NULL) != ESP_OK)
         printf("I2S1 Driver install failed\n");
 

@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/Code/.tools/esp-idf/components/bootloader/subproject/main
+# Install script for directory: C:/Users/Kiko/esp/esp-idf/components/bootloader/subproject/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

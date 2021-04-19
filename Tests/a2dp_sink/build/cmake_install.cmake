@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/Code/a2dp_sink
+# Install script for directory: D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("D:/ISEL/PFC/Code/a2dp_sink/build/esp-idf/cmake_install.cmake")
+  include("D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/esp-idf/cmake_install.cmake")
 
 endif()
 
@@ -46,5 +46,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/ISEL/PFC/Code/a2dp_sink/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

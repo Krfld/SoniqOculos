@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/Code/.tools/esp-idf/components/coap
+# Install script for directory: C:/Users/Kiko/esp/esp-idf/components/coap
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

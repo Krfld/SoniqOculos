@@ -1,13 +1,13 @@
 # Target labels
  bootloader
 # Source files and their labels
-D:/ISEL/PFC/Code/a2dp_sink/build/CMakeFiles/bootloader
-D:/ISEL/PFC/Code/a2dp_sink/build/CMakeFiles/bootloader.rule
-D:/ISEL/PFC/Code/a2dp_sink/build/CMakeFiles/bootloader-complete.rule
-D:/ISEL/PFC/Code/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
-D:/ISEL/PFC/Code/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
-D:/ISEL/PFC/Code/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
-D:/ISEL/PFC/Code/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
-D:/ISEL/PFC/Code/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
-D:/ISEL/PFC/Code/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
-D:/ISEL/PFC/Code/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/CMakeFiles/bootloader
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/CMakeFiles/bootloader.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/CMakeFiles/bootloader-complete.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+D:/ISEL/PFC/SoniqOculos/Tests/a2dp_sink/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule

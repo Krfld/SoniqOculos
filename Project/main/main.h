@@ -33,6 +33,13 @@
 #define BT_DEVICE_NAME "SoniqOculos"
 #define BLE_ADV_NAME "[CONFIG] SoniqOculos"
 
+#define VDD 3.3
+
+#define HIGH 1
+#define LOW 0
+
+#define LED_BUILTIN 2
+
 #define I2S_WS_PIN(i2s_num) (!i2s_num ? 13 : 27)
 #define I2S_BCK_PIN(i2s_num) (!i2s_num ? 12 : 33)
 #define I2S_DATA_PIN(i2s_num) (!i2s_num ? 14 : 32)

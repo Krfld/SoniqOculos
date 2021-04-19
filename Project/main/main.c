@@ -25,18 +25,26 @@
 
 void app_main(void)
 {
-    dac_output_enable(DAC_CHANNEL_1);
-    dac_output_voltage(DAC_CHANNEL_1, 75);
-
-    dac_output_enable(DAC_CHANNEL_2);
-    dac_output_voltage(DAC_CHANNEL_2, 125);
 
     i2s_setup();
 
     bt_a2dp_init();
     ble_gatts_init();
 
+    gpio_pad_select_gpio(LED_BUILTIN);
+    gpio_set_direction(LED_BUILTIN, GPIO_MODE_OUTPUT);
+    //gpio_set_level(LED_BUILTIN, LOW);
+
+    /// Right
+    dac_output_enable(DAC_CHANNEL_1);
+    dac_output_voltage(DAC_CHANNEL_1, 1.2 / VDD * 255);
+
+    /// Left
+    dac_output_enable(DAC_CHANNEL_2);
+    dac_output_voltage(DAC_CHANNEL_2, 1.6 / VDD * 255);
+
     printf("READY\n");
+    gpio_set_level(LED_BUILTIN, HIGH);
 }
 
 void delay(int millis)
@@ -57,10 +65,9 @@ void process_data(const uint8_t *data, size_t len)
         printf("%c\n", (signed char)data[i + 3]);
     }*/
 
-    i2s_write(0, data, len, &i2s0_bytes_written, portMAX_DELAY);
-
-    //TODO size_t bytes_written = 0; to i2s_write(0, data, item_size, &bytes_written, portMAX_DELAY);
     //TODO Write to i2s
+    i2s_write(I2S_NUM_0, data, len, &i2s0_bytes_written, portMAX_DELAY);
+    //i2s_write(I2S_NUM_1, data, len, &i2s1_bytes_written, portMAX_DELAY);
 }
 
 void i2s_setup()
@@ -73,7 +80,7 @@ void i2s_setup()
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .dma_buf_count = 8,
         .dma_buf_len = 64,
-        .intr_alloc_flags = 0, // default interrupt priority
+        .intr_alloc_flags = 0, // default interrupt priority //TODO Try 3
         .tx_desc_auto_clear = true,
         .use_apll = false};
 

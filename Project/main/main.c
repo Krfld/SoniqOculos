@@ -43,6 +43,8 @@ void app_main(void)
     dac_output_enable(DAC_CHANNEL_2);
     dac_output_voltage(DAC_CHANNEL_2, 1.6 / VDD * 255);
 
+    delay(1000);
+
     printf("READY\n");
     gpio_set_level(LED_BUILTIN, HIGH);
 }
@@ -78,7 +80,7 @@ void i2s_setup()
         .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-        .dma_buf_count = 8,
+        .dma_buf_count = 2,
         .dma_buf_len = 1024,
         .intr_alloc_flags = 0, // default interrupt priority
         .tx_desc_auto_clear = true,

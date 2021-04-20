@@ -1721,3 +1721,15 @@
 961	3711	6406385633986165	esp-idf/esp32/ld/esp32.project.ld	adfdf096f0ed6bf7
 3712	11446	6406385710105941	bt_ble_coex.elf	cc55969bed64b78d
 11447	11970	6406385716808540	.bin_timestamp	609ddb081b907b5b
+13	12658	6406538982516937	build.ninja	bf92ca9b8ee83987
+90	546	6402293079029808	bootloader-prefix/src/bootloader-stamp/bootloader-build	76bd71b3d425d8ce
+90	546	6402293079029808	bootloader/bootloader.elf	76bd71b3d425d8ce
+90	546	6402293079029808	bootloader/bootloader.bin	76bd71b3d425d8ce
+90	546	6402293079029808	bootloader/bootloader.map	76bd71b3d425d8ce
+97	729	6406538991077606	esp-idf/app_update/CMakeFiles/__idf_app_update.dir/esp_app_desc.c.obj	19641af3baa8a8b0
+729	870	6406538992784819	esp-idf/app_update/libapp_update.a	346c981a67083273
+871	2201	6406539005716943	esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj	f732e127626d737a
+2201	2554	6406539009629756	esp-idf/main/libmain.a	603371243f4413e2
+2554	15910	6406539142954239	esp-idf/esp32/ld/esp32.project.ld	adfdf096f0ed6bf7
+15910	24872	6406539232552788	bt_ble_coex.elf	cc55969bed64b78d
+24873	25313	6406539237215139	.bin_timestamp	609ddb081b907b5b

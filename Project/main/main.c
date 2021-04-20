@@ -67,7 +67,7 @@ void process_data(const uint8_t *data, size_t len)
 
     //TODO Write to i2s
     i2s_write(I2S_NUM_0, data, len, &i2s0_bytes_written, portMAX_DELAY);
-    //i2s_write(I2S_NUM_1, data, len, &i2s1_bytes_written, portMAX_DELAY);
+    i2s_write(I2S_NUM_1, data, len, &i2s1_bytes_written, portMAX_DELAY);
 }
 
 void i2s_setup()
@@ -79,8 +79,8 @@ void i2s_setup()
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .dma_buf_count = 8,
-        .dma_buf_len = 64,
-        .intr_alloc_flags = 0, // default interrupt priority //TODO Try 3
+        .dma_buf_len = 1024,
+        .intr_alloc_flags = 0, // default interrupt priority
         .tx_desc_auto_clear = true,
         .use_apll = false};
 

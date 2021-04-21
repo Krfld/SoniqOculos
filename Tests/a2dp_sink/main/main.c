@@ -34,6 +34,17 @@
 #include "driver/i2s.h"
 
 #include <driver/dac.h>
+#include "esp_spp_api.h"
+
+#define SPP_SERVER_NAME "SPP_SERVER"
+#define SPP_SHOW_DATA 0
+#define SPP_SHOW_SPEED 1
+#define SPP_SHOW_MODE SPP_SHOW_DATA /*Choose show mode: show data or speed*/
+
+static const esp_spp_mode_t esp_spp_mode = ESP_SPP_MODE_CB;
+
+static const esp_spp_sec_t sec_mask = ESP_SPP_SEC_NONE;
+static const esp_spp_role_t role_slave = ESP_SPP_ROLE_SLAVE;
 
 /* event for handler "bt_av_hdl_stack_up */
 enum
@@ -43,6 +54,62 @@ enum
 
 /* handler for bluetooth stack enabled events */
 static void bt_av_hdl_stack_evt(uint16_t event, void *p_param);
+
+static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
+{
+    char buf[1024];
+    char spp_data[256];
+    switch (event)
+    {
+    case ESP_SPP_INIT_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_INIT_EVT");
+        esp_spp_start_srv(sec_mask, role_slave, 0, SPP_SERVER_NAME);
+        break;
+    case ESP_SPP_DISCOVERY_COMP_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_DISCOVERY_COMP_EVT");
+        break;
+    case ESP_SPP_OPEN_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_OPEN_EVT");
+        break;
+    case ESP_SPP_CLOSE_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_CLOSE_EVT");
+        break;
+    case ESP_SPP_START_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_START_EVT");
+        break;
+    case ESP_SPP_CL_INIT_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_CL_INIT_EVT");
+        break;
+    case ESP_SPP_DATA_IND_EVT:
+#if (SPP_SHOW_MODE == SPP_SHOW_DATA)
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%d",
+                 param->data_ind.len, param->data_ind.handle);
+        if (param->data_ind.len < 1023)
+        {
+            snprintf(buf, (size_t)param->data_ind.len, (char *)param->data_ind.data);
+            printf("%s\n", buf);
+            sprintf(spp_data, "Received characters: %d\n", param->data_ind.len);
+            esp_spp_write(param->write.handle, strlen(spp_data), (uint8_t *)spp_data);
+        }
+        else
+        {
+            esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);
+        }
+#endif
+        break;
+    case ESP_SPP_CONG_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_CONG_EVT");
+        break;
+    case ESP_SPP_WRITE_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_WRITE_EVT");
+        break;
+    case ESP_SPP_SRV_OPEN_EVT:
+        ESP_LOGI(BT_AV_TAG, "ESP_SPP_SRV_OPEN_EVT");
+        break;
+    default:
+        break;
+    }
+}
 
 void app_main(void)
 {
@@ -119,6 +186,18 @@ void app_main(void)
 
     /* Bluetooth device name, connection mode and profile set up */
     bt_app_work_dispatch(bt_av_hdl_stack_evt, BT_APP_EVT_STACK_UP, NULL, 0, NULL);
+
+    if (esp_spp_register_callback(esp_spp_cb) != ESP_OK)
+    {
+        ESP_LOGE(BT_AV_TAG, "%s spp register failed\n", __func__);
+        return;
+    }
+
+    if (esp_spp_init(esp_spp_mode) != ESP_OK)
+    {
+        ESP_LOGE(BT_AV_TAG, "%s spp init failed\n", __func__);
+        return;
+    }
 
 #if (CONFIG_BT_SSP_ENABLED == true)
     /* Set default parameters for Secure Simple Pairing */

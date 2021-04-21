@@ -77,8 +77,9 @@ void bt_av_hdl_stack_evt(uint16_t event, void *p_param)
     }
 }
 
-void bt_a2dp_init()
-{ /* Initialize NVS — it is used to store PHY calibration data */
+void bt_init()
+{
+    /* Initialize NVS — it is used to store PHY calibration data */
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
@@ -86,6 +87,8 @@ void bt_a2dp_init()
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
+
+    //ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     if ((err = esp_bt_controller_init(&bt_cfg)) != ESP_OK)
@@ -112,6 +115,10 @@ void bt_a2dp_init()
         return;
     }
 
+    /* initialize SPP Server
+    esp_spp_register_callback(esp_spp_cb);
+    esp_spp_init(ESP_SPP_MODE_CB);*/
+
     /* create application task */
     bt_app_task_start_up();
 
@@ -137,3 +144,63 @@ void bt_a2dp_init()
     pin_code[3] = '4';
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 }
+
+/*void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
+{
+    switch (event)
+    {
+    case ESP_SPP_INIT_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_INIT_EVT");
+        esp_bt_dev_set_device_name(EXAMPLE_DEVICE_NAME);
+        esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
+        esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, SPP_SERVER_NAME);
+        break;
+    case ESP_SPP_DISCOVERY_COMP_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_DISCOVERY_COMP_EVT");
+        break;
+    case ESP_SPP_OPEN_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_OPEN_EVT");
+        break;
+    case ESP_SPP_CLOSE_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_CLOSE_EVT");
+        break;
+    case ESP_SPP_START_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_START_EVT");
+        break;
+    case ESP_SPP_CL_INIT_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_CL_INIT_EVT");
+        break;
+    case ESP_SPP_DATA_IND_EVT:
+        #if (SPP_SHOW_MODE == SPP_SHOW_DATA)
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%d",
+                 param->data_ind.len, param->data_ind.handle);
+        esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);
+        #else
+        gettimeofday(&time_new, NULL);
+        data_num += param->data_ind.len;
+        if (time_new.tv_sec - time_old.tv_sec >= 3)
+        {
+            print_speed();
+        }
+#endif
+        break;
+    case ESP_SPP_CONG_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_CONG_EVT");
+        break;
+    case ESP_SPP_WRITE_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_WRITE_EVT");
+        break;
+    case ESP_SPP_SRV_OPEN_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_SRV_OPEN_EVT");
+        //gettimeofday(&time_old, NULL);
+        break;
+    case ESP_SPP_SRV_STOP_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_SRV_STOP_EVT");
+        break;
+    case ESP_SPP_UNINIT_EVT:
+        ESP_LOGI(BT_BLE_COEX_TAG, "ESP_SPP_UNINIT_EVT");
+        break;
+    default:
+        break;
+    }
+}*/

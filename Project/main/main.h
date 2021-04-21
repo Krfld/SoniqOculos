@@ -18,13 +18,14 @@
 #include "esp_gap_bt_api.h"
 #include "esp_a2dp_api.h"
 #include "esp_avrc_api.h"
-#include "driver/i2s.h"
+#include "esp_spp_api.h"
 
 #include "esp_gap_ble_api.h"
 #include "esp_gatts_api.h"
 #include "esp_bt_defs.h"
 #include "esp_gatt_common_api.h"
 
+#include "driver/i2s.h"
 #include "driver/dac.h"
 #include "driver/gpio.h"
 
@@ -37,6 +38,9 @@
 
 #define HIGH 1
 #define LOW 0
+
+#define ON 1
+#define OFF 0
 
 #define LED_BUILTIN 2
 

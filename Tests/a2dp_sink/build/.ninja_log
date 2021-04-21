@@ -1224,3 +1224,22 @@
 29164	30453	6405503379973718	.bin_timestamp	97a66603b148aa7c
 # ninja log v5
 0	2727166	0	CMakeFiles/confserver	768d78dc6edb6048
+44	23108	6407443038228094	build.ninja	c5606ef0bc33d416
+23	31575	6407446151870749	build.ninja	c5606ef0bc33d416
+624	2961	6407446182943881	esp-idf/app_update/CMakeFiles/__idf_app_update.dir/esp_app_desc.c.obj	38badaebef10c8c1
+2962	4903	6407446202294940	esp-idf/app_update/libapp_update.a	346c981a67083273
+4904	9907	6407446249200129	esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj	f732e127626d737a
+9926	11626	6407446269764569	esp-idf/main/libmain.a	1540ff31af34602b
+189	36112	6405492606602189	bootloader-prefix/src/bootloader-stamp/bootloader-build	d1939bece588f57d
+189	36112	6405492606602189	bootloader/bootloader.elf	d1939bece588f57d
+189	36112	6405492606602189	bootloader/bootloader.bin	d1939bece588f57d
+189	36112	6405492606602189	bootloader/bootloader.map	d1939bece588f57d
+11627	52346	6407446675839761	esp-idf/esp32/ld/esp32.project.ld	3b392c222c1c4a62
+52348	69472	6407446847797462	a2dp_sink.elf	fed8d0ee8dfeaea0
+69472	70889	6407446863062232	.bin_timestamp	97a66603b148aa7c
+51	55007	6407448009371586	build.ninja	c5606ef0bc33d416
+266	899	6405492606602189	bootloader-prefix/src/bootloader-stamp/bootloader-build	d1939bece588f57d
+266	899	6405492606602189	bootloader/bootloader.elf	d1939bece588f57d
+266	899	6405492606602189	bootloader/bootloader.bin	d1939bece588f57d
+266	899	6405492606602189	bootloader/bootloader.map	d1939bece588f57d
+0	694321	0	CMakeFiles/confserver	768d78dc6edb6048

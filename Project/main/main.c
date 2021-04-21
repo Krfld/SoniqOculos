@@ -28,7 +28,7 @@ void app_main(void)
 
     i2s_setup();
 
-    bt_a2dp_init();
+    bt_init();
     ble_gatts_init();
 
     gpio_pad_select_gpio(LED_BUILTIN);

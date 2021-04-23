@@ -7,7 +7,7 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
-#include "main.h"
+#include "bt.h"
 
 // AVRCP used transaction label
 #define APP_RC_CT_TL_GET_CAPS (0)
@@ -128,6 +128,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         }
         else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
         {
+            printf("Connected to audio\n");
             esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
             bt_i2s_task_start_up();
         }
@@ -165,7 +166,6 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
             {
                 sample_rate = 48000;
             }
-            //! I2S
             i2s_set_clk(I2S_NUM_0, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
             i2s_set_clk(I2S_NUM_1, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
 

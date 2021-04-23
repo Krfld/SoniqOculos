@@ -219,8 +219,8 @@ void app_main(void)
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
     //! Testing
-    dac_output_enable(DAC_CHANNEL_1);
-    dac_output_voltage(DAC_CHANNEL_1, 120);
+    //dac_output_enable(DAC_CHANNEL_1);
+    //dac_output_voltage(DAC_CHANNEL_1, 120);
     /*while (true)
     {
         vTaskDelay(10000 / portTICK_PERIOD_MS);

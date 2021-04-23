@@ -6,7 +6,7 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
-#include "main.h"
+#include "bt.h"
 
 static void bt_app_task_handler(void *arg);
 static bool bt_app_send_msg(bt_app_msg_t *msg);
@@ -131,12 +131,8 @@ static void bt_i2s_task_handler(void *arg)
         data = (uint8_t *)xRingbufferReceive(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY);
         if (item_size != 0)
         {
-            //TODO Process data and write to both I2S
-
-            //! Process
-            process_data(data, item_size);
-
             //// i2s_write(0, data, item_size, &bytes_written, portMAX_DELAY);
+            process_data(data, item_size);
             vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);
         }
     }

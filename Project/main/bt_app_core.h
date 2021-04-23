@@ -9,9 +9,7 @@
 #ifndef __BT_APP_CORE_H__
 #define __BT_APP_CORE_H__
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
+#include "main.h"
 
 #define BT_APP_CORE_TAG "BT_APP_CORE"
 

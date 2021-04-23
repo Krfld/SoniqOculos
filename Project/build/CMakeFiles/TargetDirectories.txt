@@ -8,7 +8,7 @@ D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/flash.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/monitor.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/encrypted-flash.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/_project_elf_src.dir
-D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/bt_ble_coex.elf.dir
+D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/SoniqOculos.elf.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/size.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/size-files.dir
 D:/ISEL/PFC/SoniqOculos/Project/build/CMakeFiles/size-components.dir

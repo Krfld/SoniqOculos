@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := bt_ble_coex
+PROJECT_NAME := SoniqOculos
 
 include $(IDF_PATH)/make/project.mk
 

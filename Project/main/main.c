@@ -10,17 +10,9 @@ void app_main(void)
 
     bt_init();
 
-    gpio_pad_select_gpio(LED_BUILTIN);
-    gpio_set_direction(LED_BUILTIN, GPIO_MODE_OUTPUT);
+    setup();
+
     //gpio_set_level(LED_BUILTIN, LOW);
-
-    /// Right MAYBE NOT
-    dac_output_enable(DAC_CHANNEL_1);
-    dac_output_voltage(DAC_CHANNEL_1, 1.2 / VDD * 255);
-
-    /// Left MAYBE NOT
-    dac_output_enable(DAC_CHANNEL_2);
-    dac_output_voltage(DAC_CHANNEL_2, 1.6 / VDD * 255);
 
     delay(1000);
 

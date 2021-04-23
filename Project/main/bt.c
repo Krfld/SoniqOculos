@@ -16,13 +16,11 @@
 
 void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
-    char msg[MSG_BUFFER];
-    char response[MSG_BUFFER];
     switch (event)
     {
     case ESP_SPP_INIT_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_INIT_EVT");
-        esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, SERVER_NAME);
+        esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, DEVICE_NAME);
         break;
     case ESP_SPP_DISCOVERY_COMP_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_DISCOVERY_COMP_EVT");
@@ -45,10 +43,10 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
                  param->data_ind.len, param->data_ind.handle);
         if (param->data_ind.len < MSG_BUFFER)
         {
+            char msg[MSG_BUFFER];
             snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data);
             handleMsgs(msg, param->data_ind.len);
-            sprintf(response, "Message received");
-            esp_spp_write(param->write.handle, strlen(response), (uint8_t *)response);
+            esp_spp_write(param->write.handle, strlen(msg), (uint8_t *)msg);
         }
         else
         {

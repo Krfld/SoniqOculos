@@ -29,11 +29,10 @@
 #include "driver/gpio.h"
 
 #define DEVICE_NAME "SoniqOculos"
-#define SERVER_NAME "[SERVER] SoniqOculos"
 
 #define LED_BUILTIN 2
 
-#define MSG_BUFFER 256
+#define MSG_BUFFER 128
 
 #define VDD 3.3
 
@@ -42,5 +41,8 @@
 
 #define ON 1
 #define OFF 0
+
+#define RIGHT_CHANEL DAC_CHANNEL_1
+#define LEFT_CHANEL DAC_CHANNEL_2
 
 void process_data(uint8_t *data, size_t len);

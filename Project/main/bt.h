@@ -1,8 +1,9 @@
 #include "main.h"
-#include "tools.h"
 
 #include "bt_app_core.h"
 #include "bt_app_av.h"
+
+#include "i2s.h"
 
 #define BT_SPP_TAG "BT_SPP"
 

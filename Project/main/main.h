@@ -42,7 +42,16 @@
 #define ON 1
 #define OFF 0
 
+//TODO Change
 #define RIGHT_CHANEL DAC_CHANNEL_1
 #define LEFT_CHANEL DAC_CHANNEL_2
+
+void setup();
+
+void delay(int millis);
+
+void handleMsgs(char *msg, size_t len);
+
+void audioOnOff(bool state);
 
 void process_data(uint8_t *data, size_t len);

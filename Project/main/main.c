@@ -14,11 +14,11 @@ void app_main(void)
     gpio_set_direction(LED_BUILTIN, GPIO_MODE_OUTPUT);
     //gpio_set_level(LED_BUILTIN, LOW);
 
-    /// Right
+    /// Right MAYBE NOT
     dac_output_enable(DAC_CHANNEL_1);
     dac_output_voltage(DAC_CHANNEL_1, 1.2 / VDD * 255);
 
-    /// Left
+    /// Left MAYBE NOT
     dac_output_enable(DAC_CHANNEL_2);
     dac_output_voltage(DAC_CHANNEL_2, 1.6 / VDD * 255);
 

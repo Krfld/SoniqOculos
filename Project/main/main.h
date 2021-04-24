@@ -34,7 +34,7 @@
 
 #define MSG_BUFFER 128
 
-#define VDD 3.3
+#define LOGIC 3.3
 
 #define HIGH 1
 #define LOW 0

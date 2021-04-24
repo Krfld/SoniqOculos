@@ -39,9 +39,9 @@ void audioOnOff(bool state)
     if (state)
     {
         /// Right MAYBE NOT
-        dac_output_voltage(RIGHT_CHANEL, 1.2 / VDD * 255);
+        dac_output_voltage(RIGHT_CHANEL, 1.2 / LOGIC * 255);
         /// Left MAYBE NOT
-        dac_output_voltage(LEFT_CHANEL, 1.6 / VDD * 255);
+        dac_output_voltage(LEFT_CHANEL, 1.6 / LOGIC * 255);
     }
     else
     {
@@ -72,6 +72,6 @@ void process_data(uint8_t *data, size_t len)
     }*/
 
     //TODO Write to i2s
-    i2s_write(I2S_NUM_0, data, len, &i2s0_bytes_written, portMAX_DELAY);
-    i2s_write(I2S_NUM_1, data, len, &i2s1_bytes_written, portMAX_DELAY);
+    i2s_write(BONE_CONDUCTORS, data, len, &i2s0_bytes_written, portMAX_DELAY);
+    i2s_write(SPEAKERS, data, len, &i2s1_bytes_written, portMAX_DELAY);
 }

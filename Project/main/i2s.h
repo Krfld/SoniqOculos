@@ -2,6 +2,7 @@
 
 #define BONE_CONDUCTORS I2S_NUM_0
 #define SPEAKERS I2S_NUM_1
+#define MICROPHONES SPEAKERS
 
 #define I2S_WS_PIN(i2s_num) (!i2s_num ? 32 : 5)
 #define I2S_BCK_PIN(i2s_num) (!i2s_num ? 33 : 17)

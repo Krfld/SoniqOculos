@@ -1,49 +1,103 @@
 #include "i2s.h"
 
+//* Speakers pin configuration
+static i2s_pin_config_t speakers_pin_config = {
+    .ws_io_num = SPEAKERS_WS_PIN,
+    .bck_io_num = SPEAKERS_BCK_PIN,
+    .data_out_num = SPEAKERS_DATA_PIN,
+    .data_in_num = I2S_PIN_NO_CHANGE};
+
+//* Bone conductors pin configuration
+static i2s_pin_config_t bone_conductors_pin_config = {
+    .ws_io_num = BONE_CONDUCTORS_WS_PIN,
+    .bck_io_num = BONE_CONDUCTORS_BCK_PIN,
+    .data_out_num = BONE_CONDUCTORS_DATA_PIN,
+    .data_in_num = I2S_PIN_NO_CHANGE};
+
+//* Microphones pin configuration
+static i2s_pin_config_t microphones_pin_config = {
+    .ws_io_num = MICROPHONES_WS_PIN,
+    .bck_io_num = MICROPHONES_BCK_PIN,
+    .data_out_num = I2S_PIN_NO_CHANGE,
+    .data_in_num = MICROPHONES_DATA_PIN};
+
+//* Output configuration
+static i2s_config_t i2s_config_tx = {
+    .mode = I2S_MODE_MASTER | I2S_MODE_TX,
+    .sample_rate = 44100,
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
+    .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+    .intr_alloc_flags = 0, //Default interrupt priority
+    .dma_buf_count = DMA_BUFFER_COUNT,
+    .dma_buf_len = DMA_BUFFER_LEN,
+    .use_apll = false,
+    .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
+    .fixed_mclk = 0};
+
+//* Input configuration
+static i2s_config_t i2s_config_rx = {
+    .mode = I2S_MODE_MASTER | I2S_MODE_RX,
+    .sample_rate = 44100,
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
+    .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+    .intr_alloc_flags = 0, //Default interrupt priority
+    .dma_buf_count = DMA_BUFFER_COUNT,
+    .dma_buf_len = DMA_BUFFER_LEN,
+    .use_apll = false,
+    .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
+    .fixed_mclk = 0};
+
 static xTaskHandle s_i2s_task_handle = NULL;
 
 void i2s_setup()
 {
-    i2s_config_t i2s_config_output = {
-        .mode = I2S_MODE_MASTER | I2S_MODE_TX, // Only TX
-        .sample_rate = 44100,
-        .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
-        .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-        .intr_alloc_flags = 0, //Default interrupt priority
-        .dma_buf_count = DMA_BUFFER_COUNT,
-        .dma_buf_len = DMA_BUFFER_LEN,
-        .use_apll = false,
-        .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
-        .fixed_mclk = 0};
+    gpio_set_direction(SPEAKERS_WS_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_direction(SPEAKERS_BCK_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_direction(SPEAKERS_DATA_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_level(SPEAKERS_WS_PIN, LOW);
+    gpio_set_level(SPEAKERS_BCK_PIN, LOW);
+    gpio_set_level(SPEAKERS_DATA_PIN, LOW);
 
-    /// I2S0
-    if (i2s_driver_install(SPEAKERS, &i2s_config_output, 0, NULL) != ESP_OK)
-        printf("I2S0 Driver install failed\n");
+    bone_conductors_setup();
+    microphones_setup();
+}
 
-    i2s_pin_config_t i2s0_pin_config = {
-        .ws_io_num = I2S_WS_PIN(SPEAKERS),
-        .bck_io_num = I2S_BCK_PIN(SPEAKERS),
-        .data_out_num = I2S_DATA_PIN(SPEAKERS),
-        .data_in_num = I2S_PIN_NO_CHANGE};
-    if (i2s_set_pin(SPEAKERS, &i2s0_pin_config) != ESP_OK)
-        printf("I2S0 Set pin failed\n");
+void bone_conductors_setup()
+{
+    if (i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
+        printf("Bone conductors i2s driver install failed\n");
 
-    /// I2S1
-    if (i2s_driver_install(BONE_CONDUCTORS, &i2s_config_output, 0, NULL) != ESP_OK)
-        printf("I2S1 Driver install failed\n");
+    if (i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config) != ESP_OK)
+        printf("Bone conductors i2s set pin failed\n");
+}
 
-    i2s_pin_config_t i2s1_pin_config = {
-        .ws_io_num = I2S_WS_PIN(BONE_CONDUCTORS),
-        .bck_io_num = I2S_BCK_PIN(BONE_CONDUCTORS),
-        .data_out_num = I2S_DATA_PIN(BONE_CONDUCTORS),
-        .data_in_num = I2S_PIN_NO_CHANGE};
-    if (i2s_set_pin(BONE_CONDUCTORS, &i2s1_pin_config) != ESP_OK)
-        printf("I2S1 Set pin failed\n");
+void speakers_setup()
+{
+    if (i2s_driver_uninstall(MICROPHONES_I2S_NUM) != ESP_OK)
+        printf("Microphones i2s driver uninstall failed\n");
+
+    if (i2s_driver_install(SPEAKERS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
+        printf("Speakers i2s driver install failed\n");
+
+    if (i2s_set_pin(SPEAKERS_I2S_NUM, &speakers_pin_config) != ESP_OK)
+        printf("Speakers i2s set pin failed\n");
+}
+
+void microphones_setup()
+{
+    if (i2s_driver_uninstall(SPEAKERS_I2S_NUM) != ESP_OK)
+        printf("Speakers i2s driver uninstall failed\n");
+
+    if (i2s_driver_install(MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL) != ESP_OK)
+        printf("Microphones i2s driver install failed\n");
+
+    if (i2s_set_pin(MICROPHONES_I2S_NUM, &microphones_pin_config) != ESP_OK)
+        printf("Microphones i2s set pin failed\n");
 }
 
 //TODO Configure input
-
 static void i2s_task_handler(void *arg)
 {
     size_t bytesRead = 0;
@@ -51,7 +105,7 @@ static void i2s_task_handler(void *arg)
 
     for (;;)
     {
-        i2s_read(MICROPHONES, &buffer32, sizeof(buffer32), &bytesRead, 100);
+        i2s_read(MICROPHONES_I2S_NUM, &buffer32, sizeof(buffer32), &bytesRead, portMAX_DELAY);
     }
 }
 

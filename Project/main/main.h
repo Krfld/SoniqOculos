@@ -30,7 +30,7 @@
 
 #define DEVICE_NAME "SoniqOculos"
 
-#define LED_BUILTIN 2
+#define LED_BUILTIN GPIO_NUM_2
 
 #define MSG_BUFFER 128
 
@@ -45,8 +45,6 @@
 //TODO Change
 #define RIGHT_CHANEL DAC_CHANNEL_1
 #define LEFT_CHANEL DAC_CHANNEL_2
-
-void setup();
 
 void delay(int millis);
 

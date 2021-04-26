@@ -1,5 +1,7 @@
 #include "i2s.h"
 
+#include "gpio.h"
+
 //* Speakers pin configuration
 static i2s_pin_config_t speakers_pin_config = {
     .ws_io_num = SPEAKERS_WS_PIN,
@@ -25,7 +27,7 @@ static i2s_pin_config_t microphones_pin_config = {
 static i2s_config_t i2s_config_tx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_TX,
     .sample_rate = 44100,
-    .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
@@ -39,7 +41,7 @@ static i2s_config_t i2s_config_tx = {
 static i2s_config_t i2s_config_rx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_RX,
     .sample_rate = 44100,
-    .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
@@ -53,59 +55,60 @@ static xTaskHandle s_i2s_task_handle = NULL;
 
 void i2s_setup()
 {
-    gpio_set_direction(SPEAKERS_WS_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_direction(SPEAKERS_BCK_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_direction(SPEAKERS_DATA_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(SPEAKERS_WS_PIN, LOW);
-    gpio_set_level(SPEAKERS_BCK_PIN, LOW);
-    gpio_set_level(SPEAKERS_DATA_PIN, LOW);
-
     bone_conductors_setup();
     microphones_setup();
-}
-
-void bone_conductors_setup()
-{
-    if (i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
-        printf("Bone conductors i2s driver install failed\n");
-
-    if (i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config) != ESP_OK)
-        printf("Bone conductors i2s set pin failed\n");
 }
 
 void speakers_setup()
 {
     if (i2s_driver_uninstall(MICROPHONES_I2S_NUM) != ESP_OK)
-        printf("Microphones i2s driver uninstall failed\n");
+        printf("\nMicrophones i2s driver uninstall failed\n\n");
+
+    gpio_set(MICROPHONES_WS_PIN, LOW);
+    gpio_set(MICROPHONES_BCK_PIN, LOW);
+    gpio_set(MICROPHONES_DATA_PIN, LOW);
 
     if (i2s_driver_install(SPEAKERS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
-        printf("Speakers i2s driver install failed\n");
+        printf("\nSpeakers i2s driver install failed\n\n");
 
     if (i2s_set_pin(SPEAKERS_I2S_NUM, &speakers_pin_config) != ESP_OK)
-        printf("Speakers i2s set pin failed\n");
+        printf("\nSpeakers i2s set pin failed\n\n");
 }
 
 void microphones_setup()
 {
     if (i2s_driver_uninstall(SPEAKERS_I2S_NUM) != ESP_OK)
-        printf("Speakers i2s driver uninstall failed\n");
+        printf("\nSpeakers i2s driver uninstall failed\n\n");
+
+    gpio_set(SPEAKERS_WS_PIN, LOW);
+    gpio_set(SPEAKERS_BCK_PIN, LOW);
+    gpio_set(SPEAKERS_DATA_PIN, LOW);
 
     if (i2s_driver_install(MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL) != ESP_OK)
-        printf("Microphones i2s driver install failed\n");
+        printf("\nMicrophones i2s driver install failed\n\n");
 
     if (i2s_set_pin(MICROPHONES_I2S_NUM, &microphones_pin_config) != ESP_OK)
-        printf("Microphones i2s set pin failed\n");
+        printf("\nMicrophones i2s set pin failed\n\n");
+}
+
+void bone_conductors_setup()
+{
+    if (i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
+        printf("\nBone conductors i2s driver install failed\n\n");
+
+    if (i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config) != ESP_OK)
+        printf("\nBone conductors i2s set pin failed\n\n");
 }
 
 //TODO Configure input
 static void i2s_task_handler(void *arg)
 {
-    size_t bytesRead = 0;
-    uint8_t buffer32[DMA_BUFFER_LEN] = {0};
+    size_t bytes_read = 0;
+    uint8_t data[DMA_BUFFER_LEN] = {0};
 
     for (;;)
     {
-        i2s_read(MICROPHONES_I2S_NUM, &buffer32, sizeof(buffer32), &bytesRead, portMAX_DELAY);
+        i2s_read(MICROPHONES_I2S_NUM, &data, sizeof(data), &bytes_read, portMAX_DELAY);
     }
 }
 

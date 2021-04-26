@@ -20,6 +20,6 @@
 
 void i2s_setup();
 
-void bone_conductors_setup();
 void speakers_setup();
 void microphones_setup();
+void bone_conductors_setup();

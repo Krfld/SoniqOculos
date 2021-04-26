@@ -1,3 +1,3 @@
 #include "main.h"
 
-void gpio_direction(gpio_num_t pin);
+void gpio_set(gpio_num_t pin, size_t level);

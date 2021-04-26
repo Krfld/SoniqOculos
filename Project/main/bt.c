@@ -30,7 +30,7 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_CLOSE_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");
-        printf("Disconnected from server\n");
+        printf("\nDisconnected from server\n\n");
         break;
     case ESP_SPP_START_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_START_EVT");
@@ -61,7 +61,7 @@ void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
-        printf("Connected to server\n");
+        printf("\nConnected to server\n\n");
         break;
     default:
         break;

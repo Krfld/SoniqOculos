@@ -78,12 +78,12 @@ void app_main(void)
         printf("Microphones i2s set pin failed\n");
 
     size_t bytes_read = 0, bytes_written = 0;
-    uint8_t buffer[DMA_BUFFER_LEN] = {0};
+    uint8_t data[DMA_BUFFER_LEN] = {0};
 
     for (;;)
     {
-        i2s_read(MICROPHONES_I2S_NUM, buffer, sizeof(buffer), &bytes_read, portMAX_DELAY);
+        i2s_read(MICROPHONES_I2S_NUM, data, sizeof(data), &bytes_read, portMAX_DELAY);
 
-        i2s_write(BONE_CONDUCTORS_I2S_NUM, buffer, sizeof(buffer), &bytes_written, portMAX_DELAY);
+        i2s_write(BONE_CONDUCTORS_I2S_NUM, data, sizeof(data), &bytes_written, portMAX_DELAY);
     }
 }

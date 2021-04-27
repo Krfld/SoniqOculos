@@ -9,13 +9,6 @@ static i2s_pin_config_t speakers_pin_config = {
     .data_out_num = SPEAKERS_DATA_PIN,
     .data_in_num = I2S_PIN_NO_CHANGE};
 
-//* Bone conductors pin configuration
-static i2s_pin_config_t bone_conductors_pin_config = {
-    .ws_io_num = BONE_CONDUCTORS_WS_PIN,
-    .bck_io_num = BONE_CONDUCTORS_BCK_PIN,
-    .data_out_num = BONE_CONDUCTORS_DATA_PIN,
-    .data_in_num = I2S_PIN_NO_CHANGE};
-
 //* Microphones pin configuration
 static i2s_pin_config_t microphones_pin_config = {
     .ws_io_num = MICROPHONES_WS_PIN,
@@ -23,11 +16,18 @@ static i2s_pin_config_t microphones_pin_config = {
     .data_out_num = I2S_PIN_NO_CHANGE,
     .data_in_num = MICROPHONES_DATA_PIN};
 
+//* Bone conductors pin configuration
+static i2s_pin_config_t bone_conductors_pin_config = {
+    .ws_io_num = BONE_CONDUCTORS_WS_PIN,
+    .bck_io_num = BONE_CONDUCTORS_BCK_PIN,
+    .data_out_num = BONE_CONDUCTORS_DATA_PIN,
+    .data_in_num = I2S_PIN_NO_CHANGE};
+
 //* Output configuration
 static i2s_config_t i2s_config_tx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_TX,
     .sample_rate = 44100,
-    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, // 32 bit when playing from microphones
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
@@ -41,7 +41,7 @@ static i2s_config_t i2s_config_tx = {
 static i2s_config_t i2s_config_rx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_RX,
     .sample_rate = 44100,
-    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority

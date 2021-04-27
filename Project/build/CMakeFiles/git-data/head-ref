@@ -1,1 +1,33 @@
-9471e640d6c920d22f1144142fddd9aec6b62865
+0000000000000000000000000000000000000000 97c704a98fe96dfb0de0ea1c36ac38aa6e91890e Krfld <rodrigofldias@gmail.com> 1618521034 +0100	clone: from https://github.com/Krfld/SoniqOculos.git
+97c704a98fe96dfb0de0ea1c36ac38aa6e91890e 359114e3ff96072fe22b78f92de269a21010998f Krfld <rodrigofldias@gmail.com> 1618521364 +0100	commit: Setup
+359114e3ff96072fe22b78f92de269a21010998f a1fb6f4f086f398a25cb2910a0289a4c4fe2a923 Krfld <rodrigofldias@gmail.com> 1618522039 +0100	commit: Create setup files
+a1fb6f4f086f398a25cb2910a0289a4c4fe2a923 b0291ea876ad22d173361549a45a8c704809e41d Krfld <rodrigofldias@gmail.com> 1618522160 +0100	commit: Delete README.md
+b0291ea876ad22d173361549a45a8c704809e41d aed6ca05290f27f2979f9735533ddaf45106cd5d Krfld <rodrigofldias@gmail.com> 1618522219 +0100	pull --progress origin: Fast-forward
+aed6ca05290f27f2979f9735533ddaf45106cd5d bce57172fa397c37214d98a216dee6cd7bebd3b6 Krfld <rodrigofldias@gmail.com> 1618526741 +0100	commit: Create tools files
+bce57172fa397c37214d98a216dee6cd7bebd3b6 4e77a1f03d68da283235dd1c8473f5a29617ccf2 Krfld <rodrigofldias@gmail.com> 1618579598 +0100	commit: Update SoniqOculos.code-workspace
+4e77a1f03d68da283235dd1c8473f5a29617ccf2 99dd802931d523611e572c4c8a4115c28bb68dcc Krfld <rodrigofldias@gmail.com> 1618611254 +0100	commit: I2S Setup
+99dd802931d523611e572c4c8a4115c28bb68dcc d2fe78b2d1a884513763aa691a2216f4e1456945 Krfld <rodrigofldias@gmail.com> 1618691849 +0100	commit: GPIO Test
+d2fe78b2d1a884513763aa691a2216f4e1456945 457afd406f3df945d40508d091cdca13a71062e9 Krfld <rodrigofldias@gmail.com> 1618703695 +0100	commit: Fix I2S
+457afd406f3df945d40508d091cdca13a71062e9 9fbea48c7ca46178c69de87f444126b4f7a99aa2 Krfld <rodrigofldias@gmail.com> 1618703974 +0100	pull --progress origin: Fast-forward
+9fbea48c7ca46178c69de87f444126b4f7a99aa2 6996cdb495f949692d6e2d913f43201b49fbea5b Krfld <rodrigofldias@gmail.com> 1618704016 +0100	pull --progress origin: Fast-forward
+6996cdb495f949692d6e2d913f43201b49fbea5b 20dcb4a3360e47f2960e63d19c1d0fe13ab7b4b8 Krfld <rodrigofldias@gmail.com> 1618704046 +0100	commit: Create esp - Shortcut.lnk
+20dcb4a3360e47f2960e63d19c1d0fe13ab7b4b8 53175250bece0c7cf2e31e036260c0e177ae6036 Krfld <rodrigofldias@gmail.com> 1618704089 +0100	commit: Delete .gitignore
+53175250bece0c7cf2e31e036260c0e177ae6036 ebabf78aa74975c7f004b2ff5b629ade11ad1c90 Krfld <rodrigofldias@gmail.com> 1618752186 +0100	commit: Progress
+ebabf78aa74975c7f004b2ff5b629ade11ad1c90 9d057a6e562cb29b29517450b998a40e209ab56b Krfld <rodrigofldias@gmail.com> 1618763851 +0100	commit: Progress
+9d057a6e562cb29b29517450b998a40e209ab56b 2252c004bb6d226c6c79030ca099ababc47c7c8f Krfld <rodrigofldias@gmail.com> 1618779291 +0100	commit: Organize
+2252c004bb6d226c6c79030ca099ababc47c7c8f 6d41ff2f373fdfe7008dc6642fe316445c0518b2 Krfld <rodrigofldias@gmail.com> 1618780341 +0100	commit: Fix
+6d41ff2f373fdfe7008dc6642fe316445c0518b2 38567adcec0144089c34c9d50f63435b914ec21d Krfld <rodrigofldias@gmail.com> 1618858627 +0100	commit: .
+38567adcec0144089c34c9d50f63435b914ec21d 6a0f8bf2d6f2190ccad3cf3aac59768eb9a41e78 Krfld <rodrigofldias@gmail.com> 1618872477 +0100	commit: Improvements
+6a0f8bf2d6f2190ccad3cf3aac59768eb9a41e78 8d93ec43560da58ab2fc367c1d6ac4d957a2de7a Krfld <rodrigofldias@gmail.com> 1618935641 +0100	commit: Improvements
+8d93ec43560da58ab2fc367c1d6ac4d957a2de7a 475259ae9453937a097cc25637c398bc49cbf32e Krfld <rodrigofldias@gmail.com> 1618952202 +0100	commit: Added delay
+475259ae9453937a097cc25637c398bc49cbf32e 5625e49d67282c7b54e7061476de1028626c54ed Krfld <rodrigofldias@gmail.com> 1619042569 +0100	commit: A2DP + SPP
+5625e49d67282c7b54e7061476de1028626c54ed 707273aacc13807a8f253aa7a8ba87c89b462db7 Krfld <rodrigofldias@gmail.com> 1619137936 +0100	commit: Can't spp_write
+707273aacc13807a8f253aa7a8ba87c89b462db7 f890bc4db0b129e196bb76a58fa53f4ab3ba21a2 Krfld <rodrigofldias@gmail.com> 1619138437 +0100	commit: Left <-> Right
+f890bc4db0b129e196bb76a58fa53f4ab3ba21a2 1e8dc6361b357b491bc688f76d272a00d4ccfb0f Krfld <rodrigofldias@gmail.com> 1619179474 +0100	commit: SPP Fixed
+1e8dc6361b357b491bc688f76d272a00d4ccfb0f 20370921cfaf7fda563f37278796a84cf73f53fe Krfld <rodrigofldias@gmail.com> 1619221524 +0100	commit: Improvements
+20370921cfaf7fda563f37278796a84cf73f53fe 36e6011ab89f16387efe3efbcfd226f2a58f0395 Krfld <rodrigofldias@gmail.com> 1619296948 +0100	commit: Tests
+36e6011ab89f16387efe3efbcfd226f2a58f0395 f70169d22c57682473cecd7b6ac8b5f3b8cbb9e4 Krfld <rodrigofldias@gmail.com> 1619307993 +0100	commit: Added i2s read tasks
+f70169d22c57682473cecd7b6ac8b5f3b8cbb9e4 7264e8eaa2cbaf13d63212ff72c624a26502b2ab Krfld <rodrigofldias@gmail.com> 1619387669 +0100	commit: Microphones working
+7264e8eaa2cbaf13d63212ff72c624a26502b2ab 9471e640d6c920d22f1144142fddd9aec6b62865 Krfld <rodrigofldias@gmail.com> 1619389728 +0100	commit: Testing SD Card
+9471e640d6c920d22f1144142fddd9aec6b62865 102e0ba24aa4d61889949179505508fbf50577c2 Krfld <rodrigofldias@gmail.com> 1619464936 +0100	commit: Testing mics
+102e0ba24aa4d61889949179505508fbf50577c2 d2890838a975394b53b55702e72ff9f4c4d461a7 Krfld <rodrigofldias@gmail.com> 1619475263 +0100	commit: SD Card working

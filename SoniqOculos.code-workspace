@@ -1,0 +1,42 @@
+{
+	"folders": [
+		{
+			"path": "Project"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"esp_spp_api.h": "c",
+			"*.tcc": "c",
+			"*.ipp": "c",
+			"bt.h": "c",
+			"stdbool.h": "c",
+			"bt_app_av.h": "c",
+			"i2s.h": "c",
+			"main.h": "c",
+			"array": "c",
+			"string": "c",
+			"string_view": "c",
+			"random": "c",
+			"stat.h": "c",
+			"spi_common.h": "c",
+			"sdmmc_cmd.h": "c",
+			"sd.h": "c",
+			"esp_vfs_fat.h": "c",
+			"sdspi_host.h": "c",
+			"freertos.h": "c",
+			"ringbuf.h": "c",
+			"task.h": "c",
+			"esp_bt_main.h": "c",
+			"esp_bt_device.h": "c",
+			"esp_bt.h": "c",
+			"esp_log.h": "c",
+			"esp_gap_bt_api.h": "c",
+			"esp_a2dp_api.h": "c",
+			"esp_avrc_api.h": "c",
+			"esp_bt_defs.h": "c",
+			"gpio.h": "c",
+			"spi_master.h": "c"
+		}
+	}
+}

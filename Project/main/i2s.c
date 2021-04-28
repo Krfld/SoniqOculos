@@ -56,7 +56,8 @@ static xTaskHandle s_i2s_task_handle = NULL;
 void i2s_setup()
 {
     bone_conductors_setup();
-    microphones_setup();
+    speakers_setup();
+    //microphones_setup();
 }
 
 void speakers_setup()

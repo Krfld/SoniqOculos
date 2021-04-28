@@ -4,17 +4,17 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
-#include "sys/lock.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/FreeRTOSConfig.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#include "freertos/ringbuf.h"
-#include "freertos/xtensa_api.h"
+#include <sys/stat.h>
+
 #include "nvs.h"
 #include "nvs_flash.h"
-#include "esp_system.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/ringbuf.h"
+
 #include "esp_log.h"
+#include "esp_vfs_fat.h"
 
 #include "esp_bt.h"
 #include "esp_bt_main.h"
@@ -29,8 +29,6 @@
 #include "driver/gpio.h"
 
 #define DEVICE_NAME "SoniqOculos"
-
-#define LED_BUILTIN GPIO_NUM_2
 
 #define MSG_BUFFER 128
 

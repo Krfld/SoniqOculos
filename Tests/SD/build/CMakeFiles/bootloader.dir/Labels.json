@@ -2,34 +2,34 @@
 	"sources" : 
 	[
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/CMakeFiles/bootloader"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/CMakeFiles/bootloader"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/CMakeFiles/bootloader.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/CMakeFiles/bootloader.rule"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/CMakeFiles/bootloader-complete.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/CMakeFiles/bootloader-complete.rule"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
 		},
 		{
-			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/sd_card/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+			"file" : "D:/ISEL/PFC/SoniqOculos/Tests/SD/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
 		}
 	],
 	"target" : 

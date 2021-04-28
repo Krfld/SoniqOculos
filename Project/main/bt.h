@@ -4,6 +4,7 @@
 #include "bt_app_av.h"
 
 #include "i2s.h"
+#include "sd.h"
 
 #define BT_SPP_TAG "BT_SPP"
 

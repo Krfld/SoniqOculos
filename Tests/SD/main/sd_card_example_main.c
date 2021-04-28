@@ -16,9 +16,9 @@
 #include "driver/sdspi_host.h"
 #include "driver/spi_common.h"
 #include "sdmmc_cmd.h"
-#include "sdkconfig.h"
+//#include "sdkconfig.h"
 
-#include "driver/sdmmc_host.h"
+//#include "driver/sdmmc_host.h"
 
 static const char *TAG = "example";
 
@@ -30,9 +30,9 @@ static const char *TAG = "example";
 #endif //SPI_DMA_CHAN
 
 #define PIN_NUM_MISO 2
-#define PIN_NUM_MOSI 15
-#define PIN_NUM_CLK 14
-#define PIN_NUM_CS 13
+#define PIN_NUM_MOSI 4
+#define PIN_NUM_CLK 15
+#define PIN_NUM_CS 16
 
 void app_main(void)
 {

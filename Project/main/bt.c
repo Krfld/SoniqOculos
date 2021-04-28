@@ -14,7 +14,7 @@
 
 #include "bt.h"
 
-void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
+static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
     switch (event)
     {

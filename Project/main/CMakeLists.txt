@@ -1,1 +1,1 @@
-idf_component_register(SRCS "gpio.c" "i2s.c" "bt.c" "bt_app_av.c" "bt_app_core.c" "main.c" INCLUDE_DIRS ".")
+idf_component_register(SRCS "sd.c" "gpio.c" "i2s.c" "bt.c" "bt_app_av.c" "bt_app_core.c" "main.c" INCLUDE_DIRS ".")

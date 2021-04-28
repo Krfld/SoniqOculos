@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/SoniqOculos/Tests/sd_card/main
+# Install script for directory: D:/ISEL/PFC/SoniqOculos/Tests/SD/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

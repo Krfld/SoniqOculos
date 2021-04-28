@@ -3,7 +3,7 @@
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
-static FILE *f;
+static FILE *f = NULL;
 
 void sd_init()
 {

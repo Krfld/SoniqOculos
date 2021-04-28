@@ -1,0 +1,80 @@
+Date : 2021-04-28 16:33:34
+Directory : d:\ISEL\PFC\SoniqOculos\Project
+Total : 37 files,  30972 codes, 374 comments, 2185 blanks, all 33531 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| JSON     |         10 |     26,531 |          0 |      1,205 |     27,736 |
+| C        |         11 |      1,922 |        213 |        365 |      2,500 |
+| C++      |         11 |      1,767 |        153 |        292 |      2,212 |
+| Log      |          2 |        702 |          0 |        288 |        990 |
+| Markdown |          1 |         48 |          0 |         29 |         77 |
+| Makefile |          2 |          2 |          8 |          6 |         16 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                    | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                       |         37 |     30,972 |        374 |      2,185 |     33,531 |
+| build                                                                                                   |         20 |     29,901 |        214 |      1,955 |     32,070 |
+| build\CMakeFiles                                                                                        |          4 |      1,397 |        102 |        372 |      1,871 |
+| build\CMakeFiles\3.16.4                                                                                 |          2 |      1,003 |        102 |        228 |      1,333 |
+| build\CMakeFiles\3.16.4\CompilerIdC                                                                     |          1 |        507 |         50 |        115 |        672 |
+| build\CMakeFiles\3.16.4\CompilerIdCXX                                                                   |          1 |        496 |         52 |        113 |        661 |
+| build\CMakeFiles\bootloader.dir                                                                         |          1 |         43 |          0 |          0 |         43 |
+| build\bootloader                                                                                        |          9 |      5,971 |        107 |        465 |      6,543 |
+| build\bootloader\CMakeFiles                                                                             |          3 |      1,354 |        102 |        372 |      1,828 |
+| build\bootloader\CMakeFiles\3.16.4                                                                      |          2 |      1,003 |        102 |        228 |      1,333 |
+| build\bootloader\CMakeFiles\3.16.4\CompilerIdC                                                          |          1 |        507 |         50 |        115 |        672 |
+| build\bootloader\CMakeFiles\3.16.4\CompilerIdCXX                                                        |          1 |        496 |         52 |        113 |        661 |
+| build\bootloader\config                                                                                 |          3 |      4,145 |          5 |          2 |      4,152 |
+| build\config                                                                                            |          3 |     16,917 |          5 |          2 |     16,924 |
+| main                                                                                                    |         15 |      1,021 |        156 |        197 |      1,374 |
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                | language | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| d:\ISEL\PFC\SoniqOculos\Project\Makefile                                                                | Makefile |          2 |          4 |          4 |         10 |
+| d:\ISEL\PFC\SoniqOculos\Project\README.md                                                               | Markdown |         48 |          0 |         29 |         77 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\CMakeFiles\3.16.4\CompilerIdCXX\CMakeCXXCompilerId.cpp            | C++      |        496 |         52 |        113 |        661 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\CMakeFiles\3.16.4\CompilerIdC\CMakeCCompilerId.c                  | C        |        507 |         50 |        115 |        672 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\CMakeFiles\CMakeOutput.log                                        | Log      |        351 |          0 |        144 |        495 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\CMakeFiles\bootloader.dir\Labels.json                             | JSON     |         43 |          0 |          0 |         43 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\CMakeFiles\3.16.4\CompilerIdCXX\CMakeCXXCompilerId.cpp | C++      |        496 |         52 |        113 |        661 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\CMakeFiles\3.16.4\CompilerIdC\CMakeCCompilerId.c       | C        |        507 |         50 |        115 |        672 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\CMakeFiles\CMakeOutput.log                             | Log      |        351 |          0 |        144 |        495 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\compile_commands.json                                  | JSON     |        452 |          0 |         89 |        541 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\config\kconfig_menus.json                              | JSON     |      3,812 |          0 |          0 |      3,812 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\config\sdkconfig.h                                     | C++      |        129 |          5 |          2 |        136 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\config\sdkconfig.json                                  | JSON     |        204 |          0 |          0 |        204 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\project_description.json                               | JSON     |         20 |          0 |          1 |         21 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\bootloader\project_elf_src.c                                      | C        |          0 |          0 |          1 |          1 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\compile_commands.json                                             | JSON     |      5,572 |          0 |      1,113 |      6,685 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\config\kconfig_menus.json                                         | JSON     |     15,543 |          0 |          0 |     15,543 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\config\sdkconfig.h                                                | C++      |        533 |          5 |          2 |        540 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\config\sdkconfig.json                                             | JSON     |        841 |          0 |          0 |        841 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\flasher_args.json                                                 | JSON     |         24 |          0 |          1 |         25 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\project_description.json                                          | JSON     |         20 |          0 |          1 |         21 |
+| d:\ISEL\PFC\SoniqOculos\Project\build\project_elf_src.c                                                 | C        |          0 |          0 |          1 |          1 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\bt.c                                                               | C        |        174 |         22 |         25 |        221 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\bt.h                                                               | C++      |         12 |          2 |          7 |         21 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\bt_app_av.c                                                        | C        |        347 |         20 |         28 |        395 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\bt_app_av.h                                                        | C++      |         11 |         19 |          9 |         39 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\bt_app_core.c                                                      | C        |        147 |         10 |         23 |        180 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\bt_app_core.h                                                      | C++      |         21 |         17 |         15 |         53 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\component.mk                                                       | Makefile |          0 |          4 |          2 |          6 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\gpio.c                                                             | C        |          7 |          0 |          2 |          9 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\gpio.h                                                             | C++      |          2 |          0 |          2 |          4 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\i2s.c                                                              | C        |        100 |          7 |         23 |        130 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\i2s.h                                                              | C++      |         19 |          0 |          7 |         26 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\main.c                                                             | C        |         43 |          2 |         13 |         58 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\main.h                                                             | C++      |         37 |          1 |         16 |         54 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\sd.c                                                               | C        |         90 |         52 |         19 |        161 |
+| d:\ISEL\PFC\SoniqOculos\Project\main\sd.h                                                               | C++      |         11 |          0 |          6 |         17 |
+| Total                                                                                                   |          |     30,972 |        374 |      2,185 |     33,531 |
++---------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

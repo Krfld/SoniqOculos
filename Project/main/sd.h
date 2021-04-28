@@ -14,4 +14,4 @@ void sd_init();
 void open_file(char *filename, char *type);
 void close_file();
 
-void write_data(uint8_t *data, size_t len);
+void write_sample(uint16_t sample);

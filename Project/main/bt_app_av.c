@@ -124,16 +124,16 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
         {
             printf("\nDisconnected from audio\n\n");
-            close_file(); //!
+            //close_file(); //!
             esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
-            bt_i2s_task_shut_down(); //!
+            bt_i2s_task_shut_down();
         }
         else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
         {
             printf("\nConnected to audio\n\n");
+            //open_file("samples.txt", "w"); //!
             esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
             bt_i2s_task_start_up();
-            open_file("samples.txt", "w");
         }
         break;
     }
@@ -307,7 +307,7 @@ static void volume_set_by_controller(uint8_t volume)
     _lock_release(&s_volume_lock);
 }
 
-static void volume_set_by_local_host(uint8_t volume)
+/*static void volume_set_by_local_host(uint8_t volume)
 {
     ESP_LOGI(BT_RC_TG_TAG, "Volume is set locally to: %d%%", (uint32_t)volume * 100 / 0x7f);
     _lock_acquire(&s_volume_lock);
@@ -321,9 +321,9 @@ static void volume_set_by_local_host(uint8_t volume)
         esp_avrc_tg_send_rn_rsp(ESP_AVRC_RN_VOLUME_CHANGE, ESP_AVRC_RN_RSP_CHANGED, &rn_param);
         s_volume_notify = false;
     }
-}
+}*/
 
-static void volume_change_simulation(void *arg)
+/*static void volume_change_simulation(void *arg)
 {
     ESP_LOGI(BT_RC_TG_TAG, "start volume change simulation");
 
@@ -334,7 +334,7 @@ static void volume_change_simulation(void *arg)
         uint8_t volume = (s_volume + 5) & 0x7f;
         volume_set_by_local_host(volume);
     }
-}
+}*/
 
 static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param)
 {

@@ -50,4 +50,4 @@ void handleMsgs(char *msg, size_t len);
 
 void audioOnOff(bool state);
 
-void process_data(uint8_t *data, size_t len);
+void process_data(uint8_t *data, size_t *len);

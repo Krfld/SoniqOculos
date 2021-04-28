@@ -145,7 +145,7 @@ void close_file()
     ESP_LOGI(SD_CARD_TAG, "File closed");
 }
 
-void write_data(uint8_t *data, size_t len)
+void write_sample(uint16_t sample)
 {
     if (f == NULL)
     {
@@ -153,9 +153,5 @@ void write_data(uint8_t *data, size_t len)
         return;
     }
 
-    for (size_t i = 0; i < len; i += 2)
-    {
-        uint16_t sample = data[i] << 8 | data[i + 1];
-        fprintf(f, "%d\n", sample);
-    }
+    fprintf(f, "%d\n", sample);
 }

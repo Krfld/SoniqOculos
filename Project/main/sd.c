@@ -23,7 +23,7 @@ void sd_init()
         .sclk_io_num = SD_CLK_PIN,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 4000,
+        .max_transfer_sz = 0,
     };
     ret = spi_bus_initialize(host.slot, &bus_cfg, 1);
     if (ret != ESP_OK)
@@ -145,7 +145,7 @@ void close_file()
     ESP_LOGI(SD_CARD_TAG, "File closed");
 }
 
-void write_sample(uint16_t sample)
+void write_sample(uint8_t *data, size_t *len)
 {
     if (f == NULL)
     {
@@ -153,5 +153,7 @@ void write_sample(uint16_t sample)
         return;
     }
 
-    fprintf(f, "%d\n", sample);
+    //fwrite(data, 1, *len, f);
+    //fputs((char *)data, f);
+    //fprintf(f, "%d\n", sample);
 }

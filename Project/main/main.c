@@ -7,7 +7,7 @@
 
 void app_main(void)
 {
-    sd_init();
+    //sd_init();
 
     i2s_setup();
     bt_init();

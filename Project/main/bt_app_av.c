@@ -124,14 +124,12 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
         {
             printf("\nDisconnected from audio\n\n");
-            //close_file(); //!
             esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
             bt_i2s_task_shut_down();
         }
         else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
         {
             printf("\nConnected to audio\n\n");
-            //open_file("samples.txt", "w"); //!
             esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
             bt_i2s_task_start_up();
         }
@@ -146,6 +144,8 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         {
             s_pkt_cnt = 0;
         }
+        i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+        i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
         break;
     }
     case ESP_A2D_AUDIO_CFG_EVT:

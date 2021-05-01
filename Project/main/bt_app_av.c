@@ -169,7 +169,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
             {
                 sample_rate = 48000;
             }
-            i2s_set_clk(SPEAKERS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+            i2s_set_clk(SPEAKERS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); //! Check if not using microphones
             i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
 
             ESP_LOGI(BT_AV_TAG, "Configure audio player %x-%x-%x-%x",

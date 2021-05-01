@@ -50,6 +50,6 @@ void process_data(uint8_t *data, size_t *len)
 {
     size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
 
-    i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
     i2s_write(SPEAKERS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
+    i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
 }

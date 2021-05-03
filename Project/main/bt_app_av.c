@@ -329,7 +329,7 @@ static void volume_set_by_controller(uint8_t volume)
 
     for (;;)
     {
-        vTaskDelay(10000 / portTICK_RATE_MS);
+        delay(10000);
 
         uint8_t volume = (s_volume + 5) & 0x7f;
         volume_set_by_local_host(volume);

@@ -65,9 +65,7 @@ void speakers_setup()
     if (i2s_driver_uninstall(MICROPHONES_I2S_NUM) != ESP_OK)
         printf("\nMicrophones i2s driver uninstall failed\n\n");
 
-    gpio_set(MICROPHONES_WS_PIN, LOW);
-    gpio_set(MICROPHONES_BCK_PIN, LOW);
-    gpio_set(MICROPHONES_DATA_PIN, LOW);
+    microphones_pin_reset();
 
     if (i2s_driver_install(SPEAKERS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
         printf("\nSpeakers i2s driver install failed\n\n");
@@ -81,9 +79,7 @@ void microphones_setup()
     if (i2s_driver_uninstall(SPEAKERS_I2S_NUM) != ESP_OK)
         printf("\nSpeakers i2s driver uninstall failed\n\n");
 
-    gpio_set(SPEAKERS_WS_PIN, LOW);
-    gpio_set(SPEAKERS_BCK_PIN, LOW);
-    gpio_set(SPEAKERS_DATA_PIN, LOW);
+    speakers_pin_reset();
 
     if (i2s_driver_install(MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL) != ESP_OK)
         printf("\nMicrophones i2s driver install failed\n\n");
@@ -115,8 +111,7 @@ static void i2s_task_handler(void *arg)
 
 void i2s_task_start_up(void)
 {
-    xTaskCreate(i2s_task_handler, "I2ST", 1024, NULL, configMAX_PRIORITIES - 3, &s_i2s_task_handle);
-    return;
+    xTaskCreate(i2s_task_handler, "i2s_task_handler", 1024, NULL, configMAX_PRIORITIES - 3, &s_i2s_task_handle);
 }
 
 void i2s_task_shut_down(void)

@@ -4,10 +4,11 @@
 
 #define MOUNT_POINT "/sdcard"
 
-#define SD_MISO_PIN 2
-#define SD_MOSI_PIN 4
-#define SD_CLK_PIN 15
-#define SD_CS_PIN 16
+#define SD_CLK_PIN 16 // RX2
+#define SD_MISO_PIN 4
+#define SD_MOSI_PIN 2
+#define SD_CS_PIN 15
+#define SD_DET_PIN 23
 
 void sd_init();
 

@@ -7,6 +7,9 @@
 
 void app_main(void)
 {
+
+    gpio_task_start_up();
+
     //sd_init();
 
     i2s_setup();

@@ -90,10 +90,12 @@ static const char *TAG = "example";
 #define SPI_DMA_CHAN 1
 #endif //SPI_DMA_CHAN
 
-#define PIN_NUM_MISO 2
-#define PIN_NUM_MOSI 4
-#define PIN_NUM_CLK 15
-#define PIN_NUM_CS 16
+#define PIN_NUM_CLK 16
+#define PIN_NUM_MISO 4
+#define PIN_NUM_MOSI 2
+#define PIN_NUM_CS 15
+
+#define PIN_NUM_DET 23
 
 void app_main(void)
 {
@@ -129,6 +131,16 @@ void app_main(void)
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = PIN_NUM_CS;
     slot_config.host_id = host.slot;
+
+    gpio_pad_select_gpio(PIN_NUM_DET);
+    gpio_set_direction(PIN_NUM_DET, GPIO_MODE_INPUT);
+
+    do
+    {
+        while (!gpio_get_level(PIN_NUM_DET))
+            ;
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    } while (!gpio_get_level(PIN_NUM_DET));
 
     ret = esp_vfs_fat_sdspi_mount(mount_point, &host, &slot_config, &mount_config, &card);
 
@@ -168,45 +180,59 @@ void app_main(void)
     size_t bytes_read = 0, bytes_written = 0;
     uint8_t data[DMA_BUFFER_LEN] = {0};
 
-    ESP_LOGI(TAG, "Opening file");
+    /*ESP_LOGI(TAG, "Opening file");
     FILE *f = fopen(MOUNT_POINT "/samples.txt", "w");
     if (f == NULL)
     {
         ESP_LOGE(TAG, "Failed to open file for writing");
         return;
-    }
+    }*/
 
     i2s_zero_dma_buffer(MICROPHONES_I2S_NUM);
     i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
 
+    bool det_state = false;
+
     for (;;)
     {
-        i2s_read(MICROPHONES_I2S_NUM, data, sizeof(data), &bytes_read, portMAX_DELAY);
+        //i2s_read(MICROPHONES_I2S_NUM, data, sizeof(data), &bytes_read, portMAX_DELAY);
 
-        for (size_t i = 0; i < bytes_read; i += 4)
+        /*for (size_t i = 0; i < bytes_read; i += 4)
         {
-            /*printf("New sample\n");
+            printf("New sample\n");
             printf("%d ", data[i]);
             printf("%d ", data[i + 1]);
             printf("%d ", data[i + 2]);
             printf("%d\n", data[i + 3]);
             printf("%d\n", (short)((data[i + 3] << 8) | (data[i + 2])));
-            printf("%d\n", ((data[i + 3] << 8) | (data[i + 2])));*/
+            printf("%d\n", ((data[i + 3] << 8) | (data[i + 2])));*
             fprintf(f, "%d\n", (short)((data[i + 3] << 8) | (data[i + 2])));
         }
 
         //fwrite(data, sizeof(uint8_t), bytes_read, f);
 
         if (esp_timer_get_time() / 1000 / 1000 == 60)
-            break;
+            break;*/
+
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        if (gpio_get_level(PIN_NUM_DET) != det_state)
+        {
+            det_state = !det_state;
+            if (det_state)
+                printf("Inserting card...\n");
+            else
+
+                printf("Removing card...\n");
+        }
 
         //i2s_write(BONE_CONDUCTORS_I2S_NUM, data, sizeof(data), &bytes_written, portMAX_DELAY);
     }
 
-    fclose(f);
+    //fclose(f);
     ESP_LOGI(TAG, "File written");
 
-    /*// Use POSIX and C standard library functions to work with files.
+    /*
+    // Use POSIX and C standard library functions to work with files.
     // First create a file.
     ESP_LOGI(TAG, "Opening file");
     FILE *f = fopen(MOUNT_POINT "/hello.txt", "w");
@@ -253,7 +279,7 @@ void app_main(void)
         *pos = '\0';
     }
     ESP_LOGI(TAG, "Read from file: '%s'", line);
-*/
+    */
 
     // All done, unmount partition and disable SDMMC or SPI peripheral
     esp_vfs_fat_sdcard_unmount(mount_point, card);

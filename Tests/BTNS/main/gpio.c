@@ -40,7 +40,7 @@ static void gpio_task_handler(void *arg)
 
     for (;;)
     {
-        vTaskDelay(DEBOUNCE / portTICK_RATE_MS);
+        vTaskDelay(DEBOUNCE / portTICK_PERIOD_MS);
 
         if (gpio_get_level(BUTTON_START) != button_start_state)
         {
@@ -73,7 +73,7 @@ static void gpio_task_handler(void *arg)
 
 void gpio_task_start_up(void)
 {
-    xTaskCreate(gpio_task_handler, "gpio_task", 1024, NULL, 10, &s_gpio_task_handle);
+    xTaskCreate(gpio_task_handler, "gpio_task_handler", 1024, NULL, 10, &s_gpio_task_handle);
     return;
 }
 

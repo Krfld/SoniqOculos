@@ -61,60 +61,11 @@ void sd_init()
     }
 
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
-
-    /*
-    // Use POSIX and C standard library functions to work with files.
-    // First create a file.
-    ESP_LOGI(SD_CARD_TAG, "Opening file");
-    FILE *f = fopen(MOUNT_POINT "/hello.txt", "w");
-    if (f == NULL)
-    {
-        ESP_LOGE(SD_CARD_TAG, "Failed to open file for writing");
-        return;
-    }
-    fprintf(f, "Hello %s!\n", card->cid.name);
-    fclose(f);
-    ESP_LOGI(SD_CARD_TAG, "File written");
-
-    // Check if destination file exists before renaming
-    struct stat st;
-    if (stat(MOUNT_POINT "/foo.txt", &st) == 0)
-    {
-        // Delete it if it exists
-        unlink(MOUNT_POINT "/foo.txt");
-    }
-
-    // Rename original file
-    ESP_LOGI(SD_CARD_TAG, "Renaming file");
-    if (rename(MOUNT_POINT "/hello.txt", MOUNT_POINT "/foo.txt") != 0)
-    {
-        ESP_LOGE(SD_CARD_TAG, "Rename failed");
-        return;
-    }
-
-    // Open renamed file for reading
-    ESP_LOGI(SD_CARD_TAG, "Reading file");
-    f = fopen(MOUNT_POINT "/foo.txt", "r");
-    if (f == NULL)
-    {
-        ESP_LOGE(SD_CARD_TAG, "Failed to open file for reading");
-        return;
-    }
-    char line[64];
-    fgets(line, sizeof(line), f);
-    fclose(f);
-    // strip newline
-    char *pos = strchr(line, '\n');
-    if (pos)
-    {
-        *pos = '\0';
-    }
-    ESP_LOGI(SD_CARD_TAG, "Read from file: '%s'", line);
-    */
 }
-
 void sd_deinit()
 {
+    close_file();
+
     // All done, unmount partition and disable SDMMC or SPI peripheral
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");

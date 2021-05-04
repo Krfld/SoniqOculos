@@ -4,51 +4,34 @@
 #include "sd.h"
 
 static xTaskHandle s_gpio_task_handle = NULL;
-
 static void gpio_task_handler(void *arg);
+
+void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
+{
+    gpio_pad_select_gpio(ws_pin);
+    gpio_set_direction(ws_pin, GPIO_MODE_OUTPUT);
+    gpio_set_level(ws_pin, LOW);
+
+    gpio_pad_select_gpio(bck_pin);
+    gpio_set_direction(bck_pin, GPIO_MODE_OUTPUT);
+    gpio_set_level(bck_pin, LOW);
+
+    gpio_pad_select_gpio(data_pin);
+    gpio_set_direction(data_pin, GPIO_MODE_OUTPUT);
+    gpio_set_level(data_pin, LOW);
+}
 
 void wait_for_sd_card()
 {
     gpio_pad_select_gpio(SD_DET_PIN);
     gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT);
-    //gpio_set_pull_mode(SD_DET_PIN, GPIO_PULLDOWN_ONLY);
 
-    do // Make sure the card is inserted
+    do //* Make sure the card is inserted
     {
         while (!gpio_get_level(SD_DET_PIN))
             ;
         delay(SD_CARD_DET_DELAY);
     } while (!gpio_get_level(SD_DET_PIN));
-}
-
-void speakers_pin_reset()
-{
-    gpio_pad_select_gpio(SPEAKERS_WS_PIN);
-    gpio_set_direction(SPEAKERS_WS_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(SPEAKERS_WS_PIN, LOW);
-
-    gpio_pad_select_gpio(SPEAKERS_BCK_PIN);
-    gpio_set_direction(SPEAKERS_BCK_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(SPEAKERS_BCK_PIN, LOW);
-
-    gpio_pad_select_gpio(SPEAKERS_DATA_PIN);
-    gpio_set_direction(SPEAKERS_DATA_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(SPEAKERS_DATA_PIN, LOW);
-}
-
-void microphones_pin_reset()
-{
-    gpio_pad_select_gpio(MICROPHONES_WS_PIN);
-    gpio_set_direction(MICROPHONES_WS_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(MICROPHONES_WS_PIN, LOW);
-
-    gpio_pad_select_gpio(MICROPHONES_BCK_PIN);
-    gpio_set_direction(MICROPHONES_BCK_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(MICROPHONES_BCK_PIN, LOW);
-
-    gpio_pad_select_gpio(MICROPHONES_DATA_PIN);
-    gpio_set_direction(MICROPHONES_DATA_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(MICROPHONES_DATA_PIN, LOW);
 }
 
 static void gpio_task_handler(void *arg)
@@ -70,7 +53,6 @@ static void gpio_task_handler(void *arg)
 
     gpio_pad_select_gpio(SD_DET_PIN);
     gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT);
-    //gpio_set_pull_mode(SD_DET_PIN, GPIO_PULLDOWN_ONLY);
 
     for (;;)
     {
@@ -115,12 +97,11 @@ static void gpio_task_handler(void *arg)
     }
 }
 
-void gpio_task_start_up(void)
+void gpio_init()
 {
-    xTaskCreate(gpio_task_handler, "gpio_task_handler", 1024, NULL, 10, &s_gpio_task_handle);
+    xTaskCreate(gpio_task_handler, "gpio_task", 1024, NULL, 10, &s_gpio_task_handle);
 }
-
-void gpio_task_shut_down(void)
+void gpio_deinit()
 {
     if (s_gpio_task_handle)
     {

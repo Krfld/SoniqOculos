@@ -40,13 +40,23 @@
 #define ON 1
 #define OFF 0
 
+//* Modes
+#define IDLE 0
+#define MUSIC 1          // Speakers & Bone conductors
+#define MUSIC_ISOLATED 2 // Bone conductors only
+#define MUSIC_SPEAKERS 3 // Speakers only
+#define PLAYBACK 4       // Microphones -> Bone conductors
+#define RECORD 5         // Microphones -> SD Card
+
 //TODO Change
 #define RIGHT_CHANEL DAC_CHANNEL_1
 #define LEFT_CHANEL DAC_CHANNEL_2
 
+//!int app_mode;
+
 void delay(int millis);
 
-void handleMsgs(char *msg, size_t len);
+void handleMsgs(char *msg);
 
 void audioOnOff(bool state);
 

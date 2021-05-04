@@ -29,7 +29,7 @@ static const char *s_a2d_conn_state_str[] = {"Disconnected", "Connecting", "Conn
 static const char *s_a2d_audio_state_str[] = {"Suspended", "Stopped", "Started"};
 static esp_avrc_rn_evt_cap_mask_t s_avrc_peer_rn_cap;
 static _lock_t s_volume_lock;
-static xTaskHandle s_vcs_task_hdl = NULL;
+////static xTaskHandle s_vcs_task_hdl = NULL;
 static uint8_t s_volume = 0;
 static bool s_volume_notify;
 
@@ -146,6 +146,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         }
         i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
         i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
+        //TODO Test buffer clear
         break;
     }
     case ESP_A2D_AUDIO_CFG_EVT:
@@ -169,7 +170,8 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
             {
                 sample_rate = 48000;
             }
-            i2s_set_clk(SPEAKERS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); //! Check if not using microphones
+            //! Check if not using microphones
+            i2s_set_clk(SPEAKERS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
             i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
 
             ESP_LOGI(BT_AV_TAG, "Configure audio player %x-%x-%x-%x",
@@ -347,7 +349,7 @@ static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param)
         uint8_t *bda = rc->conn_stat.remote_bda;
         ESP_LOGI(BT_RC_TG_TAG, "AVRC conn_state evt: state %d, [%02x:%02x:%02x:%02x:%02x:%02x]",
                  rc->conn_stat.connected, bda[0], bda[1], bda[2], bda[3], bda[4], bda[5]);
-        if (rc->conn_stat.connected)
+        /*if (rc->conn_stat.connected)
         {
             // create task to simulate volume change
             //// xTaskCreate(volume_change_simulation, "vcsT", 2048, NULL, 5, &s_vcs_task_hdl);
@@ -356,7 +358,7 @@ static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param)
         {
             vTaskDelete(s_vcs_task_hdl);
             ESP_LOGI(BT_RC_TG_TAG, "Stop volume change simulation");
-        }
+        }*/
         break;
     }
     case ESP_AVRC_TG_PASSTHROUGH_CMD_EVT:

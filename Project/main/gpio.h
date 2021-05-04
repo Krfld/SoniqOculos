@@ -10,8 +10,7 @@
 
 void wait_for_sd_card();
 
-void speakers_pin_reset();
-void microphones_pin_reset();
+void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin);
 
-void gpio_task_start_up(void);
-void gpio_task_shut_down(void);
+void gpio_init();
+void gpio_deinit();

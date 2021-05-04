@@ -14,6 +14,15 @@
 
 #include "bt.h"
 
+// event for handler "bt_av_hdl_stack_up
+enum
+{
+    BT_APP_EVT_STACK_UP = 0,
+};
+
+// handler for bluetooth stack enabled events
+void bt_av_hdl_stack_evt(uint16_t event, void *p_param);
+
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
     switch (event)
@@ -45,7 +54,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         {
             char msg[MSG_BUFFER];
             snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data);
-            handleMsgs(msg, param->data_ind.len);
+            handleMsgs(msg);
             esp_spp_write(param->write.handle, strlen(msg), (uint8_t *)msg);
         }
         else
@@ -119,22 +128,6 @@ void bt_av_hdl_stack_evt(uint16_t event, void *p_param)
         esp_bt_dev_set_device_name(DEVICE_NAME);
 
         esp_bt_gap_register_callback(bt_app_gap_cb);
-
-        // initialize AVRCP controller
-        esp_avrc_ct_init();
-        esp_avrc_ct_register_callback(bt_app_rc_ct_cb);
-        // initialize AVRCP target
-        assert(esp_avrc_tg_init() == ESP_OK);
-        esp_avrc_tg_register_callback(bt_app_rc_tg_cb);
-
-        esp_avrc_rn_evt_cap_mask_t evt_set = {0};
-        esp_avrc_rn_evt_bit_mask_operation(ESP_AVRC_BIT_MASK_OP_SET, &evt_set, ESP_AVRC_RN_VOLUME_CHANGE);
-        assert(esp_avrc_tg_set_rn_evt_cap(&evt_set) == ESP_OK);
-
-        // initialize A2DP sink
-        esp_a2d_register_callback(&bt_app_a2d_cb);
-        esp_a2d_sink_register_data_callback(bt_app_a2d_data_cb);
-        esp_a2d_sink_init();
 
         // set discoverable and connectable mode, wait to be connected
         esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
@@ -217,4 +210,29 @@ void bt_init()
     pin_code[2] = '3';
     pin_code[3] = '4';
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
+}
+
+void bt_music_init()
+{
+    // initialize AVRCP controller
+    esp_avrc_ct_init();
+    esp_avrc_ct_register_callback(bt_app_rc_ct_cb);
+    // initialize AVRCP target
+    assert(esp_avrc_tg_init() == ESP_OK);
+    esp_avrc_tg_register_callback(bt_app_rc_tg_cb);
+
+    esp_avrc_rn_evt_cap_mask_t evt_set = {0};
+    esp_avrc_rn_evt_bit_mask_operation(ESP_AVRC_BIT_MASK_OP_SET, &evt_set, ESP_AVRC_RN_VOLUME_CHANGE);
+    assert(esp_avrc_tg_set_rn_evt_cap(&evt_set) == ESP_OK);
+
+    // initialize A2DP sink
+    esp_a2d_register_callback(&bt_app_a2d_cb);
+    esp_a2d_sink_register_data_callback(bt_app_a2d_data_cb);
+    esp_a2d_sink_init();
+}
+void bt_music_deinit()
+{
+    esp_avrc_ct_deinit();
+    esp_avrc_tg_deinit();
+    esp_a2d_sink_deinit();
 }

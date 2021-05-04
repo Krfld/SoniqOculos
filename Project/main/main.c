@@ -5,26 +5,26 @@
 #include "gpio.h"
 #include "sd.h"
 
+void delay(int millis)
+{
+    vTaskDelay(millis / portTICK_RATE_MS);
+}
+
 void app_main(void)
 {
+    gpio_init();
 
-    gpio_task_start_up();
+    bt_init();
+
+    set_mode(MUSIC);
 
     //sd_init();
-
-    i2s_setup();
-    bt_init();
 
     dac_output_enable(DAC_CHANNEL_1);
     dac_output_enable(DAC_CHANNEL_2);
     audioOnOff(ON);
 
     printf("\nReady to connect\n\n");
-}
-
-void delay(int millis)
-{
-    vTaskDelay(millis / portTICK_RATE_MS);
 }
 
 void audioOnOff(bool state)
@@ -41,9 +41,10 @@ void audioOnOff(bool state)
     }
 }
 
-void handleMsgs(char *msg, size_t len)
+void handleMsgs(char *msg)
 {
     printf("\n%s\n\n", msg);
+    //TODO Change mode
 
     // Response
     sprintf(msg, "Message received\n");
@@ -51,8 +52,6 @@ void handleMsgs(char *msg, size_t len)
 
 void process_data(uint8_t *data, size_t *len)
 {
-    size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
-
-    i2s_write(SPEAKERS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
-    i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
+    //TODO Process data
+    i2s_write_data(data, len);
 }

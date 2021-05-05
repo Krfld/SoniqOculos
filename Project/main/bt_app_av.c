@@ -144,8 +144,8 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         {
             s_pkt_cnt = 0;
         }
-        i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-        i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
+        //!i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+        //!i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
         //TODO Test buffer clear
         break;
     }

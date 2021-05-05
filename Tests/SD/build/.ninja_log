@@ -2221,3 +2221,14 @@
 1378	3735	6417791763802042	esp-idf/esp32/ld/esp32.project.ld	fdec2e1a2c0c2063
 3736	5075	6417791777316502	sd_card.elf	1271b5a3da865ad0
 5076	5399	6417791780700089	.bin_timestamp	90efacb54082c44b
+95	445	6414341415889648	bootloader-prefix/src/bootloader-stamp/bootloader-build	d5161ec0759657c7
+95	445	6414341415889648	bootloader/bootloader.elf	d5161ec0759657c7
+95	445	6414341415889648	bootloader/bootloader.bin	d5161ec0759657c7
+95	445	6414341415889648	bootloader/bootloader.map	d5161ec0759657c7
+104	759	6419297537685177	esp-idf/app_update/CMakeFiles/__idf_app_update.dir/esp_app_desc.c.obj	d800fc39508cfcad
+759	965	6419297539920920	esp-idf/app_update/libapp_update.a	346c981a67083273
+965	2811	6419297557940440	esp-idf/main/CMakeFiles/__idf_main.dir/sd_card_example_main.c.obj	62af449d7a77e94b
+2814	2960	6419297559885225	esp-idf/main/libmain.a	38df77f29e6b7694
+2961	21399	6419297743914428	esp-idf/esp32/ld/esp32.project.ld	fdec2e1a2c0c2063
+21400	24453	6419297774667765	sd_card.elf	1271b5a3da865ad0
+24453	24835	6419297778613246	.bin_timestamp	90efacb54082c44b

@@ -37,8 +37,8 @@
 #define HIGH 1
 #define LOW 0
 
-#define ON 1
-#define OFF 0
+#define ON HIGH
+#define OFF LOW
 
 //* Modes
 #define IDLE 0
@@ -51,8 +51,6 @@
 //TODO Change
 #define RIGHT_CHANEL DAC_CHANNEL_1
 #define LEFT_CHANEL DAC_CHANNEL_2
-
-//!int app_mode;
 
 void delay(int millis);
 

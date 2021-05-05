@@ -128,11 +128,12 @@ static void bt_i2s_task_handler(void *arg)
     for (;;)
     {
         data = (uint8_t *)xRingbufferReceive(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY);
-        if (item_size != 0)
-        {
-            process_data(data, &item_size);
-            vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);
-        }
+
+        if (item_size == 0)
+            continue;
+
+        process_data(data, &item_size);
+        vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);
     }
 }
 
@@ -144,7 +145,7 @@ void bt_i2s_task_start_up(void)
         return;
     }
 
-    xTaskCreate(bt_i2s_task_handler, "BtI2ST", 1024, NULL, configMAX_PRIORITIES - 3, &s_bt_i2s_task_handle);
+    xTaskCreate(bt_i2s_task_handler, "BtI2ST", 3 * 1024, NULL, configMAX_PRIORITIES - 3, &s_bt_i2s_task_handle);
     return;
 }
 

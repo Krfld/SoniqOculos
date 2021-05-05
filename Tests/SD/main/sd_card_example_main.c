@@ -95,7 +95,7 @@ static const char *TAG = "example";
 #define PIN_NUM_MOSI 2
 #define PIN_NUM_CS 15
 
-#define PIN_NUM_DET 23
+#define PIN_NUM_DET 36
 
 void app_main(void)
 {
@@ -139,7 +139,7 @@ void app_main(void)
     {
         while (!gpio_get_level(PIN_NUM_DET))
             ;
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
     } while (!gpio_get_level(PIN_NUM_DET));
 
     ret = esp_vfs_fat_sdspi_mount(mount_point, &host, &slot_config, &mount_config, &card);
@@ -180,13 +180,13 @@ void app_main(void)
     size_t bytes_read = 0, bytes_written = 0;
     uint8_t data[DMA_BUFFER_LEN] = {0};
 
-    /*ESP_LOGI(TAG, "Opening file");
-    FILE *f = fopen(MOUNT_POINT "/samples.txt", "w");
+    ESP_LOGI(TAG, "Opening file");
+    FILE *f = fopen(MOUNT_POINT "/samples.txt", "wb");
     if (f == NULL)
     {
         ESP_LOGE(TAG, "Failed to open file for writing");
         return;
-    }*/
+    }
 
     i2s_zero_dma_buffer(MICROPHONES_I2S_NUM);
     i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
@@ -195,7 +195,9 @@ void app_main(void)
 
     for (;;)
     {
-        //i2s_read(MICROPHONES_I2S_NUM, data, sizeof(data), &bytes_read, portMAX_DELAY);
+        i2s_read(MICROPHONES_I2S_NUM, data, sizeof(data), &bytes_read, portMAX_DELAY);
+
+        //fwrite(data, sizeof(uint8_t), bytes_read, f);
 
         /*for (size_t i = 0; i < bytes_read; i += 4)
         {
@@ -209,11 +211,10 @@ void app_main(void)
             fprintf(f, "%d\n", (short)((data[i + 3] << 8) | (data[i + 2])));
         }
 
-        //fwrite(data, sizeof(uint8_t), bytes_read, f);
-
         if (esp_timer_get_time() / 1000 / 1000 == 60)
             break;*/
 
+        //TODO Test with pin 36
         vTaskDelay(100 / portTICK_PERIOD_MS);
         if (gpio_get_level(PIN_NUM_DET) != det_state)
         {
@@ -225,7 +226,7 @@ void app_main(void)
                 printf("Removing card...\n");
         }
 
-        //i2s_write(BONE_CONDUCTORS_I2S_NUM, data, sizeof(data), &bytes_written, portMAX_DELAY);
+        //i2s_write(BONE_CONDUCTORS_I2S_NUM, data, bytes_read, &bytes_written, portMAX_DELAY);
     }
 
     //fclose(f);

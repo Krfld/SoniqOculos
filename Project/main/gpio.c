@@ -62,7 +62,13 @@ static void gpio_task_handler(void *arg)
         {
             button_start_state = !button_start_state;
             if (button_start_state)
+            {
                 printf("Clicked START\n");
+                if (!sd_is_card_mounted())
+                    sd_init();
+                else
+                    sd_deinit();
+            }
             else
                 printf("Released START\n");
         }
@@ -71,7 +77,10 @@ static void gpio_task_handler(void *arg)
         {
             button_volume_up_state = !button_volume_up_state;
             if (button_volume_up_state)
+            {
                 printf("Clicked VOLUME UP\n");
+                set_mode(MUSIC);
+            }
             else
                 printf("Released VOLUME UP\n");
         }
@@ -80,26 +89,41 @@ static void gpio_task_handler(void *arg)
         {
             button_volume_down_state = !button_volume_down_state;
             if (button_volume_down_state)
+            {
                 printf("Clicked VOLUME DOWN\n");
+                set_mode(IDLE);
+            }
             else
                 printf("Released VOLUME DOWN\n");
         }
 
-        if (gpio_get_level(SD_DET_PIN) != sd_det_state)
+        /*if (gpio_get_level(SD_DET_PIN) != sd_det_state)
         {
             sd_det_state = !sd_det_state;
             if (sd_det_state)
+            {
                 printf("Inserting card...\n");
+                delay(SD_CARD_DET_DELAY);
+                if (gpio_get_level(SD_DET_PIN))
+                {
+                    printf("Card inserted\n");
+                    sd_init();
+                    sd_open_file("samples.txt", "wb");
+                }
+            }
             else
-
+            {
                 printf("Removing card...\n");
-        }
+                sd_deinit();
+                printf("Card removed\n");
+            }
+        }*/
     }
 }
 
 void gpio_init()
 {
-    xTaskCreate(gpio_task_handler, "gpio_task", 1024, NULL, 10, &s_gpio_task_handle);
+    xTaskCreate(gpio_task_handler, "gpio_task", 4 * 1024, NULL, 10, &s_gpio_task_handle);
 }
 void gpio_deinit()
 {

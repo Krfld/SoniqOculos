@@ -1,7 +1,7 @@
 #include "i2s.h"
 
 #include "gpio.h"
-//#include "sd.h"
+#include "sd.h"
 #include "bt.h"
 
 enum DEVICE
@@ -101,7 +101,8 @@ void microphones_init()
 
     i2s0_device = MICROPHONES;
 
-    xTaskCreate(i2s_read_task_handler, "i2s_read_task", 1024, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
+    if (!s_i2s_read_task_handle)
+        xTaskCreate(i2s_read_task_handler, "i2s_read_task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
 }
 void microphones_deinit()
 {
@@ -142,6 +143,9 @@ void bone_conductors_deinit()
 void set_mode(int mode)
 {
     //TODO Shutdown unused amps and handle SD Card
+    /*if (mode != RECORD)
+        sd_close_file();*/
+
     switch (mode)
     {
     case MUSIC:
@@ -166,8 +170,9 @@ void set_mode(int mode)
     case PLAYBACK:
         bt_music_deinit();
 
-        microphones_init();
         bone_conductors_init();
+        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+        microphones_init();
         break;
 
     case RECORD:
@@ -184,8 +189,6 @@ void set_mode(int mode)
         bone_conductors_deinit();
         break;
     }
-
-    //!app_mode = mode;
 }
 
 void i2s_write_data(uint8_t *data, size_t *len)
@@ -194,18 +197,26 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
     if (i2s0_device == SPEAKERS)
         i2s_write(SPEAKERS_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
+
     if (i2s1_device == BONE_CONDUCTORS)
         i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
 }
 
-//TODO Configure MEMS
 static void i2s_read_task_handler(void *arg)
 {
-    size_t bytes_read = 0;
+    size_t bytes_read = 0, bytes_written = 0;
     uint8_t data[DMA_BUFFER_LEN] = {0};
 
     for (;;)
     {
         i2s_read(MICROPHONES_I2S_NUM, &data, sizeof(data), &bytes_read, portMAX_DELAY);
+
+        if (bytes_read == 0)
+            continue;
+
+        if (i2s1_device == BONE_CONDUCTORS) //* Playback mode
+            i2s_write_data(data, &bytes_read);
+        else //* Record mode
+            sd_write_data(data, &bytes_read);
     }
 }

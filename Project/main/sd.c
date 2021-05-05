@@ -2,13 +2,23 @@
 
 #include "gpio.h"
 
+static bool sd_mounted = false;
+
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
 static FILE *f = NULL;
 
+bool sd_is_card_mounted()
+{
+    return sd_mounted;
+}
+
 void sd_init()
 {
+    if (sd_mounted)
+        return;
+
     esp_err_t ret;
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
@@ -31,6 +41,7 @@ void sd_init()
     if (ret != ESP_OK)
     {
         ESP_LOGE(SD_CARD_TAG, "Failed to initialize bus.");
+        spi_bus_free(host.slot);
         return;
     }
 
@@ -39,8 +50,6 @@ void sd_init()
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = SD_CS_PIN;
     slot_config.host_id = host.slot;
-
-    wait_for_sd_card();
 
     ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
 
@@ -60,20 +69,33 @@ void sd_init()
         return;
     }
 
+    sd_mounted = true;
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
+
+    sd_open_file("samples.txt", "wb");
 }
 void sd_deinit()
 {
-    close_file();
+    if (!sd_mounted)
+        return;
+
+    sd_close_file();
 
     // All done, unmount partition and disable SDMMC or SPI peripheral
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
+    sd_mounted = false;
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");
     spi_bus_free(host.slot);
 }
 
-void open_file(char *filename, char *type)
+void sd_open_file(char *filename, char *type)
 {
+    if (!sd_mounted)
+    {
+        ESP_LOGE(SD_CARD_TAG, "Card is not mounted");
+        return;
+    }
+
     if (f != NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "File already opened");
@@ -93,22 +115,26 @@ void open_file(char *filename, char *type)
     ESP_LOGI(SD_CARD_TAG, "File opened");
 }
 
-void close_file()
+void sd_close_file()
 {
     fclose(f);
     f = NULL;
     ESP_LOGI(SD_CARD_TAG, "File closed");
 }
 
-void write_sample(uint8_t *data, size_t *len)
+void sd_write_data(uint8_t *data, size_t *len)
 {
+    if (!sd_mounted)
+    {
+        ESP_LOGE(SD_CARD_TAG, "Card is not mounted");
+        return;
+    }
+
     if (f == NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "Failed to write to file");
         return;
     }
 
-    //fwrite(data, 1, *len, f);
-    //fputs((char *)data, f);
-    //fprintf(f, "%d\n", sample);
+    fwrite(data, sizeof(uint8_t), *len, f);
 }

@@ -8,7 +8,7 @@
 #define SD_MISO_PIN 4
 #define SD_MOSI_PIN 2
 #define SD_CS_PIN 15
-#define SD_DET_PIN 23
+#define SD_DET_PIN 36
 
 /*typedef struct _wav_header
 {
@@ -53,10 +53,12 @@
     }
 } wav_header_t;*/
 
+bool sd_is_card_mounted();
+
 void sd_init();
 void sd_deinit();
 
-void open_file(char *filename, char *type);
-void close_file();
+void sd_open_file(char *filename, char *type);
+void sd_close_file();
 
-void write_sample(uint8_t *data, size_t *len);
+void sd_write_data(uint8_t *data, size_t *len);

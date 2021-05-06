@@ -54,7 +54,7 @@ static void gpio_task_handler(void *arg)
     gpio_pad_select_gpio(SD_DET_PIN);
     gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT);
 
-    for (;;)
+    for (;;) //TODO Handle button combos
     {
         delay(DEBOUNCE);
 
@@ -64,10 +64,10 @@ static void gpio_task_handler(void *arg)
             if (button_start_state)
             {
                 printf("Clicked START\n");
-                if (!sd_is_card_mounted())
+                /*if (!sd_is_card_mounted())
                     sd_init();
                 else
-                    sd_deinit();
+                    sd_deinit();*/
             }
             else
                 printf("Released START\n");
@@ -79,7 +79,7 @@ static void gpio_task_handler(void *arg)
             if (button_volume_up_state)
             {
                 printf("Clicked VOLUME UP\n");
-                set_mode(MUSIC);
+                //set_mode(MUSIC);
             }
             else
                 printf("Released VOLUME UP\n");
@@ -91,7 +91,7 @@ static void gpio_task_handler(void *arg)
             if (button_volume_down_state)
             {
                 printf("Clicked VOLUME DOWN\n");
-                set_mode(IDLE);
+                //set_mode(IDLE);
             }
             else
                 printf("Released VOLUME DOWN\n");
@@ -123,7 +123,7 @@ static void gpio_task_handler(void *arg)
 
 void gpio_init()
 {
-    xTaskCreate(gpio_task_handler, "gpio_task", 4 * 1024, NULL, 10, &s_gpio_task_handle);
+    xTaskCreate(gpio_task_handler, "gpio_task", 2 * 1024, NULL, 10, &s_gpio_task_handle);
 }
 void gpio_deinit()
 {

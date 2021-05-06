@@ -102,7 +102,7 @@ void microphones_init()
     i2s0_device = MICROPHONES;
 
     if (!s_i2s_read_task_handle)
-        xTaskCreate(i2s_read_task_handler, "i2s_read_task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
+        xTaskCreate(i2s_read_task_handler, "i2s_read_task", 2 * 1024, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
 }
 void microphones_deinit()
 {
@@ -175,7 +175,7 @@ void set_mode(int mode)
         microphones_init();
         break;
 
-    case RECORD:
+    case RECORD: //TODO Handle SD card
         bt_music_deinit();
         bone_conductors_deinit();
 
@@ -195,11 +195,21 @@ void i2s_write_data(uint8_t *data, size_t *len)
 {
     size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
 
+    printf("Length: %d\n", *len);
+    int64_t tick_1 = esp_timer_get_time();
+
     if (i2s0_device == SPEAKERS)
         i2s_write(SPEAKERS_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
 
+    int64_t tick_2 = esp_timer_get_time();
+    printf("After writing first i2s: +%lldus\n", tick_2 - tick_1);
+
     if (i2s1_device == BONE_CONDUCTORS)
         i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
+
+    int64_t tick_3 = esp_timer_get_time();
+    printf("After writing second i2s: +%lldus\n", tick_3 - tick_2);
+    printf("Total time to write to i2s: %lldus\n\n", tick_3 - tick_1);
 }
 
 static void i2s_read_task_handler(void *arg)

@@ -16,9 +16,7 @@ void app_main(void)
 
     bt_init();
 
-    //set_mode(PLAYBACK);
-
-    //sd_init();
+    set_mode(MUSIC);
 
     dac_output_enable(DAC_CHANNEL_1);
     dac_output_enable(DAC_CHANNEL_2);
@@ -53,7 +51,7 @@ void handleMsgs(char *msg)
 void process_data(uint8_t *data, size_t *len)
 {
     //TODO Process data
-    //i2s_write_data(data, len);
+    i2s_write_data(data, len);
 
-    sd_write_data(data, len);
+    //sd_write_data(data, len);
 }

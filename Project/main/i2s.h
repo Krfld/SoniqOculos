@@ -16,7 +16,7 @@
 #define BONE_CONDUCTORS_BCK_PIN 21
 #define BONE_CONDUCTORS_DATA_PIN 19
 
-#define DMA_BUFFER_COUNT 8
+#define DMA_BUFFER_COUNT 4
 #define DMA_BUFFER_LEN 1024
 
 void speakers_init();

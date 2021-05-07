@@ -2,21 +2,19 @@
 
 #include "gpio.h"
 
-static bool sd_mounted = false;
-
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
 static FILE *f = NULL;
 
+static bool sd_mounted = false;
 bool sd_is_card_mounted()
 {
     return sd_mounted;
 }
-
 void sd_init()
 {
-    if (sd_mounted)
+    if (sd_is_card_mounted())
         return;
 
     esp_err_t ret;
@@ -76,7 +74,7 @@ void sd_init()
 }
 void sd_deinit()
 {
-    if (!sd_mounted)
+    if (!sd_is_card_mounted())
         return;
 
     sd_close_file();
@@ -90,7 +88,7 @@ void sd_deinit()
 
 void sd_open_file(char *filename, char *type)
 {
-    if (!sd_mounted)
+    if (!sd_is_card_mounted())
     {
         ESP_LOGE(SD_CARD_TAG, "Card is not mounted");
         return;
@@ -124,7 +122,7 @@ void sd_close_file()
 
 void sd_write_data(uint8_t *data, size_t *len)
 {
-    if (!sd_mounted)
+    if (!sd_is_card_mounted())
     {
         ESP_LOGE(SD_CARD_TAG, "Card is not mounted");
         return;

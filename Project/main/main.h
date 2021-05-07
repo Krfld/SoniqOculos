@@ -28,6 +28,8 @@
 #include "driver/dac.h"
 #include "driver/gpio.h"
 
+#define I2S_DEBUG false
+
 #define DEVICE_NAME "SoniqOculos"
 
 #define MSG_BUFFER 128

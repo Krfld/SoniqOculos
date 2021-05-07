@@ -69,6 +69,9 @@ static i2s_config_t i2s_config_rx = {
 
 void speakers_init()
 {
+    if (i2s0_device == SPEAKERS)
+        return;
+
     microphones_deinit();
 
     if (i2s_driver_install(SPEAKERS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
@@ -81,7 +84,12 @@ void speakers_init()
 }
 void speakers_deinit()
 {
+    if (i2s0_device != SPEAKERS)
+        return;
+
     i2s0_device = NONE;
+
+    i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
 
     if (i2s_driver_uninstall(SPEAKERS_I2S_NUM) != ESP_OK)
         printf("\nSpeakers i2s driver uninstall failed\n\n");
@@ -91,6 +99,9 @@ void speakers_deinit()
 
 void microphones_init()
 {
+    if (i2s0_device == MICROPHONES)
+        return;
+
     speakers_deinit();
 
     if (i2s_driver_install(MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL) != ESP_OK)
@@ -106,6 +117,9 @@ void microphones_init()
 }
 void microphones_deinit()
 {
+    if (i2s0_device != MICROPHONES)
+        return;
+
     i2s0_device = NONE;
 
     if (s_i2s_read_task_handle)
@@ -122,6 +136,9 @@ void microphones_deinit()
 
 void bone_conductors_init()
 {
+    if (i2s1_device == BONE_CONDUCTORS)
+        return;
+
     if (i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
         printf("\nBone conductors i2s driver install failed\n\n");
 
@@ -132,7 +149,12 @@ void bone_conductors_init()
 }
 void bone_conductors_deinit()
 {
+    if (i2s1_device != BONE_CONDUCTORS)
+        return;
+
     i2s1_device = NONE;
+
+    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
 
     if (i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM) != ESP_OK)
         printf("\nBone conductors i2s driver uninstall failed\n\n");
@@ -195,21 +217,32 @@ void i2s_write_data(uint8_t *data, size_t *len)
 {
     size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
 
-    printf("Length: %d\n", *len);
-    int64_t tick_1 = esp_timer_get_time();
+    int64_t tick_1, tick_2, tick_3;
+    if (I2S_DEBUG)
+    {
+        printf("Length: %d\n", *len);
+        tick_1 = esp_timer_get_time();
+    }
 
     if (i2s0_device == SPEAKERS)
         i2s_write(SPEAKERS_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
 
-    int64_t tick_2 = esp_timer_get_time();
-    printf("After writing first i2s: +%lldus\n", tick_2 - tick_1);
+    if (I2S_DEBUG)
+    {
+        tick_2 = esp_timer_get_time();
+        printf("After writing first i2s: +%lldus\n", tick_2 - tick_1);
+    }
 
     if (i2s1_device == BONE_CONDUCTORS)
         i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
 
-    int64_t tick_3 = esp_timer_get_time();
-    printf("After writing second i2s: +%lldus\n", tick_3 - tick_2);
-    printf("Total time to write to i2s: %lldus\n\n", tick_3 - tick_1);
+    if (I2S_DEBUG)
+    {
+        tick_3 = esp_timer_get_time();
+        printf("After writing second i2s: +%lldus\n", tick_3 - tick_2);
+
+        printf("Total time to write to i2s: %lldus\n\n", tick_3 - tick_1);
+    }
 }
 
 static void i2s_read_task_handler(void *arg)

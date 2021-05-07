@@ -212,8 +212,16 @@ void bt_init()
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 }
 
+static bool bt_music_active = false;
+bool bt_is_music_active()
+{
+    return bt_music_active;
+}
 void bt_music_init()
 {
+    if (bt_is_music_active())
+        return;
+
     // initialize AVRCP controller
     esp_avrc_ct_init();
     esp_avrc_ct_register_callback(bt_app_rc_ct_cb);
@@ -221,18 +229,25 @@ void bt_music_init()
     assert(esp_avrc_tg_init() == ESP_OK);
     esp_avrc_tg_register_callback(bt_app_rc_tg_cb);
 
-    esp_avrc_rn_evt_cap_mask_t evt_set = {0};
+    /*esp_avrc_rn_evt_cap_mask_t evt_set = {0};
     esp_avrc_rn_evt_bit_mask_operation(ESP_AVRC_BIT_MASK_OP_SET, &evt_set, ESP_AVRC_RN_VOLUME_CHANGE);
-    assert(esp_avrc_tg_set_rn_evt_cap(&evt_set) == ESP_OK);
+    assert(esp_avrc_tg_set_rn_evt_cap(&evt_set) == ESP_OK);*/
 
     // initialize A2DP sink
     esp_a2d_register_callback(&bt_app_a2d_cb);
     esp_a2d_sink_register_data_callback(bt_app_a2d_data_cb);
     esp_a2d_sink_init();
+
+    bt_music_active = true;
 }
 void bt_music_deinit()
 {
+    if (!bt_is_music_active())
+        return;
+
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();
     esp_a2d_sink_deinit();
+
+    bt_music_active = false;
 }

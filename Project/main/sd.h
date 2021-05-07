@@ -8,6 +8,7 @@
 #define SD_MISO_PIN 4
 #define SD_MOSI_PIN 2
 #define SD_CS_PIN 15
+
 #define SD_DET_PIN 36
 
 /*typedef struct _wav_header

@@ -2,9 +2,9 @@
 
 #define DEBOUNCE 50 // ms
 
-#define BUTTON_START 13
-#define BUTTON_VOLUME_UP 12
-#define BUTTON_VOLUME_DOWN 14
+#define BUTTON_1 13
+#define BUTTON_2 12
+#define BUTTON_3 14
 
 #define SD_CARD_DET_DELAY 2000 // ms
 

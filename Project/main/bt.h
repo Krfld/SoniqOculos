@@ -9,5 +9,7 @@
 
 void bt_init();
 
+bool bt_is_music_active();
+
 void bt_music_init();
 void bt_music_deinit();

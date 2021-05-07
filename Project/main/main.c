@@ -18,25 +18,7 @@ void app_main(void)
 
     set_mode(MUSIC);
 
-    dac_output_enable(DAC_CHANNEL_1);
-    dac_output_enable(DAC_CHANNEL_2);
-    audioOnOff(ON);
-
     printf("\nSetup ready\n\n");
-}
-
-void audioOnOff(bool state)
-{
-    if (state)
-    {
-        dac_output_voltage(RIGHT_CHANEL, 1.2 / LOGIC * UCHAR_MAX); // Right
-        dac_output_voltage(LEFT_CHANEL, 1.6 / LOGIC * UCHAR_MAX);  // Left
-    }
-    else
-    {
-        dac_output_voltage(RIGHT_CHANEL, LOW);
-        dac_output_voltage(LEFT_CHANEL, LOW);
-    }
 }
 
 void handleMsgs(char *msg)

@@ -50,10 +50,6 @@
 #define PLAYBACK 4       // Microphones -> Bone conductors
 #define RECORD 5         // Microphones -> SD Card
 
-//TODO Change
-#define RIGHT_CHANEL DAC_CHANNEL_1
-#define LEFT_CHANEL DAC_CHANNEL_2
-
 void delay(int millis);
 
 void handleMsgs(char *msg);

@@ -36,7 +36,7 @@ void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
 
 static void gpio_task_handler(void *arg)
 {
-    bool button_start_state = false, button_volume_up_state = false, button_volume_down_state = false;
+    bool button_1_state = false, button_2_state = false, button_3_state = false;
     bool sd_det_state = false;
 
     gpio_pad_select_gpio(BUTTON_1);
@@ -58,10 +58,10 @@ static void gpio_task_handler(void *arg)
     {
         delay(DEBOUNCE);
 
-        if (gpio_get_level(BUTTON_1) != button_start_state)
+        if (gpio_get_level(BUTTON_1) != button_1_state)
         {
-            button_start_state = !button_start_state;
-            if (button_start_state)
+            button_1_state = !button_1_state;
+            if (button_1_state)
             {
                 printf("Clicked BUTTON 1\n");
             }
@@ -72,10 +72,10 @@ static void gpio_task_handler(void *arg)
             }
         }
 
-        if (gpio_get_level(BUTTON_2) != button_volume_up_state)
+        if (gpio_get_level(BUTTON_2) != button_2_state)
         {
-            button_volume_up_state = !button_volume_up_state;
-            if (button_volume_up_state)
+            button_2_state = !button_2_state;
+            if (button_2_state)
             {
                 printf("Clicked BUTTON 2\n");
             }
@@ -86,10 +86,10 @@ static void gpio_task_handler(void *arg)
             }
         }
 
-        if (gpio_get_level(BUTTON_3) != button_volume_down_state)
+        if (gpio_get_level(BUTTON_3) != button_3_state)
         {
-            button_volume_down_state = !button_volume_down_state;
-            if (button_volume_down_state)
+            button_3_state = !button_3_state;
+            if (button_3_state)
             {
                 printf("Clicked BUTTON 3\n");
             }

@@ -5,11 +5,11 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 
-#define DEBOUNCE 100 // ms
+#define DEBOUNCE 50 // ms
 
-#define BUTTON_START GPIO_NUM_13
-#define BUTTON_VOLUME_UP GPIO_NUM_12
-#define BUTTON_VOLUME_DOWN GPIO_NUM_14
+#define BUTTON_1 GPIO_NUM_13
+#define BUTTON_2 GPIO_NUM_12
+#define BUTTON_3 GPIO_NUM_14
 
 static xTaskHandle s_gpio_task_handle = NULL;
 
@@ -24,49 +24,49 @@ void app_main(void)
 
 static void gpio_task_handler(void *arg)
 {
-    bool button_start_state = false, button_volume_up_state = false, button_volume_down_state = false;
+    bool button_1_state = false, button_2_state = false, button_3_state = false;
 
-    gpio_pad_select_gpio(BUTTON_START);
-    gpio_set_direction(BUTTON_START, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BUTTON_START, GPIO_PULLDOWN_ONLY);
+    gpio_pad_select_gpio(BUTTON_1);
+    gpio_set_direction(BUTTON_1, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(BUTTON_1, GPIO_PULLDOWN_ONLY);
 
-    gpio_pad_select_gpio(BUTTON_VOLUME_UP);
-    gpio_set_direction(BUTTON_VOLUME_UP, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BUTTON_VOLUME_UP, GPIO_PULLDOWN_ONLY);
+    gpio_pad_select_gpio(BUTTON_2);
+    gpio_set_direction(BUTTON_2, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(BUTTON_2, GPIO_PULLDOWN_ONLY);
 
-    gpio_pad_select_gpio(BUTTON_VOLUME_DOWN);
-    gpio_set_direction(BUTTON_VOLUME_DOWN, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BUTTON_VOLUME_DOWN, GPIO_PULLDOWN_ONLY);
+    gpio_pad_select_gpio(BUTTON_3);
+    gpio_set_direction(BUTTON_3, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(BUTTON_3, GPIO_PULLDOWN_ONLY);
 
     for (;;)
     {
         vTaskDelay(DEBOUNCE / portTICK_PERIOD_MS);
 
-        if (gpio_get_level(BUTTON_START) != button_start_state)
+        if (gpio_get_level(BUTTON_1) != button_1_state)
         {
-            button_start_state = !button_start_state;
-            if (button_start_state)
-                printf("Clicked START\n");
+            button_1_state = !button_1_state;
+            if (button_1_state)
+                printf("Clicked BUTTON 1\n");
             else
-                printf("Released START\n");
+                printf("Released BUTTON 1\n");
         }
 
-        if (gpio_get_level(BUTTON_VOLUME_UP) != button_volume_up_state)
+        if (gpio_get_level(BUTTON_2) != button_2_state)
         {
-            button_volume_up_state = !button_volume_up_state;
-            if (button_volume_up_state)
-                printf("Clicked VOLUME UP\n");
+            button_2_state = !button_2_state;
+            if (button_2_state)
+                printf("Clicked BUTTON 2\n");
             else
-                printf("Released VOLUME UP\n");
+                printf("Released BUTTON 2\n");
         }
 
-        if (gpio_get_level(BUTTON_VOLUME_DOWN) != button_volume_down_state)
+        if (gpio_get_level(BUTTON_3) != button_3_state)
         {
-            button_volume_down_state = !button_volume_down_state;
-            if (button_volume_down_state)
-                printf("Clicked VOLUME DOWN\n");
+            button_3_state = !button_3_state;
+            if (button_3_state)
+                printf("Clicked BUTTON 3\n");
             else
-                printf("Released VOLUME DOWN\n");
+                printf("Released BUTTON 3\n");
         }
     }
 }

@@ -96,7 +96,7 @@ static void gpio_task_handler(void *arg)
             else
             {
                 printf("Released BUTTON 3\n");
-                set_mode(MUSIC_SPEAKERS);
+                set_mode(PLAYBACK);
             }
         }
 
@@ -126,7 +126,7 @@ static void gpio_task_handler(void *arg)
 
 void gpio_init()
 {
-    xTaskCreate(gpio_task_handler, "gpio_task", 2 * 1024, NULL, 10, &s_gpio_task_handle);
+    xTaskCreate(gpio_task_handler, "gpio_task", GPIO_STACK_DEPTH, NULL, 10, &s_gpio_task_handle);
 }
 void gpio_deinit()
 {

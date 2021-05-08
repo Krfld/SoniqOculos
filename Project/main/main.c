@@ -13,10 +13,9 @@ void delay(int millis)
 void app_main(void)
 {
     gpio_init();
-
     bt_init();
 
-    set_mode(MUSIC);
+    set_mode(PLAYBACK);
 
     printf("\nSetup ready\n\n");
 }
@@ -24,7 +23,6 @@ void app_main(void)
 void handleMsgs(char *msg)
 {
     printf("\n%s\n\n", msg);
-    //TODO Change mode
 
     // Response
     sprintf(msg, "Message received\n");
@@ -35,5 +33,5 @@ void process_data(uint8_t *data, size_t *len)
     //TODO Process data
     i2s_write_data(data, len);
 
-    //sd_write_data(data, len);
+    //sd_write_data(data, len); //! Testing
 }

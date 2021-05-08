@@ -16,8 +16,12 @@
 #define BONE_CONDUCTORS_BCK_PIN 21
 #define BONE_CONDUCTORS_DATA_PIN 19
 
-#define DMA_BUFFER_COUNT 4
+#define DMA_BUFFER_COUNT 8
 #define DMA_BUFFER_LEN 1024
+
+#define I2S_STACK_DEPTH 2 * 1024
+
+#define I2S_DEINIT_DELAY 100 // ms
 
 void speakers_init();
 void speakers_deinit();

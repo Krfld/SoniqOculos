@@ -1,12 +1,14 @@
 #include "main.h"
 
-#define DEBOUNCE 50 // ms
+#define DEBOUNCE 100 // ms
 
 #define BUTTON_1 13
 #define BUTTON_2 12
 #define BUTTON_3 14
 
 #define SD_CARD_DET_DELAY 2000 // ms
+
+#define GPIO_STACK_DEPTH 3 * 1024
 
 void wait_for_sd_card();
 

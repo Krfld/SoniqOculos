@@ -89,7 +89,7 @@ void speakers_deinit()
 
     i2s0_device = NONE;
 
-    i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
+    delay(I2S_DEINIT_DELAY);
 
     if (i2s_driver_uninstall(SPEAKERS_I2S_NUM) != ESP_OK)
         printf("\nSpeakers i2s driver uninstall failed\n\n");
@@ -113,7 +113,7 @@ void microphones_init()
     i2s0_device = MICROPHONES;
 
     if (!s_i2s_read_task_handle)
-        xTaskCreate(i2s_read_task_handler, "i2s_read_task", 2 * 1024, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
+        xTaskCreate(i2s_read_task_handler, "i2s_read_task", I2S_STACK_DEPTH, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
 }
 void microphones_deinit()
 {
@@ -121,6 +121,8 @@ void microphones_deinit()
         return;
 
     i2s0_device = NONE;
+
+    //delay(I2S_DEINIT_DELAY);
 
     if (s_i2s_read_task_handle)
     {
@@ -154,7 +156,7 @@ void bone_conductors_deinit()
 
     i2s1_device = NONE;
 
-    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+    delay(I2S_DEINIT_DELAY);
 
     if (i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM) != ESP_OK)
         printf("\nBone conductors i2s driver uninstall failed\n\n");
@@ -171,9 +173,13 @@ void set_mode(int mode)
     switch (mode)
     {
     case MUSIC:
+        microphones_deinit(); // No need
+
         speakers_init();
         bone_conductors_init();
         bt_music_init();
+
+        printf("\nMusic mode ready\n\n");
         break;
     case MUSIC_ISOLATED:
         speakers_deinit();
@@ -181,27 +187,38 @@ void set_mode(int mode)
 
         bone_conductors_init();
         bt_music_init();
+
+        printf("\nMusic Isolated mode ready\n\n");
         break;
     case MUSIC_SPEAKERS:
+        microphones_deinit(); // No need
         bone_conductors_deinit();
 
         speakers_init();
         bt_music_init();
+
+        printf("\nMusic Speakers mode ready\n\n");
         break;
 
     case PLAYBACK:
         bt_music_deinit();
+        speakers_deinit(); // No need
 
         bone_conductors_init();
         i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
         microphones_init();
+
+        printf("\nPlayback mode ready\n\n");
         break;
 
     case RECORD: //TODO Handle SD card
         bt_music_deinit();
+        speakers_deinit(); // No need
         bone_conductors_deinit();
 
         microphones_init();
+
+        printf("\nRecord mode ready\n\n");
         break;
 
     default: // IDLE Mode
@@ -209,6 +226,8 @@ void set_mode(int mode)
         speakers_deinit();
         microphones_deinit();
         bone_conductors_deinit();
+
+        printf("\nIdle mode ready\n\n");
         break;
     }
 }
@@ -247,11 +266,14 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
 static void i2s_read_task_handler(void *arg)
 {
-    size_t bytes_read = 0, bytes_written = 0;
+    size_t bytes_read = 0;
     uint8_t data[DMA_BUFFER_LEN] = {0};
 
     for (;;)
     {
+        if (i2s0_device != MICROPHONES) // No need
+            continue;
+
         i2s_read(MICROPHONES_I2S_NUM, &data, sizeof(data), &bytes_read, portMAX_DELAY);
 
         if (bytes_read == 0)
@@ -259,7 +281,7 @@ static void i2s_read_task_handler(void *arg)
 
         if (i2s1_device == BONE_CONDUCTORS) //* Playback mode
             i2s_write_data(data, &bytes_read);
-        else //* Record mode
+        else if (i2s0_device == MICROPHONES) //* Record mode
             sd_write_data(data, &bytes_read);
     }
 }

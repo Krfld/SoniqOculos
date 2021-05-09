@@ -50,7 +50,6 @@ void sd_init()
     slot_config.host_id = host.slot;
 
     ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
-
     if (ret != ESP_OK)
     {
         if (ret == ESP_FAIL)

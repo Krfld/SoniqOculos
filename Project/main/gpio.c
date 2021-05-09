@@ -82,7 +82,7 @@ static void gpio_task_handler(void *arg)
             else
             {
                 printf("Released BUTTON 2\n");
-                set_mode(MUSIC_ISOLATED);
+                set_mode(MUSIC_SPEAKERS);
             }
         }
 

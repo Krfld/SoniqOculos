@@ -80,6 +80,8 @@ void speakers_init()
     if (i2s_set_pin(SPEAKERS_I2S_NUM, &speakers_pin_config) != ESP_OK)
         printf("\nSpeakers i2s set pin failed\n\n");
 
+    i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
+
     i2s0_device = SPEAKERS;
 }
 void speakers_deinit()
@@ -88,6 +90,8 @@ void speakers_deinit()
         return;
 
     i2s0_device = NONE;
+
+    i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
 
     delay(I2S_DEINIT_DELAY);
 
@@ -147,6 +151,8 @@ void bone_conductors_init()
     if (i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config) != ESP_OK)
         printf("\nBone conductors i2s set pin failed\n\n");
 
+    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+
     i2s1_device = BONE_CONDUCTORS;
 }
 void bone_conductors_deinit()
@@ -155,6 +161,8 @@ void bone_conductors_deinit()
         return;
 
     i2s1_device = NONE;
+
+    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
 
     delay(I2S_DEINIT_DELAY);
 
@@ -169,6 +177,9 @@ void set_mode(int mode)
     //TODO Shutdown unused amps and handle SD Card
     /*if (mode != RECORD)
         sd_close_file();*/
+
+    i2s0_device = NONE;
+    i2s1_device = NONE;
 
     switch (mode)
     {

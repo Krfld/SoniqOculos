@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/SoniqOculos/Project/main
+# Install script for directory: D:/ISEL/PFC/SoniqOculos/ESP-IDF/Project/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

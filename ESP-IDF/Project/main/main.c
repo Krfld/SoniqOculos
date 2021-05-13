@@ -7,7 +7,7 @@
 
 void delay(int millis)
 {
-    vTaskDelay(millis / portTICK_RATE_MS);
+    vTaskDelay(millis / portTICK_PERIOD_MS);
 }
 
 void app_main(void)

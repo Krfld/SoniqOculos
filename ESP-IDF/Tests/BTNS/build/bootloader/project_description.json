@@ -1,8 +1,8 @@
 {
     "project_name":       "bootloader",
     "project_path":       "C:/Users/Kiko/esp/esp-idf/components/bootloader/subproject",
-    "build_dir":          "D:/ISEL/PFC/SoniqOculos/Tests/BTNS/build/bootloader",
-    "config_file":        "D:/ISEL/PFC/SoniqOculos/Tests/BTNS/sdkconfig",
+    "build_dir":          "D:/ISEL/PFC/SoniqOculos/ESP-IDF/Tests/BTNS/build/bootloader",
+    "config_file":        "D:/ISEL/PFC/SoniqOculos/ESP-IDF/Tests/BTNS/sdkconfig",
     "config_defaults":    "",
     "app_elf":            "bootloader.elf",
     "app_bin":            "bootloader.bin",

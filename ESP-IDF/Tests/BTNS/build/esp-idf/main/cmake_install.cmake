@@ -1,4 +1,4 @@
-# Install script for directory: D:/ISEL/PFC/SoniqOculos/Tests/BTNS/main
+# Install script for directory: D:/ISEL/PFC/SoniqOculos/ESP-IDF/Tests/BTNS/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

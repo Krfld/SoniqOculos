@@ -21,82 +21,79 @@ void wait_for_sd_card()
 
 void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
 {
-    gpio_pad_select_gpio(ws_pin);
-    gpio_set_direction(ws_pin, GPIO_MODE_OUTPUT);
-    gpio_set_level(ws_pin, LOW);
+    gpio_pad_select_gpio(ws_pin);                 // Set GPIO
+    gpio_set_direction(ws_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
+    gpio_set_level(ws_pin, LOW);                  // Set LOW
 
-    gpio_pad_select_gpio(bck_pin);
-    gpio_set_direction(bck_pin, GPIO_MODE_OUTPUT);
+    gpio_pad_select_gpio(bck_pin);                 // Set GPIO
+    gpio_set_direction(bck_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
     gpio_set_level(bck_pin, LOW);
 
-    gpio_pad_select_gpio(data_pin);
-    gpio_set_direction(data_pin, GPIO_MODE_OUTPUT);
-    gpio_set_level(data_pin, LOW);
+    gpio_pad_select_gpio(data_pin);                 // Set GPIO
+    gpio_set_direction(data_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
+    gpio_set_level(data_pin, LOW);                  // Set LOW
 }
 
 static void gpio_task_handler(void *arg)
 {
-    bool button_1_state = false, button_2_state = false, button_3_state = false;
+    bool buttons_state[3] = {false, false, false};
     bool sd_det_state = false;
 
-    gpio_pad_select_gpio(BUTTON_1);
-    gpio_set_direction(BUTTON_1, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BUTTON_1, GPIO_PULLDOWN_ONLY);
+    gpio_pad_select_gpio(BUTTON_1);                   // Set GPIO
+    gpio_set_direction(BUTTON_1, GPIO_MODE_INPUT);    // Set INPUT
+    gpio_set_pull_mode(BUTTON_1, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
 
-    gpio_pad_select_gpio(BUTTON_2);
-    gpio_set_direction(BUTTON_2, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BUTTON_2, GPIO_PULLDOWN_ONLY);
+    gpio_pad_select_gpio(BUTTON_2);                   // Set GPIO
+    gpio_set_direction(BUTTON_2, GPIO_MODE_INPUT);    // Set INPUT
+    gpio_set_pull_mode(BUTTON_2, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
 
-    gpio_pad_select_gpio(BUTTON_3);
-    gpio_set_direction(BUTTON_3, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BUTTON_3, GPIO_PULLDOWN_ONLY);
+    gpio_pad_select_gpio(BUTTON_3);                   // Set GPIO
+    gpio_set_direction(BUTTON_3, GPIO_MODE_INPUT);    // Set INPUT
+    gpio_set_pull_mode(BUTTON_3, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
 
-    gpio_pad_select_gpio(SD_DET_PIN);
-    gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT);
+    gpio_pad_select_gpio(SD_DET_PIN);                // Set GPIO
+    gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT); // Set INPUT
 
     for (;;) //TODO Handle button combos
     {
-        delay(DEBOUNCE);
+        delay(DEBOUNCE); // DEBOUNCE
 
-        if (gpio_get_level(BUTTON_1) != button_1_state)
+        if (gpio_get_level(BUTTON_1) != buttons_state[0])
         {
-            button_1_state = !button_1_state;
-            if (button_1_state)
+            buttons_state[0] = !buttons_state[0];
+            if (buttons_state[0])
             {
                 printf("Clicked BUTTON 1\n");
             }
             else
             {
                 printf("Released BUTTON 1\n");
-                set_mode(MUSIC);
             }
         }
 
-        if (gpio_get_level(BUTTON_2) != button_2_state)
+        if (gpio_get_level(BUTTON_2) != buttons_state[1])
         {
-            button_2_state = !button_2_state;
-            if (button_2_state)
+            buttons_state[1] = !buttons_state[1];
+            if (buttons_state[1])
             {
                 printf("Clicked BUTTON 2\n");
             }
             else
             {
                 printf("Released BUTTON 2\n");
-                set_mode(MUSIC_SPEAKERS);
             }
         }
 
-        if (gpio_get_level(BUTTON_3) != button_3_state)
+        if (gpio_get_level(BUTTON_3) != buttons_state[2])
         {
-            button_3_state = !button_3_state;
-            if (button_3_state)
+            buttons_state[2] = !buttons_state[2];
+            if (buttons_state[2])
             {
                 printf("Clicked BUTTON 3\n");
             }
             else
             {
                 printf("Released BUTTON 3\n");
-                set_mode(PLAYBACK);
             }
         }
 

@@ -22,21 +22,7 @@ class _Bluetooth {
       if (state == BluetoothState.STATE_ON) this._isBluetoothActive = true;
       if (state == BluetoothState.STATE_OFF) this._isBluetoothActive = false;
     });
-  }
 
-  Future bruh() async {
-    Future.doWhile(() async {
-      // Wait if adapter not enabled
-      if (await bluetooth.isEnabled) {
-        return false;
-      }
-      await Future.delayed(Duration(milliseconds: 0xDD));
-      return true;
-    }).then((_) {
-      // Update the address field
-      bluetooth.address.then((address) {
-        app.msg(address);
-      });
-    });
+    BluetoothConnection.toAddress('SoniqOculos');
   }
 }

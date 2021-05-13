@@ -1,4 +1,4 @@
-/* * Data converted from D:/ISEL/PFC/SoniqOculos/Tests/BTNS/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from D:/ISEL/PFC/SoniqOculos/ESP-IDF/Tests/BTNS/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

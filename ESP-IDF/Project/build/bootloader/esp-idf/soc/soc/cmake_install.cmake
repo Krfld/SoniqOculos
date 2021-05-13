@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("D:/ISEL/PFC/SoniqOculos/Project/build/bootloader/esp-idf/soc/soc/esp32/cmake_install.cmake")
+  include("D:/ISEL/PFC/SoniqOculos/ESP-IDF/Project/build/bootloader/esp-idf/soc/soc/esp32/cmake_install.cmake")
 
 endif()
 

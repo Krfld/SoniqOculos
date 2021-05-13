@@ -1449,7 +1449,7 @@ rule CXX_STATIC_LIBRARY_LINKER____idf_main
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\Users\Kiko\.espressif\tools\cmake\3.16.4\bin\cmake.exe -SD:\ISEL\PFC\SoniqOculos\Project -BD:\ISEL\PFC\SoniqOculos\Project\build
+  command = C:\Users\Kiko\.espressif\tools\cmake\3.16.4\bin\cmake.exe -SD:\ISEL\PFC\SoniqOculos\ESP-IDF\Project -BD:\ISEL\PFC\SoniqOculos\ESP-IDF\Project\build
   description = Re-running CMake...
   generator = 1
 

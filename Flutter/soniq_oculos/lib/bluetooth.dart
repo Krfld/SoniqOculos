@@ -22,7 +22,5 @@ class _Bluetooth {
       if (state == BluetoothState.STATE_ON) this._isBluetoothActive = true;
       if (state == BluetoothState.STATE_OFF) this._isBluetoothActive = false;
     });
-
-    BluetoothConnection.toAddress('SoniqOculos');
   }
 }

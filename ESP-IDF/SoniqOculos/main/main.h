@@ -50,10 +50,24 @@
 #define PLAYBACK 4       // Microphones -> Bone conductors
 #define RECORD 5         // Microphones -> SD Card
 
+/**
+ * @brief Delay in milliseconds
+ * 
+ * @param millis milliseconds to delay
+ */
 void delay(int millis);
 
+/**
+ * @brief Handle messages recevied
+ * 
+ * @param msg message received
+ */
 void handleMsgs(char *msg);
 
-void audioOnOff(bool state);
-
+/**
+ * @brief Process data
+ * 
+ * @param data buffer of samples to process
+ * @param len buffer length
+ */
 void process_data(uint8_t *data, size_t *len);

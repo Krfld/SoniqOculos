@@ -23,15 +23,50 @@
 
 #define I2S_DEINIT_DELAY 100 // ms
 
+/**
+ * @brief Initialize speakers
+ * 
+ */
 void speakers_init();
+/**
+ * @brief Deinitialize speakers
+ * 
+ */
 void speakers_deinit();
 
+/**
+ * @brief Initialize microphones
+ * 
+ */
 void microphones_init();
+/**
+ * @brief Initialize microphones
+ * 
+ */
 void microphones_deinit();
 
+/**
+ * @brief Initialize bone conductors
+ * 
+ */
 void bone_conductors_init();
+/**
+ * @brief Initialize bone conductors
+ * 
+ */
 void bone_conductors_deinit();
 
+/**
+ * @brief Set mode
+ * 
+ * @param mode mode to be set
+ */
 void set_mode(int mode);
 
+/**
+ * @brief Write data to I2S interface
+ * 
+ * @param data buffer of samples to write
+ * @param len buffer length
+ */
 void i2s_write_data(uint8_t *data, size_t *len);

@@ -54,12 +54,42 @@
     }
 } wav_header_t;*/
 
+/**
+ * @brief Check if card is mounted
+ * 
+ * @return true if mounted
+ * @return false if not mounted
+ */
 bool sd_is_card_mounted();
 
+/**
+ * @brief Initialize SD card
+ * 
+ */
 void sd_init();
+/**
+ * @brief Deinitialize SD card
+ * 
+ */
 void sd_deinit();
 
+/**
+ * @brief Open a file
+ * 
+ * @param filename name of the file with extention
+ * @param type type of operation
+ */
 void sd_open_file(char *filename, char *type);
+/**
+ * @brief Close the file
+ * 
+ */
 void sd_close_file();
 
+/**
+ * @brief Write data to SD card
+ * 
+ * @param data buffer of samples to write
+ * @param len buffer length
+ */
 void sd_write_data(uint8_t *data, size_t *len);

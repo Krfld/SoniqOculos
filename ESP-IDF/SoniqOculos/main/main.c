@@ -5,6 +5,8 @@
 #include "gpio.h"
 #include "sd.h"
 
+int mode = MUSIC;
+
 void delay(int millis)
 {
     vTaskDelay(millis / portTICK_PERIOD_MS);
@@ -14,8 +16,6 @@ void app_main(void)
 {
     gpio_init();
     bt_init();
-
-    set_mode(MUSIC);
 
     printf("\nSetup ready\n\n");
 }

@@ -5,6 +5,9 @@
 #define BUTTON_1 GPIO_NUM_13
 #define BUTTON_2 GPIO_NUM_12
 #define BUTTON_3 GPIO_NUM_14
+#define BUTTON_1_MASK 1 << 0 // 0b001 | 1
+#define BUTTON_2_MASK 1 << 1 // 0b010 | 2
+#define BUTTON_3_MASK 1 << 2 // 0b100 | 4
 
 #define SD_CARD_DET_DELAY 2000 // ms
 

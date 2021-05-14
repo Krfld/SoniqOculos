@@ -6,7 +6,7 @@
     "config_defaults":    "D:/ISEL/PFC/SoniqOculos/ESP-IDF/SoniqOculos/sdkconfig.defaults",
     "app_elf":            "SoniqOculos.elf",
     "app_bin":            "SoniqOculos.bin",
-    "git_revision":       "v4.2-dirty",
+    "git_revision":       "v4.2.1-dirty",
     "target":             "esp32",
     "phy_data_partition": "",
     "monitor_baud" :      "115200",

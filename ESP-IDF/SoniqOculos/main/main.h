@@ -28,6 +28,7 @@
 #include "driver/dac.h"
 #include "driver/gpio.h"
 
+#define GPIO_DEBUG true
 #define I2S_DEBUG false
 
 #define DEVICE_NAME "SoniqOculos"
@@ -44,11 +45,8 @@
 
 //* Modes
 #define IDLE 0
-#define MUSIC 1          // Speakers & Bone conductors
-#define MUSIC_ISOLATED 2 // Bone conductors only
-#define MUSIC_SPEAKERS 3 // Speakers only
-#define PLAYBACK 4       // Microphones -> Bone conductors
-#define RECORD 5         // Microphones -> SD Card
+#define MUSIC 1
+#define RECORD_PLAYBACK 2
 
 /**
  * @brief Delay in milliseconds

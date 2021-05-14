@@ -36,7 +36,7 @@ void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
 
 static void gpio_task_handler(void *arg)
 {
-    bool buttons_state[3] = {false, false, false};
+    uint8_t buttons_map = 0, buttons_command = 0;
     bool sd_det_state = false;
 
     gpio_pad_select_gpio(BUTTON_1);                   // Set GPIO
@@ -58,10 +58,10 @@ static void gpio_task_handler(void *arg)
     {
         delay(DEBOUNCE); // DEBOUNCE
 
-        if (gpio_get_level(BUTTON_1) != buttons_state[0])
+        if (gpio_get_level(BUTTON_1) != ((buttons_map & BUTTON_1_MASK) ? 1 : 0))
         {
-            buttons_state[0] = !buttons_state[0];
-            if (buttons_state[0])
+            buttons_map ^= BUTTON_1_MASK;
+            if (buttons_map & BUTTON_1_MASK)
             {
                 printf("Clicked BUTTON 1\n");
             }
@@ -71,10 +71,10 @@ static void gpio_task_handler(void *arg)
             }
         }
 
-        if (gpio_get_level(BUTTON_2) != buttons_state[1])
+        if (gpio_get_level(BUTTON_2) != ((buttons_map & BUTTON_2_MASK) ? 1 : 0))
         {
-            buttons_state[1] = !buttons_state[1];
-            if (buttons_state[1])
+            buttons_map ^= BUTTON_2_MASK;
+            if (buttons_map & BUTTON_2_MASK)
             {
                 printf("Clicked BUTTON 2\n");
             }
@@ -84,10 +84,10 @@ static void gpio_task_handler(void *arg)
             }
         }
 
-        if (gpio_get_level(BUTTON_3) != buttons_state[2])
+        if (gpio_get_level(BUTTON_3) != ((buttons_map & BUTTON_3_MASK) ? 1 : 0))
         {
-            buttons_state[2] = !buttons_state[2];
-            if (buttons_state[2])
+            buttons_map ^= BUTTON_3_MASK;
+            if (buttons_map & BUTTON_3_MASK)
             {
                 printf("Clicked BUTTON 3\n");
             }
@@ -95,6 +95,22 @@ static void gpio_task_handler(void *arg)
             {
                 printf("Released BUTTON 3\n");
             }
+        }
+
+        if (buttons_map > buttons_command)
+        {
+            buttons_command = buttons_map;
+            if (GPIO_DEBUG)
+                printf("New command: %d\n", buttons_command);
+        }
+
+        if (buttons_map == 0 && buttons_map != buttons_command)
+        {
+            if (GPIO_DEBUG)
+                printf("Execute command: %d\n", buttons_command);
+            //TODO Execute command
+
+            buttons_command = 0;
         }
 
         /*if (gpio_get_level(SD_DET_PIN) != sd_det_state)

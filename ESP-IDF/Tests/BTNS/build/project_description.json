@@ -6,7 +6,7 @@
     "config_defaults":    "",
     "app_elf":            "gpio.elf",
     "app_bin":            "gpio.bin",
-    "git_revision":       "v4.2-dirty",
+    "git_revision":       "v4.2.1-dirty",
     "target":             "esp32",
     "phy_data_partition": "",
     "monitor_baud" :      "115200",

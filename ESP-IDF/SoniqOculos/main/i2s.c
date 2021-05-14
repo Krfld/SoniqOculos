@@ -178,8 +178,8 @@ void set_mode(int mode)
     /*if (mode != RECORD)
         sd_close_file();*/
 
-    i2s0_device = NONE;
-    i2s1_device = NONE;
+    //i2s0_device = NONE; //! Doesn't solve the problem
+    //i2s1_device = NONE; //! Doesn't solve the problem
 
     switch (mode)
     {
@@ -192,26 +192,7 @@ void set_mode(int mode)
 
         printf("\nMusic mode ready\n\n");
         break;
-    case MUSIC_ISOLATED:
-        speakers_deinit();
-        microphones_deinit();
-
-        bone_conductors_init();
-        bt_music_init();
-
-        printf("\nMusic Isolated mode ready\n\n");
-        break;
-    case MUSIC_SPEAKERS:
-        microphones_deinit(); // No need
-        bone_conductors_deinit();
-
-        speakers_init();
-        bt_music_init();
-
-        printf("\nMusic Speakers mode ready\n\n");
-        break;
-
-    case PLAYBACK:
+    case RECORD_PLAYBACK: //TODO Handle SD card
         bt_music_deinit();
         speakers_deinit(); // No need
 
@@ -219,19 +200,7 @@ void set_mode(int mode)
         i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
         microphones_init();
 
-        printf("\nPlayback mode ready\n\n");
-        break;
-
-    case RECORD: //TODO Handle SD card
-        sd_init();
-
-        bt_music_deinit();
-        speakers_deinit(); // No need
-        bone_conductors_deinit();
-
-        microphones_init();
-
-        printf("\nRecord mode ready\n\n");
+        printf("\nRecord/Playback mode ready\n\n");
         break;
 
     default: // IDLE Mode

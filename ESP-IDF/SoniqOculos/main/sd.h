@@ -65,8 +65,10 @@ bool sd_is_card_mounted();
 /**
  * @brief Initialize SD card
  * 
+ * @return true if card inserted
+ * @return false if no card inserted
  */
-void sd_init();
+bool sd_init();
 /**
  * @brief Deinitialize SD card
  * 

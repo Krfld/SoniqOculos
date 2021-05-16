@@ -9,7 +9,7 @@ static FILE *f = NULL;
 
 static bool sd_card_mounted = false;
 
-void sd_init()
+bool sd_init()
 {
     if (sd_card_mounted)
         return;
@@ -24,7 +24,15 @@ void sd_init()
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = SD_CS_PIN;
     slot_config.host_id = host.slot;
-    //slot_config.gpio_cd = SD_DET_PIN;
+
+    gpio_pad_select_gpio(SD_DET_PIN);                // Set GPIO
+    gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT); // Set INPUT
+
+    if (!gpio_get_level(SD_DET_PIN))
+    {
+        printf("Insert card\n");
+        return false;
+    }
 
     esp_err_t ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
     if (ret != ESP_OK)
@@ -40,13 +48,14 @@ void sd_init()
                                   "Make sure SD card lines have pull-up resistors in place.",
                      esp_err_to_name(ret));
         }
-        return;
+        return false;
     }
 
     sd_card_mounted = true;
 
     printf("Card mounted\n");
 
+    return true;
     //sd_open_file("samples.txt", "wb");
 }
 void sd_deinit()
@@ -120,6 +129,8 @@ void sd_close_file()
 
 void sd_write_data(uint8_t *data, size_t *len)
 {
+    //TODO Test writing when no card inserted
+
     /*if (!sd_is_card_mounted())
     {
         ESP_LOGE(SD_CARD_TAG, "Card is not mounted");

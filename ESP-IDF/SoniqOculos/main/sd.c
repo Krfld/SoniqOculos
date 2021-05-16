@@ -30,7 +30,7 @@ bool sd_init()
 
     if (!gpio_get_level(SD_DET_PIN))
     {
-        printf("Insert card\n");
+        ESP_LOGW(SD_CARD_TAG, "Insert card");
         return false;
     }
 
@@ -53,7 +53,7 @@ bool sd_init()
 
     sd_card_mounted = true;
 
-    printf("Card mounted\n");
+    ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
     return true;
     //sd_open_file("samples.txt", "wb");
@@ -69,7 +69,7 @@ void sd_deinit()
 
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
 
-    printf("Card unmounted\n");
+    ESP_LOGI(SD_CARD_TAG, "Card unmounted");
 }
 
 void spi_init()

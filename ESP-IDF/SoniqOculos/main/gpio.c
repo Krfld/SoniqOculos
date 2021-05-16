@@ -79,7 +79,7 @@ static void power_off_task(void *arg)
     printf("Powering off...\n");
 
     //!gpio_task_deinit();
-    powering_off = false; //!
+    powering_off = false; //! Deep-sleep
 
     s_power_off_task_handle = NULL;
     vTaskDelete(NULL);

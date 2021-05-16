@@ -9,10 +9,12 @@ static FILE *f = NULL;
 
 static bool sd_card_mounted = false;
 
+//TODO Create task to detect card
+
 bool sd_init()
 {
     if (sd_card_mounted)
-        return;
+        return false;
 
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
@@ -34,20 +36,9 @@ bool sd_init()
         return false;
     }
 
-    esp_err_t ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
-    if (ret != ESP_OK)
+    if (esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card) != ESP_OK)
     {
-        if (ret == ESP_FAIL)
-        {
-            ESP_LOGE(SD_CARD_TAG, "Failed to mount filesystem. "
-                                  "If you want the card to be formatted, set the EXAMPLE_FORMAT_IF_MOUNT_FAILED menuconfig option.");
-        }
-        else
-        {
-            ESP_LOGE(SD_CARD_TAG, "Failed to initialize the card (%s). "
-                                  "Make sure SD card lines have pull-up resistors in place.",
-                     esp_err_to_name(ret));
-        }
+        ESP_LOGW(SD_CARD_TAG, "Reinsert card");
         return false;
     }
 

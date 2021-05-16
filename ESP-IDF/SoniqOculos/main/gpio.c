@@ -31,6 +31,19 @@ static void volume_task_deinit();
 static xTaskHandle s_gpio_task_handle = NULL;
 static void gpio_task(void *arg);
 
+void wait_for_sd_card()
+{
+    gpio_pad_select_gpio(SD_DET_PIN);
+    gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT);
+
+    do // Make sure the card is inserted
+    {
+        while (!gpio_get_level(SD_DET_PIN))
+            ;
+        delay(SD_CARD_DET_DELAY);
+    } while (!gpio_get_level(SD_DET_PIN));
+}
+
 static int buttons_pressed(int buttons)
 {
     int buttons_pressed = 0;
@@ -273,6 +286,16 @@ static void gpio_task(void *arg)
 
             changed_volume = false;
             buttons_command = 0;
+        }
+
+        if (gpio_get_level(SD_DET_PIN) != sd_det_state)
+        {
+            sd_det_state = !sd_det_state;
+            if (!sd_det_state)
+            {
+                printf("Card removed\n");
+                sd_deinit();
+            }
         }
     }
 }

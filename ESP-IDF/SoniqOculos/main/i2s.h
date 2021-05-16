@@ -18,9 +18,9 @@
 #define DMA_BUFFER_COUNT 8
 #define DMA_BUFFER_LEN 1024
 
-#define I2S_STACK_DEPTH 2 * 1024
+#define I2S_READ_STACK_DEPTH 2 * 1024
 
-#define I2S_DEINIT_DELAY 100 // ms
+#define I2S_DEVICES_DEINIT_DELAY 100 // ms
 
 /**
  * @brief Initialize speakers

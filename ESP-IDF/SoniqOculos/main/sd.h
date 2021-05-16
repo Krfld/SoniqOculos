@@ -9,7 +9,7 @@
 #define SD_MOSI_PIN GPIO_NUM_2
 #define SD_CS_PIN GPIO_NUM_15
 
-#define SD_DET_PIN GPIO_NUM_36
+#define SD_DET_PIN GPIO_NUM_36 // VP
 
 /*typedef struct _wav_header
 {
@@ -72,6 +72,17 @@ void sd_init();
  * 
  */
 void sd_deinit();
+
+/**
+ * @brief Initialize spi
+ * 
+ */
+void spi_init();
+/**
+ * @brief Deinitialize spi
+ * 
+ */
+void spi_deinit();
 
 /**
  * @brief Open a file

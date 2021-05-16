@@ -8,7 +8,7 @@ static int i2s0_device = NONE;
 static int i2s1_device = NONE;
 
 static xTaskHandle s_i2s_read_task_handle = NULL;
-static void i2s_read_task_handler(void *arg);
+static void i2s_read_task(void *arg);
 
 //* Speakers pin configuration
 static i2s_pin_config_t speakers_pin_config = {
@@ -85,7 +85,7 @@ void speakers_deinit()
 
     i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
 
-    delay(I2S_DEINIT_DELAY);
+    delay(I2S_DEVICES_DEINIT_DELAY);
 
     if (i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM) != ESP_OK)
         printf("\nSpeakers i2s driver uninstall failed\n\n");
@@ -109,7 +109,7 @@ void microphones_init()
     i2s0_device = MICROPHONES;
 
     if (!s_i2s_read_task_handle)
-        xTaskCreate(i2s_read_task_handler, "i2s_read_task", I2S_STACK_DEPTH, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
+        xTaskCreate(i2s_read_task, "i2s_read_task", I2S_READ_STACK_DEPTH, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
 }
 void microphones_deinit()
 {
@@ -118,7 +118,7 @@ void microphones_deinit()
 
     i2s0_device = NONE;
 
-    //delay(I2S_DEINIT_DELAY);
+    //delay(I2S_DEVICES_DEINIT_DELAY);
 
     if (s_i2s_read_task_handle)
     {
@@ -156,7 +156,7 @@ void bone_conductors_deinit()
 
     i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
 
-    delay(I2S_DEINIT_DELAY);
+    delay(I2S_DEVICES_DEINIT_DELAY);
 
     if (i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM) != ESP_OK)
         printf("\nBone conductors i2s driver uninstall failed\n\n");
@@ -238,7 +238,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
     }
 }
 
-static void i2s_read_task_handler(void *arg)
+static void i2s_read_task(void *arg)
 {
     size_t bytes_read = 0;
     uint8_t data[DMA_BUFFER_LEN] = {0};

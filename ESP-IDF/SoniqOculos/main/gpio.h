@@ -7,7 +7,7 @@
 #define B2_MASK 1 << 1 // 010 (2)
 #define B3_MASK 1 << 2 // 100 (4)
 
-#define GPIO_STACK_DEPTH 2 * 1024
+#define GPIO_STACK_DEPTH 3 * 1024
 #define RELEASING_STACK_DEPTH 2 * 1024
 #define POWER_OFF_STACK_DEPTH 2 * 1024
 #define VOLUME_STACK_DEPTH 2 * 1024

@@ -22,8 +22,9 @@ void delay(int millis)
 
 void app_main(void)
 {
-    gpio_task_init();
+    spi_init();
     bt_init();
+    gpio_task_init();
 
     printf("\nSetup ready\n\n");
 }

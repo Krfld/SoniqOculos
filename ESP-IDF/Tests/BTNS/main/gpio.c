@@ -3,11 +3,18 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 
-#define POWER_OFF_HOLD_TIME 2000      // ms
-#define VOLUME_CHANGE_START_DELAY 500 // ms
-#define VOLUME_CHANGE_PERIOD 500      // ms
-#define RELEASE_DELAY 500             // ms
-#define DEBOUNCE 50                   // ms
+#define GPIO_DEBUG false
+
+#define GPIO_TASK_DEPTH 2 * 1024
+#define RELEASING_TASK_DEPTH 2 * 1024
+#define POWER_OFF_TASK_DEPTH 2 * 1024
+#define VOLUME_TASK_DEPTH 2 * 1024
+
+#define DEBOUNCE 50              // ms
+#define RELEASE_DELAY 250        // ms
+#define POWER_OFF_HOLD_TIME 2000 // ms
+#define VOLUME_START_DELAY 500   // ms
+#define VOLUME_CHANGE_PERIOD 500 // ms
 
 #define B1 GPIO_NUM_13 // Button 1
 #define B2 GPIO_NUM_12 // Button 2
@@ -16,37 +23,58 @@
 #define B2_MASK 1 << 1
 #define B3_MASK 1 << 2
 
+enum MODES
+{
+    MUSIC,
+    RECORD_PLAYBACK
+};
+enum MODES mode = MUSIC;
+
+enum DEVICES
+{
+    SPEAKERS_BONE_CONDUCTORS,
+    SPEAKERS,
+    BONE_CONDUCTORS
+};
+enum DEVICES device = SPEAKERS_BONE_CONDUCTORS;
+
 static int buttons_map = 0;
 static int buttons_command = 0;
 
-static bool powering_off = false; // Might not be needed
-static bool changing_volume = false;
+bool recording = false;
+bool playing_back = false;
 
-static xTaskHandle s_power_off_task_handle = NULL;
-static void power_off_task(void *arg);
-static void power_off_task_init();
-static void power_off_task_deinit();
-
-static xTaskHandle s_volume_change_task_handle = NULL;
-static void volume_change_task(void *arg);
-static void volume_change_task_init();
-static void volume_change_task_deinit();
+void delay(size_t millis);
+static int buttons_pressed(int buttons);
 
 static xTaskHandle s_gpio_task_handle = NULL;
 static void gpio_task_handler(void *arg);
-static void gpio_task_deinit();
+void gpio_task_init();
+void gpio_task_deinit();
 
 static xTaskHandle s_releasing_task_handle = NULL;
 static void releasing_task_handler(void *arg);
 static void releasing_task_init();
 static void releasing_task_deinit();
 
+static bool powering_off = false; // Might not be needed
+static xTaskHandle s_power_off_task_handle = NULL;
+static void power_off_task(void *arg);
+static void power_off_task_init();
+static void power_off_task_deinit();
+
+static bool changed_volume = false;
+static xTaskHandle s_volume_task_handle = NULL;
+static void volume_task(void *arg);
+static void volume_task_init();
+static void volume_task_deinit();
+
 void delay(size_t millis)
 {
     vTaskDelay(millis / portTICK_PERIOD_MS);
 }
 
-int buttons_pressed(int buttons)
+static int buttons_pressed(int buttons)
 {
     int buttons_pressed = 0;
 
@@ -64,40 +92,46 @@ int buttons_pressed(int buttons)
 
 void app_main(void)
 {
-    xTaskCreate(gpio_task_handler, "gpio_task_handler", 2 * 1024, NULL, 10, &s_gpio_task_handle);
+    gpio_task_init();
 }
 
 static void power_off_task(void *arg)
 {
     delay(POWER_OFF_HOLD_TIME);
-
     powering_off = true;
+
     printf("Powering off...\n");
 
-    //gpio_task_deinit();
+    gpio_task_deinit();
 
     s_power_off_task_handle = NULL;
     vTaskDelete(NULL);
 }
 static void power_off_task_init()
 {
+    if (GPIO_DEBUG)
+        printf("Power off task init\n");
+
     if (!s_power_off_task_handle)
-        xTaskCreate(power_off_task, "power_off_task", 2 * 1024, NULL, 10, &s_power_off_task_handle);
+        xTaskCreate(power_off_task, "power_off_task", POWER_OFF_TASK_DEPTH, NULL, 10, &s_power_off_task_handle);
 }
 static void power_off_task_deinit()
 {
-    if (s_power_off_task_handle)
+    if (GPIO_DEBUG)
+        printf("Power off task deinit\n");
+
+    if (s_power_off_task_handle && !powering_off)
     {
         vTaskDelete(s_power_off_task_handle);
         s_power_off_task_handle = NULL;
     }
 }
 
-static void volume_change_task(void *arg)
+static void volume_task(void *arg)
 {
-    delay(VOLUME_CHANGE_START_DELAY);
+    delay(VOLUME_START_DELAY);
 
-    changing_volume = true;
+    changed_volume = true;
     for (;;)
     {
         if (buttons_map == B2_MASK)
@@ -108,21 +142,26 @@ static void volume_change_task(void *arg)
         delay(VOLUME_CHANGE_PERIOD);
     }
 
-    s_volume_change_task_handle = NULL;
+    s_volume_task_handle = NULL;
     vTaskDelete(NULL);
 }
-static void volume_change_task_init()
+static void volume_task_init()
 {
-    if (!s_volume_change_task_handle)
-        xTaskCreate(volume_change_task, "volume_change_task", 2 * 1024, NULL, 10, &s_volume_change_task_handle);
+    if (GPIO_DEBUG)
+        printf("Volume task init\n");
+
+    if (!s_volume_task_handle)
+        xTaskCreate(volume_task, "volume_task", VOLUME_TASK_DEPTH, NULL, 10, &s_volume_task_handle);
 }
-static void volume_change_task_deinit()
+static void volume_task_deinit()
 {
-    if (s_volume_change_task_handle)
+    if (GPIO_DEBUG)
+        printf("Volume task deinit\n");
+
+    if (s_volume_task_handle)
     {
-        changing_volume = false;
-        vTaskDelete(s_volume_change_task_handle);
-        s_volume_change_task_handle = NULL;
+        vTaskDelete(s_volume_task_handle);
+        s_volume_task_handle = NULL;
     }
 }
 
@@ -136,11 +175,17 @@ static void releasing_task_handler(void *arg)
 }
 static void releasing_task_init()
 {
+    if (GPIO_DEBUG)
+        printf("Releasing task init\n");
+
     if (!s_releasing_task_handle)
-        xTaskCreate(releasing_task_handler, "releasing_task_handler", 2 * 1024, NULL, 10, &s_releasing_task_handle);
+        xTaskCreate(releasing_task_handler, "releasing_task_handler", RELEASING_TASK_DEPTH, NULL, 10, &s_releasing_task_handle);
 }
 static void releasing_task_deinit()
 {
+    if (GPIO_DEBUG)
+        printf("Releasing task deinit\n");
+
     if (s_releasing_task_handle)
     {
         vTaskDelete(s_releasing_task_handle);
@@ -150,7 +195,6 @@ static void releasing_task_deinit()
 
 static void gpio_task_handler(void *arg)
 {
-
     gpio_pad_select_gpio(B1);
     gpio_set_direction(B1, GPIO_MODE_INPUT);
     gpio_set_pull_mode(B1, GPIO_PULLDOWN_ONLY);
@@ -165,26 +209,21 @@ static void gpio_task_handler(void *arg)
 
     for (;;)
     {
-        vTaskDelay(DEBOUNCE / portTICK_PERIOD_MS);
+        delay(DEBOUNCE);
 
         if (gpio_get_level(B1) != ((buttons_map & B1_MASK) ? 1 : 0))
         {
             buttons_map ^= B1_MASK;
             if (buttons_map & B1_MASK)
             {
-                printf("Pressed B1\n");
+                if (GPIO_DEBUG)
+                    printf("Pressed B1\n");
 
-                /*power_off_task_init();*/
+                if (buttons_map == B1_MASK)
+                    power_off_task_init();
             }
-            else
-            {
+            else if (GPIO_DEBUG)
                 printf("Released B1\n");
-
-                /*power_off_task_deinit();
-
-                if (!powering_off)
-                    printf("Play/Pause\n");*/
-            }
         }
 
         if (gpio_get_level(B2) != ((buttons_map & B2_MASK) ? 1 : 0))
@@ -192,21 +231,14 @@ static void gpio_task_handler(void *arg)
             buttons_map ^= B2_MASK;
             if (buttons_map & B2_MASK)
             {
-                printf("Pressed B2\n");
+                if (GPIO_DEBUG)
+                    printf("Pressed B2\n");
 
-                /*power_off_task_deinit();
-
-                volume_change_task_init();*/
+                if (buttons_map == B2_MASK && mode == MUSIC)
+                    volume_task_init();
             }
-            else
-            {
+            else if (GPIO_DEBUG)
                 printf("Released B2\n");
-
-                /*if (!changing_volume)
-                    printf("Volume up\n");
-
-                volume_change_task_deinit();*/
-            }
         }
 
         if (gpio_get_level(B3) != ((buttons_map & B3_MASK) ? 1 : 0))
@@ -214,22 +246,21 @@ static void gpio_task_handler(void *arg)
             buttons_map ^= B3_MASK;
             if (buttons_map & B3_MASK)
             {
-                printf("Pressed B3\n");
+                if (GPIO_DEBUG)
+                    printf("Pressed B3\n");
 
-                /*power_off_task_deinit();
-
-                volume_change_task_init();*/
+                if (buttons_map == B3_MASK && mode == MUSIC)
+                    volume_task_init();
             }
-            else
-            {
+            else if (GPIO_DEBUG)
                 printf("Released B3\n");
-
-                /*if (!changing_volume)
-                    printf("Volume down\n");
-
-                volume_change_task_deinit();*/
-            }
         }
+
+        if (buttons_map != buttons_command && buttons_map != B1_MASK)
+            power_off_task_deinit();
+
+        if (buttons_map != buttons_command && buttons_map != B2_MASK && buttons_map != B3_MASK)
+            volume_task_deinit();
 
         if (buttons_pressed(buttons_map) < buttons_pressed(buttons_command)) // When a button is released
             releasing_task_init();
@@ -243,9 +274,80 @@ static void gpio_task_handler(void *arg)
         {
             releasing_task_deinit(); // No need
 
-            printf("Execute command: %d\n\n", buttons_command);
-            //TODO Execute command
+            switch (buttons_command)
+            {
+            case B1_MASK:
+                if (mode == MUSIC)
+                    printf("Play/Pause\n");
+                break;
 
+            case B2_MASK:
+                switch (mode)
+                {
+                case MUSIC:
+                    if (!changed_volume)
+                        printf("Volume up\n");
+                    break;
+                case RECORD_PLAYBACK:
+                    if (!recording)
+                        printf("Start recording\n");
+                    else
+                        printf("Stop recording\n");
+                    break;
+                }
+                break;
+
+            case B3_MASK:
+                switch (mode)
+                {
+                case MUSIC:
+                    if (!changed_volume)
+                        printf("Volume down\n");
+                    break;
+                case RECORD_PLAYBACK:
+                    if (!playing_back)
+                        printf("Start playback\n");
+                    else
+                        printf("Stop playback\n");
+                    break;
+                }
+                break;
+
+            case B1_MASK | B2_MASK:
+                if (mode == MUSIC)
+                    printf("Next track\n");
+                break;
+
+            case B1_MASK | B3_MASK:
+                if (mode == MUSIC)
+                    printf("Previous track\n");
+                break;
+
+            case B2_MASK | B3_MASK:
+                if (mode == MUSIC)
+                {
+                    if (device++ == BONE_CONDUCTORS)
+                        device = SPEAKERS_BONE_CONDUCTORS;
+
+                    printf("Changed to device %d\n", device);
+                }
+                break;
+
+            case B1_MASK | B2_MASK | B3_MASK:
+                printf("Change mode\n");
+                switch (mode)
+                {
+                case MUSIC:
+                    mode = RECORD_PLAYBACK;
+                    break;
+                case RECORD_PLAYBACK:
+                    mode = MUSIC;
+                    break;
+                }
+                break;
+            }
+
+            changed_volume = false;
             buttons_command = 0;
         }
     }
@@ -253,8 +355,22 @@ static void gpio_task_handler(void *arg)
     s_gpio_task_handle = NULL;
     vTaskDelete(NULL);
 }
+void gpio_task_init()
+{
+    if (GPIO_DEBUG)
+        printf("GPIO task init\n");
+
+    xTaskCreate(gpio_task_handler, "gpio_task_handler", GPIO_TASK_DEPTH, NULL, 10, &s_gpio_task_handle);
+}
 void gpio_task_deinit()
 {
+    if (GPIO_DEBUG)
+        printf("GPIO task deinit\n");
+
+    releasing_task_deinit();
+    power_off_task_deinit();
+    volume_task_deinit();
+
     if (s_gpio_task_handle)
     {
         vTaskDelete(s_gpio_task_handle);

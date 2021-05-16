@@ -1,7 +1,6 @@
 #include "main.h"
 
-#define SPEAKERS_I2S_NUM I2S_NUM_0
-#define MICROPHONES_I2S_NUM I2S_NUM_0
+#define SPEAKERS_MICROPHONES_I2S_NUM I2S_NUM_0
 #define BONE_CONDUCTORS_I2S_NUM I2S_NUM_1
 
 #define SPEAKERS_WS_PIN GPIO_NUM_18
@@ -61,7 +60,7 @@ void bone_conductors_deinit();
  * 
  * @param mode mode to be set
  */
-void set_mode(int mode);
+//void set_mode(int mode);
 
 /**
  * @brief Write data to I2S interface

@@ -28,7 +28,7 @@
 #include "driver/dac.h"
 #include "driver/gpio.h"
 
-#define GPIO_DEBUG true
+#define GPIO_DEBUG false
 #define I2S_DEBUG false
 
 #define DEVICE_NAME "SoniqOculos"
@@ -44,9 +44,14 @@
 #define OFF LOW
 
 //* Modes
-#define IDLE 0
-#define MUSIC 1
-#define RECORD_PLAYBACK 2
+#define MUSIC 0
+#define RECORD_PLAYBACK 1
+
+//* Devices
+#define NONE 0
+#define SPEAKERS 1
+#define MICROPHONES 2
+#define BONE_CONDUCTORS 3
 
 /**
  * @brief Delay in milliseconds
@@ -54,6 +59,9 @@
  * @param millis milliseconds to delay
  */
 void delay(int millis);
+
+int get_mode();
+void set_mode(int m);
 
 /**
  * @brief Handle messages recevied

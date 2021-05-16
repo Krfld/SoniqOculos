@@ -3,5 +3,10 @@
 		{
 			"path": "ESP-IDF\\SoniqOculos"
 		}
-	]
+	],
+	"settings": {
+		"files.associations": {
+			"main.h": "c"
+		}
+	}
 }

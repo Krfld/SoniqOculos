@@ -5,7 +5,15 @@
 #include "gpio.h"
 #include "sd.h"
 
-int mode = MUSIC;
+static int mode = MUSIC;
+int get_mode()
+{
+    return mode;
+}
+void set_mode(int m)
+{
+    mode = m;
+}
 
 void delay(int millis)
 {
@@ -14,7 +22,7 @@ void delay(int millis)
 
 void app_main(void)
 {
-    gpio_init();
+    gpio_task_init();
     bt_init();
 
     printf("\nSetup ready\n\n");

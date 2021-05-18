@@ -15,6 +15,8 @@
 #define BT_RC_TG_TAG "RCTG"
 #define BT_RC_CT_TAG "RCCT"
 
+bool bt_is_music_playing();
+
 /**
  * @brief     callback function for A2DP sink
  */

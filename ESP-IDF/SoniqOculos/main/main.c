@@ -27,11 +27,15 @@ void app_main(void)
     sd_task_init();
     gpio_task_init();
 
+    bt_music_init();
+
     printf("\nSetup ready\n\n");
 }
 
 void handleMsgs(char *msg)
 {
+    //TODO Implement with flutter
+
     printf("\n%s\n\n", msg);
 
     // Response

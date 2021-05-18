@@ -2,9 +2,12 @@
 
 #include "i2s.h"
 #include "sd.h"
+#include "bt_app_av.h"
 
 bool recording = false;    // from sd
 bool playing_back = false; // from i2s
+
+static uint8_t tl = 0;
 
 static int buttons_map = 0;
 static int buttons_command = 0;
@@ -192,13 +195,19 @@ static void gpio_task(void *arg)
 
         if (buttons_map == 0 && buttons_map != buttons_command) // When no button is pressed
         {
+            if (++tl > 15)
+                tl = 0;
+
             releasing_task_deinit(); // No need
 
             switch (buttons_command)
             {
             case B1_MASK: // 001
                 if (get_mode() == MUSIC)
+                {
                     printf("Play/Pause\n");
+                    esp_avrc_ct_send_passthrough_cmd(tl, bt_is_music_playing() ? ESP_AVRC_PT_CMD_PAUSE : ESP_AVRC_PT_CMD_PLAY, ESP_AVRC_PT_CMD_STATE_PRESSED);
+                }
                 break;
 
             case B2_MASK: // 010
@@ -247,12 +256,18 @@ static void gpio_task(void *arg)
 
             case B1_MASK | B2_MASK: // 011
                 if (get_mode() == MUSIC)
+                {
                     printf("Next track\n");
+                    esp_avrc_ct_send_passthrough_cmd(tl, ESP_AVRC_PT_CMD_FORWARD, ESP_AVRC_PT_CMD_STATE_PRESSED);
+                }
                 break;
 
             case B1_MASK | B3_MASK: // 101
                 if (get_mode() == MUSIC)
+                {
                     printf("Previous track\n");
+                    esp_avrc_ct_send_passthrough_cmd(tl, ESP_AVRC_PT_CMD_BACKWARD, ESP_AVRC_PT_CMD_STATE_PRESSED);
+                }
                 break;
 
             case B2_MASK | B3_MASK: // 110

@@ -218,7 +218,7 @@ void app_main(void)
     pin_code[3] = '4';
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
-    //! Testing
+    //! Testing commands
     //dac_output_enable(DAC_CHANNEL_1);
     //dac_output_voltage(DAC_CHANNEL_1, 120);
     /*while (true)

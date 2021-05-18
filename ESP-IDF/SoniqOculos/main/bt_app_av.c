@@ -141,9 +141,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         ESP_LOGI(BT_AV_TAG, "A2DP audio state: %s", s_a2d_audio_state_str[a2d->audio_stat.state]);
         s_audio_state = a2d->audio_stat.state;
         if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state)
-        {
             s_pkt_cnt = 0;
-        }
         //!i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
         //!i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
         //TODO Test buffer clear
@@ -393,4 +391,9 @@ static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param)
         ESP_LOGE(BT_RC_TG_TAG, "%s unhandled evt %d", __func__, event);
         break;
     }
+}
+
+bool bt_is_music_playing()
+{
+    return s_audio_state == ESP_A2D_AUDIO_STATE_STARTED;
 }

@@ -11,6 +11,10 @@
 
 #define SD_DET_PIN GPIO_NUM_36 // VP
 
+#define SD_STACK_DEPTH 3 * 1024
+
+#define SD_DET_CHECK_DELAY 500 // ms
+
 /*typedef struct _wav_header
 {
     // RIFF Header
@@ -54,13 +58,8 @@
     }
 } wav_header_t;*/
 
-/**
- * @brief Check if card is mounted
- * 
- * @return true if mounted
- * @return false if not mounted
- */
-bool sd_is_card_mounted();
+void sd_task_init();
+void sd_task_deinit();
 
 /**
  * @brief Initialize SD card

@@ -24,6 +24,7 @@ void app_main(void)
 {
     spi_init();
     bt_init();
+    sd_task_init();
     gpio_task_init();
 
     printf("\nSetup ready\n\n");

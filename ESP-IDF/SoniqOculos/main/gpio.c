@@ -31,19 +31,6 @@ static void volume_task_deinit();
 static xTaskHandle s_gpio_task_handle = NULL;
 static void gpio_task(void *arg);
 
-void wait_for_sd_card()
-{
-    gpio_pad_select_gpio(SD_DET_PIN);
-    gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT);
-
-    do // Make sure the card is inserted
-    {
-        while (!gpio_get_level(SD_DET_PIN))
-            ;
-        delay(SD_CARD_DET_DELAY);
-    } while (!gpio_get_level(SD_DET_PIN));
-}
-
 static int buttons_pressed(int buttons)
 {
     int buttons_pressed = 0;
@@ -119,8 +106,6 @@ static void volume_task(void *arg)
 
 static void gpio_task(void *arg)
 {
-    bool sd_det_state = false;
-
     gpio_pad_select_gpio(B1);                   // Set GPIO
     gpio_set_direction(B1, GPIO_MODE_INPUT);    // Set INPUT
     gpio_set_pull_mode(B1, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
@@ -148,8 +133,11 @@ static void gpio_task(void *arg)
                 if (buttons_map == B1_MASK)
                     power_off_task_init();
             }
-            else if (GPIO_DEBUG) // Released button 1
-                printf("Released B1\n");
+            else // Released button 1
+            {
+                if (GPIO_DEBUG)
+                    printf("Released B1\n");
+            }
         }
 
         if (gpio_get_level(B2) != ((buttons_map & B2_MASK) ? 1 : 0))
@@ -163,8 +151,11 @@ static void gpio_task(void *arg)
                 if (buttons_map == B2_MASK && get_mode() == MUSIC)
                     volume_task_init();
             }
-            else if (GPIO_DEBUG) // Released button 2
-                printf("Released B2\n");
+            else // Released button 2
+            {
+                if (GPIO_DEBUG)
+                    printf("Released B2\n");
+            }
         }
 
         if (gpio_get_level(B3) != ((buttons_map & B3_MASK) ? 1 : 0))
@@ -178,8 +169,11 @@ static void gpio_task(void *arg)
                 if (buttons_map == B3_MASK && get_mode() == MUSIC)
                     volume_task_init();
             }
-            else if (GPIO_DEBUG) // Released button 3
-                printf("Released B3\n");
+            else // Released button 3
+            {
+                if (GPIO_DEBUG)
+                    printf("Released B3\n");
+            }
         }
 
         if (buttons_map != buttons_command && buttons_map != B1_MASK)
@@ -208,7 +202,6 @@ static void gpio_task(void *arg)
                 break;
 
             case B2_MASK: // 010
-                sd_init();
                 switch (get_mode())
                 {
                 case MUSIC:
@@ -216,19 +209,25 @@ static void gpio_task(void *arg)
                         printf("Volume up\n");
                     break;
                 case RECORD_PLAYBACK:
-                    //TODO Check SD card
+                    if (!sd_init())
+                        break;
                     recording = !recording;
                     if (recording)
+                    {
                         printf("Start recording\n");
+                        sd_open_file("testing.txt", "wb");
+                    }
                     else
+                    {
                         printf("Stop recording\n");
+                        sd_deinit();
+                    }
                     delay(COMMAND_DELAY);
                     break;
                 }
                 break;
 
             case B3_MASK: // 100
-                sd_deinit();
                 switch (get_mode())
                 {
                 case MUSIC:
@@ -287,17 +286,10 @@ static void gpio_task(void *arg)
             changed_volume = false;
             buttons_command = 0;
         }
-
-        if (gpio_get_level(SD_DET_PIN) != sd_det_state)
-        {
-            sd_det_state = !sd_det_state;
-            if (!sd_det_state)
-            {
-                printf("Card removed\n");
-                sd_deinit();
-            }
-        }
     }
+
+    s_gpio_task_handle = NULL;
+    vTaskDelete(NULL);
 }
 
 void gpio_task_init()
@@ -305,7 +297,8 @@ void gpio_task_init()
     if (GPIO_DEBUG)
         printf("GPIO task init\n");
 
-    xTaskCreate(gpio_task, "gpio_task", GPIO_STACK_DEPTH, NULL, 10, &s_gpio_task_handle);
+    if (!s_gpio_task_handle)
+        xTaskCreate(gpio_task, "gpio_task", GPIO_STACK_DEPTH, NULL, 10, &s_gpio_task_handle);
 }
 void gpio_task_deinit()
 {

@@ -9,12 +9,54 @@ static FILE *f = NULL;
 
 static bool sd_card_mounted = false;
 
-//TODO Create task to detect card
+static bool sd_det_state = false;
+static xTaskHandle s_sd_task_handle = NULL;
+static void sd_task(void *arg);
+
+static void sd_task(void *arg)
+{
+    gpio_pad_select_gpio(SD_DET_PIN);                // Set GPIO
+    gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT); // Set INPUT
+
+    for (;;)
+    {
+        delay(SD_DET_CHECK_DELAY);
+
+        if (gpio_get_level(SD_DET_PIN) != sd_det_state)
+        {
+            sd_det_state = !sd_det_state;
+            if (!sd_det_state) // SD removed
+                sd_deinit();
+        }
+    }
+
+    s_sd_task_handle = NULL;
+    vTaskDelete(NULL);
+}
+void sd_task_init()
+{
+    if (SD_DEBUG)
+        printf("SD task init\n");
+
+    if (!s_sd_task_handle)
+        xTaskCreate(sd_task, "sd_task", SD_STACK_DEPTH, NULL, 10, &s_sd_task_handle);
+}
+void sd_task_deinit()
+{
+    if (SD_DEBUG)
+        printf("SD task deinit\n");
+
+    if (s_sd_task_handle)
+    {
+        vTaskDelete(s_sd_task_handle);
+        s_sd_task_handle = NULL;
+    }
+}
 
 bool sd_init()
 {
     if (sd_card_mounted)
-        return false;
+        return true;
 
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
@@ -27,10 +69,7 @@ bool sd_init()
     slot_config.gpio_cs = SD_CS_PIN;
     slot_config.host_id = host.slot;
 
-    gpio_pad_select_gpio(SD_DET_PIN);                // Set GPIO
-    gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT); // Set INPUT
-
-    if (!gpio_get_level(SD_DET_PIN))
+    if (!sd_det_state)
     {
         ESP_LOGW(SD_CARD_TAG, "Insert card");
         return false;
@@ -47,7 +86,6 @@ bool sd_init()
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
     return true;
-    //sd_open_file("samples.txt", "wb");
 }
 void sd_deinit()
 {

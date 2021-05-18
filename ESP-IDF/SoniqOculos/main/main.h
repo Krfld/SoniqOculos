@@ -30,6 +30,7 @@
 
 #define GPIO_DEBUG false
 #define I2S_DEBUG false
+#define SD_DEBUG false
 
 #define DEVICE_NAME "SoniqOculos"
 
@@ -40,8 +41,8 @@
 #define HIGH 1
 #define LOW 0
 
-#define ON HIGH
-#define OFF LOW
+#define ON true
+#define OFF false
 
 //* Modes
 #define MUSIC 0

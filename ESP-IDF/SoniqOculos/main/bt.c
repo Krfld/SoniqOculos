@@ -14,6 +14,8 @@
 
 #include "bt.h"
 
+static bool bt_is_music_ready();
+
 // event for handler "bt_av_hdl_stack_up
 enum
 {
@@ -212,14 +214,15 @@ void bt_init()
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 }
 
-static bool bt_music_active = false;
-bool bt_is_music_active()
+static bool bt_music_ready = false;
+static bool bt_is_music_ready()
 {
-    return bt_music_active;
+    return bt_music_ready;
 }
+
 void bt_music_init()
 {
-    if (bt_is_music_active())
+    if (bt_is_music_ready())
         return;
 
     // initialize AVRCP controller
@@ -238,16 +241,26 @@ void bt_music_init()
     esp_a2d_sink_register_data_callback(bt_app_a2d_data_cb);
     esp_a2d_sink_init();
 
-    bt_music_active = true;
+    bt_music_ready = true;
 }
 void bt_music_deinit()
 {
-    if (!bt_is_music_active())
+    if (!bt_is_music_ready())
         return;
 
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();
     esp_a2d_sink_deinit();
 
-    bt_music_active = false;
+    bt_music_ready = false;
+}
+
+void bt_send_cmd(uint8_t cmd)
+{
+    static uint8_t tl = 0; //* static will keep value
+
+    if (++tl > 15)
+        tl = 0;
+
+    esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED);
 }

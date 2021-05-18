@@ -2,12 +2,11 @@
 
 #include "i2s.h"
 #include "sd.h"
+#include "bt.h"
 #include "bt_app_av.h"
 
 bool recording = false;    // from sd
 bool playing_back = false; // from i2s
-
-static uint8_t tl = 0;
 
 static int buttons_map = 0;
 static int buttons_command = 0;
@@ -96,9 +95,13 @@ static void volume_task(void *arg)
     for (;;)
     {
         if (buttons_map == B2_MASK)
+        {
             printf("Volume up\n");
+        }
         if (buttons_map == B3_MASK)
+        {
             printf("Volume down\n");
+        }
 
         delay(VOLUME_CHANGE_PERIOD);
     }
@@ -195,9 +198,6 @@ static void gpio_task(void *arg)
 
         if (buttons_map == 0 && buttons_map != buttons_command) // When no button is pressed
         {
-            if (++tl > 15)
-                tl = 0;
-
             releasing_task_deinit(); // No need
 
             switch (buttons_command)
@@ -206,7 +206,7 @@ static void gpio_task(void *arg)
                 if (get_mode() == MUSIC)
                 {
                     printf("Play/Pause\n");
-                    esp_avrc_ct_send_passthrough_cmd(tl, bt_is_music_playing() ? ESP_AVRC_PT_CMD_PAUSE : ESP_AVRC_PT_CMD_PLAY, ESP_AVRC_PT_CMD_STATE_PRESSED);
+                    bt_send_cmd(bt_is_music_playing() ? ESP_AVRC_PT_CMD_PAUSE : ESP_AVRC_PT_CMD_PLAY);
                 }
                 break;
 
@@ -215,7 +215,9 @@ static void gpio_task(void *arg)
                 {
                 case MUSIC:
                     if (!changed_volume)
+                    {
                         printf("Volume up\n");
+                    }
                     break;
                 case RECORD_PLAYBACK:
                     if (!sd_init())
@@ -241,7 +243,9 @@ static void gpio_task(void *arg)
                 {
                 case MUSIC:
                     if (!changed_volume)
+                    {
                         printf("Volume down\n");
+                    }
                     break;
                 case RECORD_PLAYBACK:
                     playing_back = !playing_back;
@@ -258,7 +262,7 @@ static void gpio_task(void *arg)
                 if (get_mode() == MUSIC)
                 {
                     printf("Next track\n");
-                    esp_avrc_ct_send_passthrough_cmd(tl, ESP_AVRC_PT_CMD_FORWARD, ESP_AVRC_PT_CMD_STATE_PRESSED);
+                    bt_send_cmd(ESP_AVRC_PT_CMD_FORWARD);
                 }
                 break;
 
@@ -266,7 +270,7 @@ static void gpio_task(void *arg)
                 if (get_mode() == MUSIC)
                 {
                     printf("Previous track\n");
-                    esp_avrc_ct_send_passthrough_cmd(tl, ESP_AVRC_PT_CMD_BACKWARD, ESP_AVRC_PT_CMD_STATE_PRESSED);
+                    bt_send_cmd(ESP_AVRC_PT_CMD_BACKWARD);
                 }
                 break;
 

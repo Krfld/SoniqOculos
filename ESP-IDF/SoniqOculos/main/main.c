@@ -19,7 +19,7 @@ void app_main(void)
     gpio_task_init();
 
     dac_output_enable(DAC_CHANNEL_1);
-    dac_output_voltage(DAC_CHANNEL_1, 3 / LOGIC * UCHAR_MAX);
+    dac_output_voltage(DAC_CHANNEL_1, 3.2 / LOGIC * UCHAR_MAX);
 
     speakers_init();
     bone_conductors_init();

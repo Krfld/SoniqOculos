@@ -99,23 +99,23 @@ void i2s_change_devices_state()
 {
     if (i2s0_state & i2s1_state)
     {
-        if (I2S_DEBUG)
-            printf("Only bone conductors\n");
+        //if (I2S_DEBUG)
+        printf("Only bone conductors\n");
 
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     }
     else if (i2s1_state)
     {
-        if (I2S_DEBUG)
-            printf("Only speakers\n");
+        //if (I2S_DEBUG)
+        printf("Only speakers\n");
 
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
     }
     else if (i2s0_state)
     {
-        if (I2S_DEBUG)
-            printf("Both devices\n");
+        //if (I2S_DEBUG)
+        printf("Both devices\n");
 
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
     }

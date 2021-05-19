@@ -18,6 +18,10 @@ void app_main(void)
     sd_det_task_init();
     gpio_task_init();
 
+    dac_output_enable(DAC_CHANNEL_1);
+    dac_output_voltage(DAC_CHANNEL_1, 3 / LOGIC * UCHAR_MAX);
+
+    speakers_init();
     bone_conductors_init();
 
     printf("\nSetup ready\n\n");

@@ -11,9 +11,9 @@
 
 #define SD_DET_PIN GPIO_NUM_36 // VP
 
-#define SD_STACK_DEPTH 3 * 1024
+#define SD_STACK_DEPTH 2 * 1024
 
-#define SD_DET_CHECK_DELAY 500 // ms
+#define SD_DET_DELAY 500 // ms
 
 /*typedef struct _wav_header
 {
@@ -58,8 +58,8 @@
     }
 } wav_header_t;*/
 
-void sd_task_init();
-void sd_task_deinit();
+void sd_det_task_init();
+void sd_det_task_deinit();
 
 /**
  * @brief Initialize SD card
@@ -67,12 +67,12 @@ void sd_task_deinit();
  * @return true if card inserted
  * @return false if no card inserted
  */
-bool sd_init();
+bool sd_card_init();
 /**
  * @brief Deinitialize SD card
  * 
  */
-void sd_deinit();
+void sd_card_deinit();
 
 /**
  * @brief Initialize spi
@@ -88,7 +88,7 @@ void spi_deinit();
 /**
  * @brief Open a file
  * 
- * @param filename name of the file with extention
+ * @param filename name of the file (with extention)
  * @param type type of operation
  */
 void sd_open_file(char *filename, char *type);

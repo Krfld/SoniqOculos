@@ -19,8 +19,6 @@
 #define VOLUME_CHANGE_PERIOD 500      // ms
 #define COMMAND_DELAY 500             // ms
 
-void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin);
-
 /**
  * @brief Create gpio task
  * 

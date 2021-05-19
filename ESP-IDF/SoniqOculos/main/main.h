@@ -48,21 +48,12 @@
 #define MUSIC 0
 #define RECORD_PLAYBACK 1
 
-//* Devices
-#define NONE 0
-#define SPEAKERS 1
-#define MICROPHONES 2
-#define BONE_CONDUCTORS 3
-
 /**
  * @brief Delay in milliseconds
  * 
  * @param millis milliseconds to delay
  */
 void delay(int millis);
-
-int get_mode();
-void set_mode(int m);
 
 /**
  * @brief Handle messages recevied

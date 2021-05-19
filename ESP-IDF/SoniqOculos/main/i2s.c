@@ -5,10 +5,16 @@
 #include "bt.h"
 
 static int i2s0_device = NONE;
-static int i2s1_device = NONE;
+
+static bool i2s0_state = OFF;
+static bool i2s1_state = OFF;
 
 static xTaskHandle s_i2s_read_task_handle = NULL;
 static void i2s_read_task(void *arg);
+static void i2s_read_task_init();
+static void i2s_read_task_deinit();
+
+static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin);
 
 //* Speakers pin configuration
 static i2s_pin_config_t speakers_pin_config = {
@@ -35,7 +41,7 @@ static i2s_pin_config_t bone_conductors_pin_config = {
 static i2s_config_t i2s_config_tx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_TX,
     .sample_rate = 44100,
-    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, // 32 bit when playback from microphones
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, // 32 bit when playing back from microphones
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
@@ -59,6 +65,49 @@ static i2s_config_t i2s_config_rx = {
     .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
     .fixed_mclk = 0};
 
+static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
+{
+    gpio_pad_select_gpio(ws_pin);                 // Set GPIO
+    gpio_set_direction(ws_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
+    gpio_set_level(ws_pin, LOW);                  // Set LOW
+
+    gpio_pad_select_gpio(bck_pin);                 // Set GPIO
+    gpio_set_direction(bck_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
+    gpio_set_level(bck_pin, LOW);
+
+    gpio_pad_select_gpio(data_pin);                 // Set GPIO
+    gpio_set_direction(data_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
+    gpio_set_level(data_pin, LOW);                  // Set LOW
+}
+
+void i2s_set_device_state(int device, bool state)
+{
+    if (device == SPEAKERS_MICROPHONES_I2S_NUM)
+    {
+        i2s0_state = state;
+        (i2s0_state && i2s0_device == SPEAKERS) ? gpio_set_level(SPEAKERS_SD_PIN, HIGH) : gpio_set_level(SPEAKERS_SD_PIN, LOW); // SD pin
+    }
+
+    if (device == BONE_CONDUCTORS_I2S_NUM)
+    {
+        i2s1_state = state;
+        i2s1_state ? gpio_set_level(BONE_CONDUCTORS_SD_PIN, HIGH) : gpio_set_level(BONE_CONDUCTORS_SD_PIN, LOW); // SD pin
+    }
+}
+
+void i2s_change_devices_state()
+{
+    if (i2s0_state & i2s1_state)
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+    else if (i2s0_state)
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+    else if (i2s1_state)
+    {
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+    }
+}
+
 void speakers_init()
 {
     if (i2s0_device == SPEAKERS)
@@ -66,15 +115,14 @@ void speakers_init()
 
     microphones_deinit();
 
-    if (i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
-        printf("\nSpeakers i2s driver install failed\n\n");
+    i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL);
+    i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config);
 
-    if (i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config) != ESP_OK)
-        printf("\nSpeakers i2s set pin failed\n\n");
-
-    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
+    //i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
 
     i2s0_device = SPEAKERS;
+
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
 void speakers_deinit()
 {
@@ -83,13 +131,11 @@ void speakers_deinit()
 
     i2s0_device = NONE;
 
-    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
+    //i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
 
-    delay(I2S_DEVICES_DEINIT_DELAY);
+    delay(DEVICE_DEINIT_DELAY);
 
-    if (i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM) != ESP_OK)
-        printf("\nSpeakers i2s driver uninstall failed\n\n");
-
+    i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
     i2s_pins_reset(SPEAKERS_WS_PIN, SPEAKERS_BCK_PIN, SPEAKERS_DATA_PIN);
 }
 
@@ -100,16 +146,14 @@ void microphones_init()
 
     speakers_deinit();
 
-    if (i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL) != ESP_OK)
-        printf("\nMicrophones i2s driver install failed\n\n");
+    i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
+    i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
 
-    if (i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config) != ESP_OK)
-        printf("\nMicrophones i2s set pin failed\n\n");
+    i2s_read_task_init();
 
     i2s0_device = MICROPHONES;
 
-    if (!s_i2s_read_task_handle)
-        xTaskCreate(i2s_read_task, "i2s_read_task", I2S_READ_STACK_DEPTH, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
 void microphones_deinit()
 {
@@ -118,57 +162,37 @@ void microphones_deinit()
 
     i2s0_device = NONE;
 
-    //delay(I2S_DEVICES_DEINIT_DELAY);
+    i2s_read_task_deinit();
 
-    if (s_i2s_read_task_handle)
-    {
-        vTaskDelete(s_i2s_read_task_handle);
-        s_i2s_read_task_handle = NULL;
-    }
+    //delay(DEVICE_DEINIT_DELAY);
 
-    if (i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM) != ESP_OK)
-        printf("\nMicrophones i2s driver uninstall failed\n\n");
-
+    i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
     i2s_pins_reset(MICROPHONES_WS_PIN, MICROPHONES_BCK_PIN, MICROPHONES_DATA_PIN);
 }
 
 void bone_conductors_init()
 {
-    if (i2s1_device == BONE_CONDUCTORS)
-        return;
+    i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL);
+    i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config);
 
-    if (i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL) != ESP_OK)
-        printf("\nBone conductors i2s driver install failed\n\n");
+    //i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
 
-    if (i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config) != ESP_OK)
-        printf("\nBone conductors i2s set pin failed\n\n");
-
-    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-
-    i2s1_device = BONE_CONDUCTORS;
+    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
 }
-void bone_conductors_deinit()
+/*void bone_conductors_deinit()
 {
     if (i2s1_device != BONE_CONDUCTORS)
         return;
-
     i2s1_device = NONE;
-
-    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-
-    delay(I2S_DEVICES_DEINIT_DELAY);
-
-    if (i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM) != ESP_OK)
-        printf("\nBone conductors i2s driver uninstall failed\n\n");
-
+    //i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+    delay(DEVICE_DEINIT_DELAY);
+    i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM);
     i2s_pins_reset(BONE_CONDUCTORS_WS_PIN, BONE_CONDUCTORS_BCK_PIN, BONE_CONDUCTORS_DATA_PIN);
-}
+}*/
 
 /*void set_mode(int mode)
 {
-    //TODO Shutdown unused amps and handle SD Card
-    //if (mode != RECORD)
-    //sd_close_file();
+    //TODO Shutdown unused amps
 
     //i2s0_device = NONE; //! Doesn't solve the problem
     //i2s1_device = NONE; //! Doesn't solve the problem
@@ -217,7 +241,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
         tick_1 = esp_timer_get_time();
     }
 
-    if (i2s0_device == SPEAKERS)
+    if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
         i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
@@ -226,7 +250,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
         printf("After writing first i2s: +%lldus\n", tick_2 - tick_1);
     }
 
-    if (i2s1_device == BONE_CONDUCTORS)
+    if (i2s1_state) // If bone conductors are on
         i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
@@ -241,21 +265,38 @@ void i2s_write_data(uint8_t *data, size_t *len)
 static void i2s_read_task(void *arg)
 {
     size_t bytes_read = 0;
-    uint8_t data[DMA_BUFFER_LEN] = {0};
+    uint8_t data[DMA_BUFFER_LEN * 4] = {0};
 
     for (;;)
     {
-        if (i2s0_device != MICROPHONES) // No need
+        if (!i2s0_state)
+        {
+            delay(READ_TASK_IDLE_DELAY);
             continue;
+        }
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, &data, sizeof(data), &bytes_read, portMAX_DELAY);
 
-        if (bytes_read == 0)
-            continue;
-
-        if (i2s1_device == BONE_CONDUCTORS) //* Playback mode
+        if (i2s1_state)
             i2s_write_data(data, &bytes_read);
-        else if (i2s0_device == MICROPHONES) //* Record mode
-            sd_write_data(data, &bytes_read);
+
+        /*if (i2s0_state == MICROPHONES) // Record mode
+            sd_write_data(data, &bytes_read);*/
+    }
+
+    s_i2s_read_task_handle = NULL;
+    vTaskDelete(NULL);
+}
+static void i2s_read_task_init()
+{
+    if (!s_i2s_read_task_handle)
+        xTaskCreate(i2s_read_task, "i2s_read_task", I2S_READ_STACK_DEPTH, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
+}
+static void i2s_read_task_deinit()
+{
+    if (s_i2s_read_task_handle)
+    {
+        vTaskDelete(s_i2s_read_task_handle);
+        s_i2s_read_task_handle = NULL;
     }
 }

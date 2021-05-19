@@ -7,55 +7,53 @@ static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
 static FILE *f = NULL;
 
-static bool sd_card_mounted = false;
-
 static bool sd_det_state = false;
-static xTaskHandle s_sd_task_handle = NULL;
-static void sd_task(void *arg);
+static xTaskHandle s_sd_det_task_handle = NULL;
+static void sd_det_task(void *arg);
 
-static void sd_task(void *arg)
+static void sd_det_task(void *arg)
 {
     gpio_pad_select_gpio(SD_DET_PIN);                // Set GPIO
     gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT); // Set INPUT
 
     for (;;)
     {
-        delay(SD_DET_CHECK_DELAY);
+        delay(SD_DET_DELAY);
 
         if (gpio_get_level(SD_DET_PIN) != sd_det_state)
         {
             sd_det_state = !sd_det_state;
             if (!sd_det_state) // SD removed
-                sd_deinit();
+                sd_card_deinit();
         }
     }
 
-    s_sd_task_handle = NULL;
+    s_sd_det_task_handle = NULL;
     vTaskDelete(NULL);
 }
-void sd_task_init()
+void sd_det_task_init()
 {
     if (SD_DEBUG)
         printf("SD task init\n");
 
-    if (!s_sd_task_handle)
-        xTaskCreate(sd_task, "sd_task", SD_STACK_DEPTH, NULL, 10, &s_sd_task_handle);
+    if (!s_sd_det_task_handle)
+        xTaskCreate(sd_det_task, "sd_det_task", SD_STACK_DEPTH, NULL, 10, &s_sd_det_task_handle);
 }
-void sd_task_deinit()
+void sd_det_task_deinit()
 {
     if (SD_DEBUG)
         printf("SD task deinit\n");
 
-    if (s_sd_task_handle)
+    if (s_sd_det_task_handle)
     {
-        vTaskDelete(s_sd_task_handle);
-        s_sd_task_handle = NULL;
+        vTaskDelete(s_sd_det_task_handle);
+        s_sd_det_task_handle = NULL;
     }
 }
 
-bool sd_init()
+bool sd_card_init()
 {
-    if (sd_card_mounted)
+    if (f != NULL)
         return true;
 
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
@@ -81,18 +79,16 @@ bool sd_init()
         return false;
     }
 
-    sd_card_mounted = true;
-
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
-    return true;
-}
-void sd_deinit()
-{
-    if (!sd_card_mounted)
-        return;
+    sd_open_file("testing.txt", "wb");
 
-    sd_card_mounted = false;
+    return f != NULL;
+}
+void sd_card_deinit()
+{
+    if (f == NULL) //! Testing
+        return;
 
     sd_close_file();
 
@@ -121,12 +117,6 @@ void spi_deinit()
 
 void sd_open_file(char *filename, char *type)
 {
-    /*if (!sd_is_card_mounted())
-    {
-        ESP_LOGE(SD_CARD_TAG, "Card is not mounted");
-        return;
-    }*/
-
     if (f != NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "File already opened");
@@ -158,14 +148,6 @@ void sd_close_file()
 
 void sd_write_data(uint8_t *data, size_t *len)
 {
-    //TODO Test writing when no card inserted
-
-    /*if (!sd_is_card_mounted())
-    {
-        ESP_LOGE(SD_CARD_TAG, "Card is not mounted");
-        return;
-    }*/
-
     if (f == NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "No file to write");

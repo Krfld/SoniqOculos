@@ -1,7 +1,16 @@
 #include "main.h"
 
+//* Devices
+#define NONE 0
+#define SPEAKERS 1
+#define MICROPHONES 2
+//#define BONE_CONDUCTORS 3
+
 #define SPEAKERS_MICROPHONES_I2S_NUM I2S_NUM_0
 #define BONE_CONDUCTORS_I2S_NUM I2S_NUM_1
+
+#define SPEAKERS_SD_PIN GPIO_NUM_23
+#define BONE_CONDUCTORS_SD_PIN GPIO_NUM_22
 
 #define SPEAKERS_WS_PIN GPIO_NUM_18
 #define SPEAKERS_BCK_PIN GPIO_NUM_5
@@ -11,7 +20,7 @@
 #define MICROPHONES_BCK_PIN GPIO_NUM_27
 #define MICROPHONES_DATA_PIN GPIO_NUM_33
 
-#define BONE_CONDUCTORS_WS_PIN GPIO_NUM_3
+#define BONE_CONDUCTORS_WS_PIN GPIO_NUM_3 // RX0
 #define BONE_CONDUCTORS_BCK_PIN GPIO_NUM_21
 #define BONE_CONDUCTORS_DATA_PIN GPIO_NUM_19
 
@@ -20,40 +29,20 @@
 
 #define I2S_READ_STACK_DEPTH 2 * 1024
 
-#define I2S_DEVICES_DEINIT_DELAY 100 // ms
+#define DEVICE_DEINIT_DELAY 100  // ms
+#define READ_TASK_IDLE_DELAY 100 // ms
 
-/**
- * @brief Initialize speakers
- * 
- */
+void i2s_set_device_state(int device, bool state);
+void i2s_change_devices_state();
+
 void speakers_init();
-/**
- * @brief Deinitialize speakers
- * 
- */
 void speakers_deinit();
 
-/**
- * @brief Initialize microphones
- * 
- */
 void microphones_init();
-/**
- * @brief Initialize microphones
- * 
- */
 void microphones_deinit();
 
-/**
- * @brief Initialize bone conductors
- * 
- */
 void bone_conductors_init();
-/**
- * @brief Initialize bone conductors
- * 
- */
-void bone_conductors_deinit();
+//void bone_conductors_deinit();
 
 /**
  * @brief Set mode

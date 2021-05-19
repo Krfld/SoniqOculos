@@ -5,16 +5,6 @@
 #include "gpio.h"
 #include "sd.h"
 
-static int mode = MUSIC;
-int get_mode()
-{
-    return mode;
-}
-void set_mode(int m)
-{
-    mode = m;
-}
-
 void delay(int millis)
 {
     vTaskDelay(millis / portTICK_PERIOD_MS);
@@ -24,10 +14,10 @@ void app_main(void)
 {
     spi_init();
     bt_init();
-    sd_task_init();
+    sd_det_task_init();
     gpio_task_init();
 
-    bt_music_init();
+    bone_conductors_init();
 
     printf("\nSetup ready\n\n");
 }

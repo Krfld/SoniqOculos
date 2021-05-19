@@ -5,8 +5,9 @@
 #include "bt.h"
 #include "bt_app_av.h"
 
-bool recording = false;    // from sd
-bool playing_back = false; // from i2s
+static int mode = MUSIC;
+
+bool playing_back = false; //! from i2s
 
 static int buttons_map = 0;
 static int buttons_command = 0;
@@ -47,21 +48,6 @@ static int buttons_pressed(int buttons)
         buttons_pressed++;
 
     return buttons_pressed;
-}
-
-void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
-{
-    gpio_pad_select_gpio(ws_pin);                 // Set GPIO
-    gpio_set_direction(ws_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
-    gpio_set_level(ws_pin, LOW);                  // Set LOW
-
-    gpio_pad_select_gpio(bck_pin);                 // Set GPIO
-    gpio_set_direction(bck_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
-    gpio_set_level(bck_pin, LOW);
-
-    gpio_pad_select_gpio(data_pin);                 // Set GPIO
-    gpio_set_direction(data_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
-    gpio_set_level(data_pin, LOW);                  // Set LOW
 }
 
 static void releasing_task(void *arg)
@@ -112,6 +98,12 @@ static void volume_task(void *arg)
 
 static void gpio_task(void *arg)
 {
+    gpio_pad_select_gpio(SPEAKERS_SD_PIN);                 // Set GPIO
+    gpio_set_direction(SPEAKERS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
+
+    gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
+    gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
+
     gpio_pad_select_gpio(B1);                   // Set GPIO
     gpio_set_direction(B1, GPIO_MODE_INPUT);    // Set INPUT
     gpio_set_pull_mode(B1, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
@@ -123,6 +115,9 @@ static void gpio_task(void *arg)
     gpio_pad_select_gpio(B3);                   // Set GPIO
     gpio_set_direction(B3, GPIO_MODE_INPUT);    // Set INPUT
     gpio_set_pull_mode(B3, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
+
+    while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
+        delay(DEBOUNCE);
 
     for (;;)
     {
@@ -154,7 +149,7 @@ static void gpio_task(void *arg)
                 if (GPIO_DEBUG)
                     printf("Pressed B2\n");
 
-                if (buttons_map == B2_MASK && get_mode() == MUSIC)
+                if (buttons_map == B2_MASK && mode == MUSIC)
                     volume_task_init();
             }
             else // Released button 2
@@ -172,7 +167,7 @@ static void gpio_task(void *arg)
                 if (GPIO_DEBUG)
                     printf("Pressed B3\n");
 
-                if (buttons_map == B3_MASK && get_mode() == MUSIC)
+                if (buttons_map == B3_MASK && mode == MUSIC)
                     volume_task_init();
             }
             else // Released button 3
@@ -203,43 +198,38 @@ static void gpio_task(void *arg)
             switch (buttons_command)
             {
             case B1_MASK: // 001
-                if (get_mode() == MUSIC)
-                {
-                    printf("Play/Pause\n");
-                    bt_send_cmd(bt_is_music_playing() ? ESP_AVRC_PT_CMD_PAUSE : ESP_AVRC_PT_CMD_PLAY);
-                }
-                break;
-
-            case B2_MASK: // 010
-                switch (get_mode())
+                switch (mode)
                 {
                 case MUSIC:
-                    if (!changed_volume)
-                    {
-                        printf("Volume up\n");
-                    }
+                    !bt_is_music_playing() ? printf("Play\n") : printf("Pause\n");
+                    bt_send_cmd(!bt_is_music_playing() ? ESP_AVRC_PT_CMD_PLAY : ESP_AVRC_PT_CMD_PAUSE);
+                    delay(COMMAND_DELAY);
                     break;
                 case RECORD_PLAYBACK:
-                    if (!sd_init())
-                        break;
-                    recording = !recording;
-                    if (recording)
+                    if (sd_card_init())
                     {
                         printf("Start recording\n");
-                        sd_open_file("testing.txt", "wb");
+                        //sd_open_file("testing.txt", "wb");
                     }
                     else
                     {
                         printf("Stop recording\n");
-                        sd_deinit();
+                        sd_card_deinit();
                     }
                     delay(COMMAND_DELAY);
                     break;
                 }
                 break;
 
+            case B2_MASK: // 010
+                if (mode == MUSIC && !changed_volume)
+                {
+                    printf("Volume up\n");
+                }
+                break;
+
             case B3_MASK: // 100
-                switch (get_mode())
+                switch (mode)
                 {
                 case MUSIC:
                     if (!changed_volume)
@@ -250,16 +240,22 @@ static void gpio_task(void *arg)
                 case RECORD_PLAYBACK:
                     playing_back = !playing_back;
                     if (playing_back)
+                    {
                         printf("Start playback\n");
+                        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+                    }
                     else
+                    {
                         printf("Stop playback\n");
+                        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+                    }
                     delay(COMMAND_DELAY);
                     break;
                 }
                 break;
 
             case B1_MASK | B2_MASK: // 011
-                if (get_mode() == MUSIC)
+                if (mode == MUSIC)
                 {
                     printf("Next track\n");
                     bt_send_cmd(ESP_AVRC_PT_CMD_FORWARD);
@@ -267,7 +263,7 @@ static void gpio_task(void *arg)
                 break;
 
             case B1_MASK | B3_MASK: // 101
-                if (get_mode() == MUSIC)
+                if (mode == MUSIC)
                 {
                     printf("Previous track\n");
                     bt_send_cmd(ESP_AVRC_PT_CMD_BACKWARD);
@@ -275,27 +271,32 @@ static void gpio_task(void *arg)
                 break;
 
             case B2_MASK | B3_MASK: // 110
-                if (get_mode() == MUSIC)
+                if (mode == MUSIC)
                 {
                     printf("Change device\n");
-                    /*if (device++ == BONE_CONDUCTORS)
-                        device = SPEAKERS_BONE_CONDUCTORS;
-
-                    printf("Change device: %d\n", device);*/
+                    i2s_change_devices_state();
                     delay(COMMAND_DELAY);
                 }
                 break;
 
             case B1_MASK | B2_MASK | B3_MASK: // 111
-                switch (get_mode())
+                mode = !mode;
+                switch (mode)
                 {
                 case MUSIC:
-                    set_mode(RECORD_PLAYBACK);
-                    printf("Change mode: RECORD_PLAYBACK\n");
+                    printf("Change mode: MUSIC\n");
+                    mode = MUSIC;
+
+                    bt_music_init();
+
+                    speakers_init();
+                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+
                     break;
                 case RECORD_PLAYBACK:
-                    set_mode(MUSIC);
-                    printf("Change mode: MUSIC\n");
+                    printf("Change mode: RECORD_PLAYBACK\n");
+                    mode = RECORD_PLAYBACK;
+                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
                     break;
                 }
                 delay(COMMAND_DELAY);

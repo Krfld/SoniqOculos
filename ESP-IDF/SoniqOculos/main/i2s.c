@@ -135,6 +135,9 @@ void speakers_init()
 
     i2s0_device = SPEAKERS;
 
+    gpio_pad_select_gpio(SPEAKERS_SD_PIN);                 // Set GPIO
+    gpio_set_direction(SPEAKERS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
+
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
 void speakers_deinit()
@@ -189,6 +192,9 @@ void bone_conductors_init()
     i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config);
 
     //i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+
+    gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
+    gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
 
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
 }

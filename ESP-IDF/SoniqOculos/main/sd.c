@@ -96,7 +96,7 @@ bool sd_card_init()
 }
 void sd_card_deinit()
 {
-    if (f == NULL) //! Testing
+    if (f == NULL)
         return;
 
     sd_close_file();

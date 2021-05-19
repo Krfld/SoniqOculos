@@ -98,12 +98,6 @@ static void volume_task(void *arg)
 
 static void gpio_task(void *arg)
 {
-    gpio_pad_select_gpio(SPEAKERS_SD_PIN);                 // Set GPIO
-    gpio_set_direction(SPEAKERS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
-
-    gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
-    gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
-
     gpio_pad_select_gpio(B1);                   // Set GPIO
     gpio_set_direction(B1, GPIO_MODE_INPUT);    // Set INPUT
     gpio_set_pull_mode(B1, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
@@ -173,6 +167,8 @@ static void gpio_task(void *arg)
         if (buttons_map == 0 && buttons_map != buttons_command) // When no button is pressed
         {
             releasing_task_deinit(); // No need
+
+            //? Maybe organize in modes
 
             switch (buttons_command)
             {

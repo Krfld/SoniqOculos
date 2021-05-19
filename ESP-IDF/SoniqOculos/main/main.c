@@ -13,6 +13,7 @@ void delay(int millis)
 void app_main(void)
 {
     spi_init();
+
     bt_init();
     sd_det_task_init();
     gpio_task_init();

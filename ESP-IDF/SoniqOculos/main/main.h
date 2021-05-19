@@ -28,6 +28,8 @@
 #include "driver/dac.h"
 #include "driver/gpio.h"
 
+#include "esp_dsp.h"
+
 #define GPIO_DEBUG false
 #define I2S_DEBUG false
 #define SD_DEBUG false

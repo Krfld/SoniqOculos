@@ -141,9 +141,7 @@ void bt_i2s_task_start_up(void)
 {
     s_ringbuf_i2s = xRingbufferCreate(8 * 1024, RINGBUF_TYPE_BYTEBUF);
     if (s_ringbuf_i2s == NULL)
-    {
         return;
-    }
 
     xTaskCreate(bt_i2s_task_handler, "BtI2ST", BT_STACK_DEPTH, NULL, configMAX_PRIORITIES - 3, &s_bt_i2s_task_handle);
     return;

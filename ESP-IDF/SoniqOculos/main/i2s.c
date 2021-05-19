@@ -257,7 +257,7 @@ static void i2s_read_task(void *arg)
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, &data, sizeof(data), &bytes_read, portMAX_DELAY);
 
         if (i2s1_state)
-            i2s_write_data(data, &bytes_read);
+            i2s_write_data(data, &bytes_read); // No processing
 
         /*if (i2s0_state == MICROPHONES) // Record mode
             sd_write_data(data, &bytes_read);*/

@@ -9,11 +9,11 @@
 #define SD_MOSI_PIN GPIO_NUM_2
 #define SD_CS_PIN GPIO_NUM_15
 
-#define SD_DET_PIN GPIO_NUM_36 // VP
+#define SD_DET_PIN GPIO_NUM_35
 
-#define SD_STACK_DEPTH 2 * 1024
+#define SD_DET_STACK_DEPTH 3 * 1024
 
-#define SD_DET_DELAY 500 // ms
+#define SD_DET_DELAY 50 // ms
 
 /*typedef struct _wav_header
 {
@@ -61,29 +61,11 @@
 void sd_det_task_init();
 void sd_det_task_deinit();
 
-/**
- * @brief Initialize SD card
- * 
- * @return true if card inserted
- * @return false if no card inserted
- */
 bool sd_card_init();
-/**
- * @brief Deinitialize SD card
- * 
- */
 void sd_card_deinit();
 
-/**
- * @brief Initialize spi
- * 
- */
 void spi_init();
-/**
- * @brief Deinitialize spi
- * 
- */
-void spi_deinit();
+//void spi_deinit();
 
 /**
  * @brief Open a file

@@ -23,8 +23,17 @@ static void sd_det_task(void *arg)
         if (gpio_get_level(SD_DET_PIN) != sd_det_state)
         {
             sd_det_state = !sd_det_state;
+
+            //if (SD_DEBUG)
+            sd_det_state ? printf("Card detected\n") : printf("Card removed\n");
+
             if (!sd_det_state) // SD removed
+            {
+                if (f != NULL)
+                    ESP_LOGE(SD_CARD_TAG, "Card fault");
+
                 sd_card_deinit();
+            }
         }
     }
 
@@ -37,7 +46,7 @@ void sd_det_task_init()
         printf("SD task init\n");
 
     if (!s_sd_det_task_handle)
-        xTaskCreate(sd_det_task, "sd_det_task", SD_STACK_DEPTH, NULL, 10, &s_sd_det_task_handle);
+        xTaskCreate(sd_det_task, "sd_det_task", SD_DET_STACK_DEPTH, NULL, 11, &s_sd_det_task_handle);
 }
 void sd_det_task_deinit()
 {
@@ -54,7 +63,7 @@ void sd_det_task_deinit()
 bool sd_card_init()
 {
     if (f != NULL)
-        return true;
+        return false;
 
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
@@ -110,10 +119,10 @@ void spi_init()
 
     spi_bus_initialize(host.slot, &bus_cfg, 1);
 }
-void spi_deinit()
+/*void spi_deinit()
 {
     spi_bus_free(host.slot);
-}
+}*/
 
 void sd_open_file(char *filename, char *type)
 {

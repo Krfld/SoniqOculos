@@ -98,13 +98,26 @@ void i2s_set_device_state(int device, bool state)
 void i2s_change_devices_state()
 {
     if (i2s0_state & i2s1_state)
+    {
+        if (I2S_DEBUG)
+            printf("Only bone conductors\n");
+
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-    else if (i2s0_state)
-        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+    }
     else if (i2s1_state)
     {
+        if (I2S_DEBUG)
+            printf("Only speakers\n");
+
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+    }
+    else if (i2s0_state)
+    {
+        if (I2S_DEBUG)
+            printf("Both devices\n");
+
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
     }
 }
 
@@ -188,46 +201,6 @@ void bone_conductors_init()
     delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM);
     i2s_pins_reset(BONE_CONDUCTORS_WS_PIN, BONE_CONDUCTORS_BCK_PIN, BONE_CONDUCTORS_DATA_PIN);
-}*/
-
-/*void set_mode(int mode)
-{
-    //TODO Shutdown unused amps
-
-    //i2s0_device = NONE; //! Doesn't solve the problem
-    //i2s1_device = NONE; //! Doesn't solve the problem
-
-    switch (mode)
-    {
-    case MUSIC:
-        microphones_deinit(); // No need
-
-        speakers_init();
-        bone_conductors_init();
-        bt_music_init();
-
-        printf("\nMusic mode ready\n\n");
-        break;
-    case RECORD_PLAYBACK: //TODO Handle SD card
-        bt_music_deinit();
-        speakers_deinit(); // No need
-
-        bone_conductors_init();
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
-        microphones_init();
-
-        printf("\nRecord/Playback mode ready\n\n");
-        break;
-
-    default: // IDLE Mode
-        bt_music_deinit();
-        speakers_deinit();
-        microphones_deinit();
-        bone_conductors_deinit();
-
-        printf("\nIdle mode ready\n\n");
-        break;
-    }
 }*/
 
 void i2s_write_data(uint8_t *data, size_t *len)

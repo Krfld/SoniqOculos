@@ -126,55 +126,34 @@ static void gpio_task(void *arg)
         if (gpio_get_level(B1) != ((buttons_map & B1_MASK) ? 1 : 0))
         {
             buttons_map ^= B1_MASK;
-            if (buttons_map & B1_MASK) // Pressed button 1
-            {
-                if (GPIO_DEBUG)
-                    printf("Pressed B1\n");
 
-                if (buttons_map == B1_MASK)
-                    power_off_task_init();
-            }
-            else // Released button 1
-            {
-                if (GPIO_DEBUG)
-                    printf("Released B1\n");
-            }
+            if (GPIO_DEBUG)
+                (buttons_map & B1_MASK) ? printf("Pressed B1\n") : printf("Released B1\n");
+
+            if (buttons_map & B1_MASK && buttons_map == B1_MASK) // Pressed only button 1
+                power_off_task_init();
         }
 
         if (gpio_get_level(B2) != ((buttons_map & B2_MASK) ? 1 : 0))
         {
             buttons_map ^= B2_MASK;
-            if (buttons_map & B2_MASK) // Pressed button 2
-            {
-                if (GPIO_DEBUG)
-                    printf("Pressed B2\n");
 
-                if (buttons_map == B2_MASK && mode == MUSIC)
-                    volume_task_init();
-            }
-            else // Released button 2
-            {
-                if (GPIO_DEBUG)
-                    printf("Released B2\n");
-            }
+            if (GPIO_DEBUG)
+                (buttons_map & B2_MASK) ? printf("Pressed B2\n") : printf("Released B2\n");
+
+            if (buttons_map & B2_MASK && buttons_map == B2_MASK && mode == MUSIC) // Pressed only button 2 and in music mode
+                volume_task_init();
         }
 
         if (gpio_get_level(B3) != ((buttons_map & B3_MASK) ? 1 : 0))
         {
             buttons_map ^= B3_MASK;
-            if (buttons_map & B3_MASK) // Pressed button 3
-            {
-                if (GPIO_DEBUG)
-                    printf("Pressed B3\n");
 
-                if (buttons_map == B3_MASK && mode == MUSIC)
-                    volume_task_init();
-            }
-            else // Released button 3
-            {
-                if (GPIO_DEBUG)
-                    printf("Released B3\n");
-            }
+            if (GPIO_DEBUG)
+                (buttons_map & B3_MASK) ? printf("Pressed B3\n") : printf("Released B3\n");
+
+            if (buttons_map & B3_MASK && buttons_map == B3_MASK && mode == MUSIC) // Pressed only button 3 and in music mode
+                volume_task_init();
         }
 
         if (buttons_map != buttons_command && buttons_map != B1_MASK)
@@ -262,7 +241,7 @@ static void gpio_task(void *arg)
                 }
                 break;
 
-            case B1_MASK | B3_MASK: // 101
+            case B2_MASK | B3_MASK: // 110
                 if (mode == MUSIC)
                 {
                     printf("Previous track\n");
@@ -270,7 +249,7 @@ static void gpio_task(void *arg)
                 }
                 break;
 
-            case B2_MASK | B3_MASK: // 110
+            case B1_MASK | B3_MASK: // 101
                 if (mode == MUSIC)
                 {
                     printf("Change device\n");

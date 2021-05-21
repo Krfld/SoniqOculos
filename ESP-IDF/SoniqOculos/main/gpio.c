@@ -217,7 +217,7 @@ static void gpio_task(void *arg)
                     }
                     else
                     {
-                        printf("Pause\n");
+                        printf("Stop\n");
                         bt_send_cmd(ESP_AVRC_PT_CMD_PAUSE); //TODO Test PAUSE and STOP
                     }
                     delay(COMMAND_DELAY);

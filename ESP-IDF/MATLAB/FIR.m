@@ -7,6 +7,8 @@ Fn = Fs/2;
 
 Fc = 1000;
 
-Wn = Fc/Fn;
+Wn = Fc/Fn
 
-b = fir1(32, Wn, 'low');
+b = fir1(127, Wn, 'low');
+
+freqz(b)

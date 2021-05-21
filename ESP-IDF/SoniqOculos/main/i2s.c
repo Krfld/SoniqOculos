@@ -16,6 +16,9 @@ static void i2s_read_task_deinit();
 
 static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin);
 
+static void speakers_deinit();
+static void microphones_deinit();
+
 //* Speakers pin configuration
 static i2s_pin_config_t speakers_pin_config = {
     .ws_io_num = SPEAKERS_WS_PIN,
@@ -80,6 +83,17 @@ static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
     gpio_set_level(data_pin, LOW);                  // Set LOW
 }
 
+bool i2s_get_device_state(int device)
+{
+    if (device == SPEAKERS_MICROPHONES_I2S_NUM)
+        return i2s0_state;
+
+    if (device == BONE_CONDUCTORS_I2S_NUM)
+        return i2s1_state;
+
+    return false;
+}
+
 void i2s_set_device_state(int device, bool state)
 {
     if (device == SPEAKERS_MICROPHONES_I2S_NUM)
@@ -140,7 +154,7 @@ void speakers_init()
 
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
-void speakers_deinit()
+static void speakers_deinit()
 {
     if (i2s0_device != SPEAKERS)
         return;
@@ -149,7 +163,7 @@ void speakers_deinit()
 
     //i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
 
-    delay(DEVICE_DEINIT_DELAY);
+    //delay(DEVICE_DEINIT_DELAY);
 
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
     i2s_pins_reset(SPEAKERS_WS_PIN, SPEAKERS_BCK_PIN, SPEAKERS_DATA_PIN);
@@ -171,7 +185,7 @@ void microphones_init()
 
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
-void microphones_deinit()
+static void microphones_deinit()
 {
     if (i2s0_device != MICROPHONES)
         return;
@@ -248,7 +262,7 @@ static void i2s_read_task(void *arg)
 
     for (;;)
     {
-        if (!i2s0_state)
+        if (!i2s1_state && !sd_file_state())
         {
             delay(READ_TASK_IDLE_DELAY);
             continue;
@@ -256,11 +270,9 @@ static void i2s_read_task(void *arg)
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, &data, sizeof(data), &bytes_read, portMAX_DELAY);
 
-        if (i2s1_state)
-            i2s_write_data(data, &bytes_read); // No processing
+        i2s_write_data(data, &bytes_read);
 
-        /*if (i2s0_state == MICROPHONES) // Record mode
-            sd_write_data(data, &bytes_read);*/
+        sd_write_data(data, &bytes_read);
     }
 
     s_i2s_read_task_handle = NULL;

@@ -27,19 +27,18 @@
 #define DMA_BUFFER_COUNT 8
 #define DMA_BUFFER_LEN 1024
 
-#define I2S_READ_STACK_DEPTH 2 * 1024
+#define I2S_READ_STACK_DEPTH 6 * 1024 //TODO Test values
 
 #define DEVICE_DEINIT_DELAY 100  // ms
-#define READ_TASK_IDLE_DELAY 100 // ms
+#define READ_TASK_IDLE_DELAY 500 // ms
 
+bool i2s_get_device_state(int device);
 void i2s_set_device_state(int device, bool state);
 void i2s_change_devices_state();
 
 void speakers_init();
-void speakers_deinit();
 
 void microphones_init();
-void microphones_deinit();
 
 void bone_conductors_init();
 //void bone_conductors_deinit();

@@ -242,6 +242,8 @@ void bt_music_init()
     esp_a2d_sink_init();
 
     bt_music_ready = true;
+
+    printf("Music ready\n");
 }
 void bt_music_deinit()
 {

@@ -11,6 +11,11 @@ static bool sd_det_state = false;
 static xTaskHandle s_sd_det_task_handle = NULL;
 static void sd_det_task(void *arg);
 
+bool sd_file_state()
+{
+    return f != NULL;
+}
+
 static void sd_det_task(void *arg)
 {
     gpio_pad_select_gpio(SD_DET_PIN);                // Set GPIO
@@ -48,7 +53,7 @@ void sd_det_task_init()
     if (!s_sd_det_task_handle)
         xTaskCreate(sd_det_task, "sd_det_task", SD_DET_STACK_DEPTH, NULL, 11, &s_sd_det_task_handle);
 }
-void sd_det_task_deinit()
+/*void sd_det_task_deinit()
 {
     if (SD_DEBUG)
         printf("SD task deinit\n");
@@ -58,7 +63,7 @@ void sd_det_task_deinit()
         vTaskDelete(s_sd_det_task_handle);
         s_sd_det_task_handle = NULL;
     }
-}
+}*/
 
 bool sd_card_init()
 {
@@ -90,7 +95,7 @@ bool sd_card_init()
 
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
-    sd_open_file("testing.txt", "wb");
+    sd_open_file("testing.txt", "wb"); //TODO Change name logic
 
     return f != NULL;
 }
@@ -158,10 +163,7 @@ void sd_close_file()
 void sd_write_data(uint8_t *data, size_t *len)
 {
     if (f == NULL)
-    {
-        ESP_LOGE(SD_CARD_TAG, "No file to write");
         return;
-    }
 
     fwrite(data, sizeof(*data), *len, f);
 }

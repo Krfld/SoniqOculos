@@ -7,8 +7,6 @@
 
 static int mode = MUSIC;
 
-bool playing_back = false; //! from i2s
-
 static int buttons_map = 0;
 static int buttons_command = 0;
 
@@ -170,21 +168,75 @@ static void gpio_task(void *arg)
 
             //? Maybe organize in modes
 
-            switch (buttons_command)
+            switch (mode)
             {
-            case B1_MASK: // 001
-                switch (mode)
+            case MUSIC:
+                switch (buttons_command)
                 {
-                case MUSIC:
-                    !bt_is_music_playing() ? printf("Play\n") : printf("Pause\n");
-                    bt_send_cmd(!bt_is_music_playing() ? ESP_AVRC_PT_CMD_PLAY : ESP_AVRC_PT_CMD_PAUSE);
+                case B1_MASK: // 001
+                    if (!bt_is_music_playing())
+                    {
+                        printf("Play\n");
+                        bt_send_cmd(ESP_AVRC_PT_CMD_PLAY);
+                    }
+                    else
+                    {
+                        printf("Pause\n");
+                        bt_send_cmd(ESP_AVRC_PT_CMD_STOP);
+                    }
                     delay(COMMAND_DELAY);
                     break;
-                case RECORD_PLAYBACK:
+                case B2_MASK: // 010
+                    if (!changed_volume)
+                    {
+                        printf("Volume up\n");
+                    }
+                    break;
+                case B3_MASK: // 100
+                    if (!changed_volume)
+                    {
+                        printf("Volume down\n");
+                    }
+                    break;
+
+                case B1_MASK | B2_MASK: // 011
+                    printf("Next track\n");
+                    bt_send_cmd(ESP_AVRC_PT_CMD_FORWARD);
+                    break;
+                case B2_MASK | B3_MASK: // 110
+                    printf("Previous track\n");
+                    bt_send_cmd(ESP_AVRC_PT_CMD_BACKWARD);
+                    break;
+                case B1_MASK | B3_MASK: // 101
+                    printf("Change device\n");
+                    i2s_change_devices_state();
+                    delay(COMMAND_DELAY);
+                    break;
+
+                case B1_MASK | B2_MASK | B3_MASK: // 111
+                    printf("Change mode: RECORD_PLAYBACK\n");
+                    mode = RECORD_PLAYBACK;
+
+                    bt_music_deinit();
+                    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+                    microphones_init();
+
+                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+                    delay(COMMAND_DELAY);
+                    break;
+
+                default:
+                    break;
+                }
+                break;
+
+            case RECORD_PLAYBACK:
+                switch (buttons_command)
+                {
+                case B1_MASK:
                     if (sd_card_init())
                     {
                         printf("Start recording\n");
-                        //sd_open_file("testing.txt", "wb");
                     }
                     else
                     {
@@ -193,28 +245,9 @@ static void gpio_task(void *arg)
                     }
                     delay(COMMAND_DELAY);
                     break;
-                }
-                break;
 
-            case B2_MASK: // 010
-                if (mode == MUSIC && !changed_volume)
-                {
-                    printf("Volume up\n");
-                }
-                break;
-
-            case B3_MASK: // 100
-                switch (mode)
-                {
-                case MUSIC:
-                    if (!changed_volume)
-                    {
-                        printf("Volume down\n");
-                    }
-                    break;
-                case RECORD_PLAYBACK:
-                    playing_back = !playing_back;
-                    if (playing_back)
+                case B3_MASK:
+                    if (!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
                     {
                         printf("Start playback\n");
                         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
@@ -226,55 +259,24 @@ static void gpio_task(void *arg)
                     }
                     delay(COMMAND_DELAY);
                     break;
-                }
-                break;
-
-            case B1_MASK | B2_MASK: // 011
-                if (mode == MUSIC)
-                {
-                    printf("Next track\n");
-                    bt_send_cmd(ESP_AVRC_PT_CMD_FORWARD);
-                }
-                break;
-
-            case B2_MASK | B3_MASK: // 110
-                if (mode == MUSIC)
-                {
-                    printf("Previous track\n");
-                    bt_send_cmd(ESP_AVRC_PT_CMD_BACKWARD);
-                }
-                break;
-
-            case B1_MASK | B3_MASK: // 101
-                if (mode == MUSIC)
-                {
-                    printf("Change device\n");
-                    i2s_change_devices_state();
-                    delay(COMMAND_DELAY);
-                }
-                break;
-
-            case B1_MASK | B2_MASK | B3_MASK: // 111
-                mode = !mode;
-                switch (mode)
-                {
-                case MUSIC:
-                    printf("Change mode: MUSIC\n");
+                case B1_MASK | B2_MASK | B3_MASK:
+                    printf("Change mode: MUSIC\n"); //! Somethings wrong
                     mode = MUSIC;
 
-                    bt_music_init();
+                    sd_card_deinit();
+                    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 
                     speakers_init();
-                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+                    bt_music_init();
 
+                    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+                    delay(COMMAND_DELAY);
                     break;
-                case RECORD_PLAYBACK:
-                    printf("Change mode: RECORD_PLAYBACK\n");
-                    mode = RECORD_PLAYBACK;
-                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+
+                default:
                     break;
                 }
-                delay(COMMAND_DELAY);
                 break;
             }
 

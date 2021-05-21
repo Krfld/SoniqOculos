@@ -58,8 +58,10 @@
     }
 } wav_header_t;*/
 
+bool sd_file_state();
+
 void sd_det_task_init();
-void sd_det_task_deinit();
+//void sd_det_task_deinit();
 
 bool sd_card_init();
 void sd_card_deinit();

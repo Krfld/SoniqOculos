@@ -133,6 +133,7 @@ static void bt_i2s_task_handler(void *arg)
             continue;
 
         process_data(data, &item_size);
+
         vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);
     }
 }

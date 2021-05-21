@@ -59,26 +59,26 @@ static void change_mode_task(void *arg)
     switch (mode)
     {
     case MUSIC:
-        printf("Change mode: MUSIC\n");
-
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
         sd_card_deinit();
 
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
         speakers_init();
         bt_music_init();
+
+        printf("Change mode: MUSIC\n");
         break;
 
     case RECORD_PLAYBACK:
-        printf("Change mode: RECORD_PLAYBACK\n");
-
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
         bt_music_deinit();
 
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
         microphones_init();
+
+        printf("Change mode: RECORD_PLAYBACK\n");
         break;
     }
 

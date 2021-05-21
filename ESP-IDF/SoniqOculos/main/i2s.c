@@ -152,7 +152,7 @@ void speakers_init()
     gpio_pad_select_gpio(SPEAKERS_SD_PIN);                 // Set GPIO
     gpio_set_direction(SPEAKERS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
 
-    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
 }
 static void speakers_deinit()
 {
@@ -160,6 +160,7 @@ static void speakers_deinit()
         return;
 
     i2s0_device = NONE;
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
 
     //i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
 
@@ -183,7 +184,7 @@ void microphones_init()
 
     i2s0_device = MICROPHONES;
 
-    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
 }
 static void microphones_deinit()
 {
@@ -191,6 +192,7 @@ static void microphones_deinit()
         return;
 
     i2s0_device = NONE;
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
 
     i2s_read_task_deinit();
 
@@ -210,7 +212,7 @@ void bone_conductors_init()
     gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
     gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
 
-    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 }
 /*void bone_conductors_deinit()
 {
@@ -258,7 +260,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
 static void i2s_read_task(void *arg)
 {
     size_t bytes_read = 0;
-    uint8_t data[DMA_BUFFER_LEN * 4] = {0};
+    uint8_t data[DMA_BUFFER_LEN] = {0};
 
     for (;;)
     {

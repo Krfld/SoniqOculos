@@ -12,6 +12,14 @@ static int buttons_command = 0;
 
 static int buttons_pressed(int buttons);
 
+static xTaskHandle s_gpio_task_handle = NULL;
+static void gpio_task(void *arg);
+
+static xTaskHandle s_change_mode_task_handle = NULL;
+static void change_mode_task(void *arg);
+static void change_mode_task_init();
+//static void change_mode_task_deinit();
+
 static xTaskHandle s_releasing_task_handle = NULL;
 static void releasing_task(void *arg);
 static void releasing_task_init();
@@ -29,9 +37,6 @@ static void volume_task(void *arg);
 static void volume_task_init();
 static void volume_task_deinit();
 
-static xTaskHandle s_gpio_task_handle = NULL;
-static void gpio_task(void *arg);
-
 static int buttons_pressed(int buttons)
 {
     int buttons_pressed = 0;
@@ -46,6 +51,39 @@ static int buttons_pressed(int buttons)
         buttons_pressed++;
 
     return buttons_pressed;
+}
+
+static void change_mode_task(void *arg)
+{
+    mode = !mode; // Switch modes
+    switch (mode)
+    {
+    case MUSIC:
+        printf("Change mode: MUSIC\n");
+
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+        sd_card_deinit();
+
+        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+        speakers_init();
+        bt_music_init();
+        break;
+
+    case RECORD_PLAYBACK:
+        printf("Change mode: RECORD_PLAYBACK\n");
+
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+        bt_music_deinit();
+
+        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+        microphones_init();
+        break;
+    }
+
+    s_change_mode_task_handle = NULL;
+    vTaskDelete(NULL);
 }
 
 static void releasing_task(void *arg)
@@ -166,8 +204,6 @@ static void gpio_task(void *arg)
         {
             releasing_task_deinit(); // No need
 
-            //? Maybe organize in modes
-
             switch (mode)
             {
             case MUSIC:
@@ -182,7 +218,7 @@ static void gpio_task(void *arg)
                     else
                     {
                         printf("Pause\n");
-                        bt_send_cmd(ESP_AVRC_PT_CMD_STOP);
+                        bt_send_cmd(ESP_AVRC_PT_CMD_PAUSE); //TODO Test PAUSE and STOP
                     }
                     delay(COMMAND_DELAY);
                     break;
@@ -214,14 +250,7 @@ static void gpio_task(void *arg)
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
-                    printf("Change mode: RECORD_PLAYBACK\n");
-                    mode = RECORD_PLAYBACK;
-
-                    bt_music_deinit();
-                    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-                    microphones_init();
-
-                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO);
+                    change_mode_task_init();
                     delay(COMMAND_DELAY);
                     break;
 
@@ -260,17 +289,7 @@ static void gpio_task(void *arg)
                     delay(COMMAND_DELAY);
                     break;
                 case B1_MASK | B2_MASK | B3_MASK:
-                    printf("Change mode: MUSIC\n"); //! Somethings wrong
-                    mode = MUSIC;
-
-                    sd_card_deinit();
-                    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-
-                    speakers_init();
-                    bt_music_init();
-
-                    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
-                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+                    change_mode_task_init();
                     delay(COMMAND_DELAY);
                     break;
 
@@ -313,6 +332,25 @@ void gpio_task_deinit()
     }
 }
 
+static void change_mode_task_init()
+{
+    if (GPIO_DEBUG)
+        printf("Mode task init\n");
+
+    if (!s_change_mode_task_handle)
+        xTaskCreate(change_mode_task, "change_mode_task", MODE_STACK_DEPTH, NULL, 10, &s_gpio_task_handle);
+}
+/*static void change_mode_task_deinit()
+{
+    if (GPIO_DEBUG)
+        printf("Mode task deinit\n");
+    if (s_change_mode_task_handle)
+    {
+        vTaskDelete(s_change_mode_task_handle);
+        s_change_mode_task_handle = NULL;
+    }
+}*/
+
 static void releasing_task_init()
 {
     if (GPIO_DEBUG)
@@ -346,7 +384,7 @@ static void power_off_task_deinit()
     if (GPIO_DEBUG)
         printf("Power off task deinit\n");
 
-    if (s_power_off_task_handle && !powering_off)
+    if (s_power_off_task_handle)
     {
         vTaskDelete(s_power_off_task_handle);
         s_power_off_task_handle = NULL;

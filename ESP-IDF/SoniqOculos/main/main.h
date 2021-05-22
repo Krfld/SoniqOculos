@@ -28,13 +28,16 @@
 #include "driver/dac.h"
 #include "driver/gpio.h"
 
-#include "esp_dsp.h"
+//#include "esp_dsp.h"
+#include "dsps_fir.h"
 
 #define GPIO_DEBUG false
 #define I2S_DEBUG false
 #define SD_DEBUG false
 
 #define DEVICE_NAME "SoniqOculos"
+
+#define MAIN_TAG "MAIN"
 
 #define MSG_BUFFER 128
 

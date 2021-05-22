@@ -260,7 +260,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
 static void i2s_read_task(void *arg)
 {
     size_t bytes_read = 0;
-    uint8_t data[DMA_BUFFER_LEN] = {0};
+    uint8_t data[DATA_READ_SIZE] = {0};
 
     for (;;)
     {
@@ -271,6 +271,9 @@ static void i2s_read_task(void *arg)
         }
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, &data, sizeof(data), &bytes_read, portMAX_DELAY);
+
+        if (bytes_read == 0)
+            continue;
 
         i2s_write_data(data, &bytes_read);
 

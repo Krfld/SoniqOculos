@@ -5,7 +5,7 @@
 #include "gpio.h"
 #include "sd.h"
 
-static fir_f32_t *fir;
+/*static fir_f32_t *fir;
 const int N = 128;
 static float delays[128];
 static float coeffs[128] = { // LPF 1kHz
@@ -40,7 +40,7 @@ static float coeffs[128] = { // LPF 1kHz
     0.0007722322024105, 0.0008304885309122, 0.0008550506920711, 0.0008513823021262,
     0.0008249892485852, 0.0007811900193194, 0.0007249189358762, 0.0006605671716692,
     0.0005918647845958, 0.0005218052976215, 0.0004526126803711, 0.0003857489780943,
-    0.0003219593557609, 0.0002613500229258, 0.0002034934204362, 0.0001475542154998};
+    0.0003219593557609, 0.0002613500229258, 0.0002034934204362, 0.0001475542154998};*/
 
 void delay(int millis)
 {
@@ -61,7 +61,7 @@ void app_main(void)
     // Proccessing
     //dsps_fir_init_f32(fir, coeffs, delays, N);
 
-    printf("\nSetup ready\n\n");
+    ESP_LOGW(MAIN_TAG, "Setup ready");
 }
 
 void handleMsgs(char *msg)

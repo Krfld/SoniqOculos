@@ -65,10 +65,10 @@ void sd_det_task_init()
     }
 }*/
 
-bool sd_card_init()
+void sd_card_init()
 {
     if (f != NULL)
-        return false;
+        return;
 
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
@@ -84,20 +84,20 @@ bool sd_card_init()
     if (!sd_det_state)
     {
         ESP_LOGW(SD_CARD_TAG, "Insert card");
-        return false;
+        return;
     }
 
     if (esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card) != ESP_OK)
     {
         ESP_LOGW(SD_CARD_TAG, "Reinsert card");
-        return false;
+        return;
     }
 
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
     sd_open_file("testing.txt", "wb"); //TODO Change name logic
 
-    return f != NULL;
+    return;
 }
 void sd_card_deinit()
 {
@@ -162,7 +162,7 @@ void sd_close_file()
 
 void sd_write_data(uint8_t *data, size_t *len)
 {
-    if (f == NULL)
+    if (f == NULL || !sd_det_state)
         return;
 
     fwrite(data, sizeof(*data), *len, f);

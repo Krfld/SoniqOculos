@@ -5,9 +5,9 @@
 
 #include "i2s.h"
 
-#define BT_STACK_DEPTH 2 * 1024
-
 #define BT_SPP_TAG "BT_SPP"
+
+#define BT_STACK_DEPTH 2 * 1024
 
 void bt_init();
 

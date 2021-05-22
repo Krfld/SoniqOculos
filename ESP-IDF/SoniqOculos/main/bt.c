@@ -242,8 +242,6 @@ void bt_music_init()
     esp_a2d_sink_init();
 
     bt_music_ready = true;
-
-    printf("Music ready\n");
 }
 void bt_music_deinit()
 {
@@ -259,9 +257,9 @@ void bt_music_deinit()
 
 void bt_send_cmd(uint8_t cmd)
 {
-    static uint8_t tl = 0; //* static will keep value
+    static uint8_t tl = 0; // 'static' will keep value
 
-    if (++tl > 15)
+    if (++tl > 15) // "consecutive commands should use different values"
         tl = 0;
 
     esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED);

@@ -97,7 +97,6 @@ static void power_off_task(void *arg)
 {
     delay(POWER_OFF_HOLD_TIME);
 
-    printf("Powering off...\n");
     ESP_LOGE(GPIO_TAG, "Powering off...");
 
     //!gpio_task_deinit(); //! Deep-sleep
@@ -211,6 +210,9 @@ static void gpio_task(void *arg)
             releasing_task_deinit();
             buttons_command = buttons_map; // Update buttons state
         }
+
+        //! Testing
+        continue;
 
         if (buttons_map == 0 && buttons_map != buttons_command) // When no button is pressed
         {
@@ -382,6 +384,8 @@ static void releasing_task_deinit()
 
 static void power_off_task_init()
 {
+    //! Needs to delay (i think)
+
     if (!s_power_off_task_handle)
         xTaskCreate(power_off_task, "power_off_task", POWER_OFF_STACK_DEPTH, NULL, 10, &s_power_off_task_handle);
 }

@@ -147,8 +147,6 @@ static void gpio_task(void *arg)
 
     for (;;)
     {
-        delay(DEBOUNCE);
-
         if (gpio_get_level(B1) != ((buttons_map & B1_MASK) ? 1 : 0))
         {
             buttons_map ^= B1_MASK;
@@ -197,22 +195,21 @@ static void gpio_task(void *arg)
                 volume_task_init();
         }
 
+        delay(DEBOUNCE); // Debounce here to make sure tasks are created before trying to delete them
+
         if (buttons_map != buttons_command && buttons_map != B1_MASK)
             power_off_task_deinit(); // Stop powering off when not pressing only button 1
 
         if (buttons_map != buttons_command && buttons_map != B2_MASK && buttons_map != B3_MASK)
-            volume_task_deinit(); // Stop volume change when not pressing only buttons 2 or 3
+            volume_task_deinit(); // Stop changing volume when not pressing only buttons 2 or 3
 
         if (buttons_pressed(buttons_map) < buttons_pressed(buttons_command)) // When a button is released
-            releasing_task_init();                                           // Delay update buttons_map update
+            releasing_task_init();                                           // Delay buttons state update
         else if (buttons_map != buttons_command)
         {
             releasing_task_deinit();
             buttons_command = buttons_map; // Update buttons state
         }
-
-        //! Testing
-        continue;
 
         if (buttons_map == 0 && buttons_map != buttons_command) // When no button is pressed
         {
@@ -234,7 +231,7 @@ static void gpio_task(void *arg)
                         ESP_LOGI(GPIO_TAG, "Pause");
                         bt_send_cmd(ESP_AVRC_PT_CMD_PAUSE);
                     }
-                    delay(COMMAND_DELAY);
+                    delay(COMMAND_DELAY / 2);
                     break;
                 case B2_MASK: // 010
                     if (!changed_volume)
@@ -264,18 +261,19 @@ static void gpio_task(void *arg)
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
+                    ESP_LOGI(GPIO_TAG, "Change mode");
                     mode = !mode;
                     //change_mode_task_init();
 
                     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
                     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-                    bt_music_deinit();
+                    bt_music_deinit(); //TODO Fix
 
                     i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
                     microphones_init();
 
+                    ESP_LOGW(GPIO_TAG, "RECORD_PLAYBACK mode ready");
                     delay(COMMAND_DELAY);
-                    ESP_LOGW(GPIO_TAG, "Mode: RECORD_PLAYBACK");
                     break;
 
                 default:
@@ -314,8 +312,11 @@ static void gpio_task(void *arg)
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
+                    ESP_LOGI(GPIO_TAG, "Change mode");
                     mode = !mode;
                     //change_mode_task_init();
+
+                    //esp_restart(); //!
 
                     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
                     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
@@ -325,8 +326,8 @@ static void gpio_task(void *arg)
                     speakers_init();
                     bt_music_init();
 
+                    ESP_LOGW(GPIO_TAG, "MUSIC mode ready");
                     delay(COMMAND_DELAY);
-                    ESP_LOGW(GPIO_TAG, "Mode: MUSIC");
                     break;
 
                 default:

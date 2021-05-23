@@ -20,7 +20,7 @@
 #define POWER_OFF_HOLD_TIME 2000      // ms
 #define VOLUME_CHANGE_START_DELAY 250 // ms
 #define VOLUME_CHANGE_PERIOD 500      // ms
-#define COMMAND_DELAY 1000            // ms
+#define COMMAND_DELAY 500             // ms
 
 /**
  * @brief Create gpio task

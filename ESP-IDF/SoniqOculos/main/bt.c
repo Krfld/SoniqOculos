@@ -41,7 +41,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_CLOSE_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");
-        printf("\nDisconnected from server\n\n");
+        ESP_LOGW(BT_SPP_TAG, "Disconnected to server");
         break;
     case ESP_SPP_START_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_START_EVT");
@@ -55,9 +55,9 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         if (param->data_ind.len < MSG_BUFFER)
         {
             char msg[MSG_BUFFER];
-            snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data);
-            handleMsgs(msg);
-            esp_spp_write(param->write.handle, strlen(msg), (uint8_t *)msg);
+            snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data); // Filter received message contents
+            handleMsgs(msg);                                                      // Handle message received and response
+            esp_spp_write(param->write.handle, strlen(msg), (uint8_t *)msg);      // Send response
         }
         else
         {
@@ -72,7 +72,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
-        printf("\nConnected to server\n\n");
+        ESP_LOGW(BT_SPP_TAG, "Connected to server");
         break;
     default:
         break;
@@ -248,6 +248,8 @@ void bt_music_deinit()
     if (!bt_is_music_ready())
         return;
 
+    //bt_send_cmd(ESP_AVRC_PT_CMD_STOP);
+
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();
     esp_a2d_sink_deinit();
@@ -262,5 +264,17 @@ void bt_send_cmd(uint8_t cmd)
     if (++tl > 15) // "consecutive commands should use different values"
         tl = 0;
 
-    esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED);
+    //TODO Fix
+
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+
+    esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED); // Send AVRCP command
+    delay(1000);
+
+    if (cmd != ESP_AVRC_PT_CMD_PAUSE && cmd != ESP_AVRC_PT_CMD_STOP)
+    {
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+    }
 }

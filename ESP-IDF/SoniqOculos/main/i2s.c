@@ -76,7 +76,7 @@ static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
 
     gpio_pad_select_gpio(bck_pin);                 // Set GPIO
     gpio_set_direction(bck_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
-    gpio_set_level(bck_pin, LOW);
+    gpio_set_level(bck_pin, LOW);                  // Set LOW
 
     gpio_pad_select_gpio(data_pin);                 // Set GPIO
     gpio_set_direction(data_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
@@ -87,10 +87,8 @@ bool i2s_get_device_state(int device)
 {
     if (device == SPEAKERS_MICROPHONES_I2S_NUM)
         return i2s0_state;
-
     if (device == BONE_CONDUCTORS_I2S_NUM)
         return i2s1_state;
-
     return false;
 }
 
@@ -99,13 +97,21 @@ void i2s_set_device_state(int device, bool state)
     if (device == SPEAKERS_MICROPHONES_I2S_NUM)
     {
         i2s0_state = state;
-        (i2s0_state && i2s0_device == SPEAKERS) ? gpio_set_level(SPEAKERS_SD_PIN, HIGH) : gpio_set_level(SPEAKERS_SD_PIN, LOW); // SD pin
+
+        if (i2s0_state && i2s0_device == SPEAKERS)
+            gpio_set_level(SPEAKERS_SD_PIN, HIGH); // Turn on speakers
+        else
+            gpio_set_level(SPEAKERS_SD_PIN, LOW); // Turn off speakers
     }
 
     if (device == BONE_CONDUCTORS_I2S_NUM)
     {
         i2s1_state = state;
-        i2s1_state ? gpio_set_level(BONE_CONDUCTORS_SD_PIN, HIGH) : gpio_set_level(BONE_CONDUCTORS_SD_PIN, LOW); // SD pin
+
+        if (i2s1_state)
+            gpio_set_level(BONE_CONDUCTORS_SD_PIN, HIGH); // Turn on bone conductors
+        else
+            gpio_set_level(BONE_CONDUCTORS_SD_PIN, LOW); // Turn off bone conductors
     }
 }
 
@@ -151,7 +157,6 @@ void speakers_init()
 
     gpio_pad_select_gpio(SPEAKERS_SD_PIN);                 // Set GPIO
     gpio_set_direction(SPEAKERS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
-
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
 }
 static void speakers_deinit()
@@ -184,7 +189,7 @@ void microphones_init()
 
     i2s0_device = MICROPHONES;
 
-    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
 static void microphones_deinit()
 {
@@ -211,7 +216,6 @@ void bone_conductors_init()
 
     gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
     gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
-
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 }
 /*void bone_conductors_deinit()

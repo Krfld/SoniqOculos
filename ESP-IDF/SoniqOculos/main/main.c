@@ -68,7 +68,7 @@ void handleMsgs(char *msg)
 {
     //TODO Implement with flutter
 
-    printf("\n%s\n\n", msg);
+    ESP_LOGW(BT_SPP_TAG, "Message recevied %s", msg);
 
     // Response
     sprintf(msg, "Message received\n");

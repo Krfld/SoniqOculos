@@ -29,11 +29,12 @@ static void sd_det_task(void *arg)
         {
             sd_det_state = !sd_det_state;
 
-            //if (SD_DEBUG)
-            sd_det_state ? printf("Card detected\n") : printf("Card removed\n");
-
-            if (!sd_det_state) // SD removed
+            if (sd_det_state)
+                ESP_LOGW(SD_CARD_TAG, "Card inserted");
+            else // SD removed
             {
+                ESP_LOGW(SD_CARD_TAG, "Card removed");
+
                 if (f != NULL)
                     ESP_LOGE(SD_CARD_TAG, "Card fault");
 

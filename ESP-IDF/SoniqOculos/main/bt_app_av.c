@@ -138,15 +138,15 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
     case ESP_A2D_AUDIO_STATE_EVT:
     {
         a2d = (esp_a2d_cb_param_t *)(p_param);
-        ESP_LOGI(BT_AV_TAG, "A2DP audio state: %s", s_a2d_audio_state_str[a2d->audio_stat.state]);
+        ESP_LOGW(BT_AV_TAG, "A2DP audio state: %s", s_a2d_audio_state_str[a2d->audio_stat.state]);
         s_audio_state = a2d->audio_stat.state;
-        if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state)
+        if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state) // Turn on devices when music playing
         {
             s_pkt_cnt = 0;
             i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
             i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
         }
-        else
+        else // Turn off devices when no music playing
         {
             i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
             i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);

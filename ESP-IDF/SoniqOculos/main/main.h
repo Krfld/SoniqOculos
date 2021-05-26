@@ -31,15 +31,14 @@
 //#include "esp_dsp.h"
 #include "dsps_fir.h"
 
-#define GPIO_DEBUG false
-#define I2S_DEBUG false
-#define SD_DEBUG false
+#define GPIO_DEBUG OFF
+#define I2S_DEBUG OFF
+#define SD_DEBUG OFF
+#define BT_DEBUG OFF
 
 #define DEVICE_NAME "SoniqOculos"
 
 #define MAIN_TAG "MAIN"
-
-#define MSG_BUFFER 128
 
 #define LOGIC 3.3
 
@@ -52,6 +51,8 @@
 //* Modes
 #define MUSIC 0
 #define RECORD_PLAYBACK 1
+
+#define MSG_BUFFER_SIZE 128
 
 /**
  * @brief Delay in milliseconds

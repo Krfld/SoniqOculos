@@ -127,10 +127,24 @@ static void bt_i2s_task_handler(void *arg)
 
     for (;;)
     {
-        data = (uint8_t *)xRingbufferReceive(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY);
+        if (xRingbufferGetCurFreeSize(s_ringbuf_i2s) > RINGBUF_SIZE - 4096)
+        {
+            delay(25);
+            continue;
+        }
+
+        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY, 4096);
+
+        if (BT_DEBUG)
+            ESP_LOGI(BT_APP_CORE_TAG, "Ringbuffer packet size (should always be 4096): %d", item_size);
 
         if (item_size == 0)
             continue;
+
+        //xRingbufferPrintInfo(s_ringbuf_i2s);
+
+        if (item_size != 4096)
+            ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than 4096: %d", item_size);
 
         process_data(data, &item_size);
 
@@ -140,7 +154,7 @@ static void bt_i2s_task_handler(void *arg)
 
 void bt_i2s_task_start_up(void)
 {
-    s_ringbuf_i2s = xRingbufferCreate(8 * 1024, RINGBUF_TYPE_BYTEBUF);
+    s_ringbuf_i2s = xRingbufferCreate(RINGBUF_SIZE, RINGBUF_TYPE_BYTEBUF);
     if (s_ringbuf_i2s == NULL)
         return;
 

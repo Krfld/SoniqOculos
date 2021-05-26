@@ -14,7 +14,7 @@ static void i2s_read_task(void *arg);
 static void i2s_read_task_init();
 static void i2s_read_task_deinit();
 
-static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin);
+//static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin);
 
 static void speakers_deinit();
 static void microphones_deinit();
@@ -48,8 +48,8 @@ static i2s_config_t i2s_config_tx = {
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
-    .dma_buf_count = DMA_BUFFER_COUNT,
-    .dma_buf_len = DMA_BUFFER_LEN,
+    .dma_buf_count = I2S_DMA_BUFFER_COUNT,
+    .dma_buf_len = I2S_DMA_BUFFER_LEN,
     .use_apll = false,
     .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
     .fixed_mclk = 0};
@@ -62,13 +62,13 @@ static i2s_config_t i2s_config_rx = {
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
-    .dma_buf_count = DMA_BUFFER_COUNT,
-    .dma_buf_len = DMA_BUFFER_LEN,
+    .dma_buf_count = I2S_DMA_BUFFER_COUNT,
+    .dma_buf_len = I2S_DMA_BUFFER_LEN,
     .use_apll = false,
     .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
     .fixed_mclk = 0};
 
-static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
+/*static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
 {
     gpio_pad_select_gpio(ws_pin);                 // Set GPIO
     gpio_set_direction(ws_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
@@ -81,7 +81,7 @@ static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
     gpio_pad_select_gpio(data_pin);                 // Set GPIO
     gpio_set_direction(data_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
     gpio_set_level(data_pin, LOW);                  // Set LOW
-}
+}*/
 
 bool i2s_get_device_state(int device)
 {
@@ -164,15 +164,15 @@ static void speakers_deinit()
     if (i2s0_device != SPEAKERS)
         return;
 
-    i2s0_device = NONE;
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+    i2s0_device = NONE;
 
     //i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
 
     //delay(DEVICE_DEINIT_DELAY);
 
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
-    i2s_pins_reset(SPEAKERS_WS_PIN, SPEAKERS_BCK_PIN, SPEAKERS_DATA_PIN);
+    //i2s_pins_reset(SPEAKERS_WS_PIN, SPEAKERS_BCK_PIN, SPEAKERS_DATA_PIN);
 }
 
 void microphones_init()
@@ -188,7 +188,6 @@ void microphones_init()
     i2s_read_task_init();
 
     i2s0_device = MICROPHONES;
-
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
 static void microphones_deinit()
@@ -196,15 +195,15 @@ static void microphones_deinit()
     if (i2s0_device != MICROPHONES)
         return;
 
-    i2s0_device = NONE;
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+    i2s0_device = NONE;
 
     i2s_read_task_deinit();
 
     //delay(DEVICE_DEINIT_DELAY);
 
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
-    i2s_pins_reset(MICROPHONES_WS_PIN, MICROPHONES_BCK_PIN, MICROPHONES_DATA_PIN);
+    //i2s_pins_reset(MICROPHONES_WS_PIN, MICROPHONES_BCK_PIN, MICROPHONES_DATA_PIN);
 }
 
 void bone_conductors_init()

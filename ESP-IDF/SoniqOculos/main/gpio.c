@@ -15,10 +15,6 @@ static int buttons_pressed(int buttons);
 static xTaskHandle s_gpio_task_handle = NULL;
 static void gpio_task(void *arg);
 
-static xTaskHandle s_change_mode_task_handle = NULL;
-static void change_mode_task(void *arg);
-static void change_mode_task_init();
-
 static xTaskHandle s_releasing_task_handle = NULL;
 static void releasing_task(void *arg);
 static void releasing_task_init();
@@ -49,39 +45,6 @@ static int buttons_pressed(int buttons)
         buttons_pressed++;
 
     return buttons_pressed;
-}
-
-static void change_mode_task(void *arg)
-{
-    mode = !mode; // Switch modes
-    switch (mode)
-    {
-    case MUSIC:
-        ESP_LOGW(GPIO_TAG, "Mode: MUSIC");
-
-        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-        sd_card_deinit();
-
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
-        speakers_init();
-        bt_music_init();
-        break;
-
-    case RECORD_PLAYBACK:
-        ESP_LOGW(GPIO_TAG, "Mode: RECORD_PLAYBACK");
-
-        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-        bt_music_deinit();
-
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
-        microphones_init();
-        break;
-    }
-
-    s_change_mode_task_handle = NULL;
-    vTaskDelete(NULL);
 }
 
 static void releasing_task(void *arg)
@@ -363,12 +326,6 @@ void gpio_task_deinit()
     volume_task_deinit();
 }
 
-static void change_mode_task_init()
-{
-    if (!s_change_mode_task_handle)
-        xTaskCreate(change_mode_task, "change_mode_task", CHANGE_MODE_STACK_DEPTH, NULL, 10, &s_gpio_task_handle);
-}
-
 static void releasing_task_init()
 {
     if (!s_releasing_task_handle)
@@ -385,8 +342,6 @@ static void releasing_task_deinit()
 
 static void power_off_task_init()
 {
-    //! Needs to delay (i think)
-
     if (!s_power_off_task_handle)
         xTaskCreate(power_off_task, "power_off_task", POWER_OFF_STACK_DEPTH, NULL, 10, &s_power_off_task_handle);
 }

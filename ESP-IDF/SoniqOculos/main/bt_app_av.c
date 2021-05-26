@@ -51,15 +51,6 @@ void bt_app_a2d_cb(esp_a2d_cb_event_t event, esp_a2d_cb_param_t *param)
     }
 }
 
-void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
-{
-    write_ringbuf(data, len);
-    if (++s_pkt_cnt % 100 == 0)
-    {
-        ESP_LOGI(BT_AV_TAG, "Audio packet count %u", s_pkt_cnt);
-    }
-}
-
 void bt_app_alloc_meta_buffer(esp_avrc_ct_cb_param_t *param)
 {
     esp_avrc_ct_cb_param_t *rc = (esp_avrc_ct_cb_param_t *)(param);
@@ -105,92 +96,6 @@ void bt_app_rc_tg_cb(esp_avrc_tg_cb_event_t event, esp_avrc_tg_cb_param_t *param
         break;
     default:
         ESP_LOGE(BT_RC_TG_TAG, "Invalid AVRC event: %d", event);
-        break;
-    }
-}
-
-static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
-{
-    ESP_LOGD(BT_AV_TAG, "%s evt %d", __func__, event);
-    esp_a2d_cb_param_t *a2d = NULL;
-    switch (event)
-    {
-    case ESP_A2D_CONNECTION_STATE_EVT:
-    {
-        a2d = (esp_a2d_cb_param_t *)(p_param);
-        uint8_t *bda = a2d->conn_stat.remote_bda;
-        ESP_LOGI(BT_AV_TAG, "A2DP connection state: %s, [%02x:%02x:%02x:%02x:%02x:%02x]",
-                 s_a2d_conn_state_str[a2d->conn_stat.state], bda[0], bda[1], bda[2], bda[3], bda[4], bda[5]);
-        if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
-        {
-            ESP_LOGW(BT_AV_TAG, "Disconnected from audio");
-            esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
-            bt_i2s_task_shut_down();
-        }
-        else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
-        {
-            ESP_LOGW(BT_AV_TAG, "Connected to audio");
-            esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
-            bt_i2s_task_start_up();
-        }
-        break;
-    }
-    case ESP_A2D_AUDIO_STATE_EVT:
-    {
-        a2d = (esp_a2d_cb_param_t *)(p_param);
-        ESP_LOGW(BT_AV_TAG, "A2DP audio state: %s", s_a2d_audio_state_str[a2d->audio_stat.state]);
-        s_audio_state = a2d->audio_stat.state;
-        if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state) // Turn on devices when music playing
-        {
-            s_pkt_cnt = 0;
-            i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
-            i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
-        }
-        else // Turn off devices when no music playing
-        {
-            i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-            i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-        }
-        //!i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-        //!i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
-        //TODO Test buffer clear
-        break;
-    }
-    case ESP_A2D_AUDIO_CFG_EVT:
-    {
-        a2d = (esp_a2d_cb_param_t *)(p_param);
-        ESP_LOGI(BT_AV_TAG, "A2DP audio stream configuration, codec type %d", a2d->audio_cfg.mcc.type);
-        // for now only SBC stream is supported
-        if (a2d->audio_cfg.mcc.type == ESP_A2D_MCT_SBC)
-        {
-            int sample_rate = 16000;
-            char oct0 = a2d->audio_cfg.mcc.cie.sbc[0];
-            if (oct0 & (0x01 << 6))
-            {
-                sample_rate = 32000;
-            }
-            else if (oct0 & (0x01 << 5))
-            {
-                sample_rate = 44100;
-            }
-            else if (oct0 & (0x01 << 4))
-            {
-                sample_rate = 48000;
-            }
-            i2s_set_clk(SPEAKERS_MICROPHONES_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
-            i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
-
-            ESP_LOGI(BT_AV_TAG, "Configure audio player %x-%x-%x-%x",
-                     a2d->audio_cfg.mcc.cie.sbc[0],
-                     a2d->audio_cfg.mcc.cie.sbc[1],
-                     a2d->audio_cfg.mcc.cie.sbc[2],
-                     a2d->audio_cfg.mcc.cie.sbc[3]);
-            ESP_LOGI(BT_AV_TAG, "Audio player configured, sample rate=%d", sample_rate);
-        }
-        break;
-    }
-    default:
-        ESP_LOGE(BT_AV_TAG, "%s unhandled evt %d", __func__, event);
         break;
     }
 }
@@ -398,6 +303,104 @@ static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param)
     default:
         ESP_LOGE(BT_RC_TG_TAG, "%s unhandled evt %d", __func__, event);
         break;
+    }
+}
+
+static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
+{
+    ESP_LOGD(BT_AV_TAG, "%s evt %d", __func__, event);
+    esp_a2d_cb_param_t *a2d = NULL;
+    switch (event)
+    {
+    case ESP_A2D_CONNECTION_STATE_EVT:
+    {
+        a2d = (esp_a2d_cb_param_t *)(p_param);
+        uint8_t *bda = a2d->conn_stat.remote_bda;
+        ESP_LOGI(BT_AV_TAG, "A2DP connection state: %s, [%02x:%02x:%02x:%02x:%02x:%02x]",
+                 s_a2d_conn_state_str[a2d->conn_stat.state], bda[0], bda[1], bda[2], bda[3], bda[4], bda[5]);
+        if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
+        {
+            ESP_LOGW(BT_AV_TAG, "Disconnected from audio");
+            esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
+            bt_i2s_task_shut_down();
+        }
+        else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
+        {
+            ESP_LOGW(BT_AV_TAG, "Connected to audio");
+            esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
+            bt_i2s_task_start_up();
+        }
+        break;
+    }
+    case ESP_A2D_AUDIO_STATE_EVT:
+    {
+        a2d = (esp_a2d_cb_param_t *)(p_param);
+        ESP_LOGW(BT_AV_TAG, "A2DP audio state: %s", s_a2d_audio_state_str[a2d->audio_stat.state]);
+        s_audio_state = a2d->audio_stat.state;
+        if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state) // Turn on devices when music playing
+        {
+            s_pkt_cnt = 0;
+            i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+            i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+        }
+        else // Turn off devices when no music playing
+        {
+            i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+            i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+        }
+        //!i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+        //!i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
+        //TODO Test buffer clear
+        break;
+    }
+    case ESP_A2D_AUDIO_CFG_EVT:
+    {
+        a2d = (esp_a2d_cb_param_t *)(p_param);
+        ESP_LOGI(BT_AV_TAG, "A2DP audio stream configuration, codec type %d", a2d->audio_cfg.mcc.type);
+        // for now only SBC stream is supported
+        if (a2d->audio_cfg.mcc.type == ESP_A2D_MCT_SBC)
+        {
+            int sample_rate = 16000;
+            char oct0 = a2d->audio_cfg.mcc.cie.sbc[0];
+            if (oct0 & (0x01 << 6))
+            {
+                sample_rate = 32000;
+            }
+            else if (oct0 & (0x01 << 5))
+            {
+                sample_rate = 44100;
+            }
+            else if (oct0 & (0x01 << 4))
+            {
+                sample_rate = 48000;
+            }
+            i2s_set_clk(SPEAKERS_MICROPHONES_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+            i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
+
+            ESP_LOGI(BT_AV_TAG, "Configure audio player %x-%x-%x-%x",
+                     a2d->audio_cfg.mcc.cie.sbc[0],
+                     a2d->audio_cfg.mcc.cie.sbc[1],
+                     a2d->audio_cfg.mcc.cie.sbc[2],
+                     a2d->audio_cfg.mcc.cie.sbc[3]);
+            ESP_LOGI(BT_AV_TAG, "Audio player configured, sample rate=%d", sample_rate);
+        }
+        break;
+    }
+    default:
+        ESP_LOGE(BT_AV_TAG, "%s unhandled evt %d", __func__, event);
+        break;
+    }
+}
+
+void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
+{
+    if (BT_DEBUG)
+        ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d", len);
+
+    write_ringbuf(data, len);
+    if (++s_pkt_cnt % 100 == 0)
+    {
+        ESP_LOGI(BT_AV_TAG, "Audio packet count %u", s_pkt_cnt);
     }
 }
 

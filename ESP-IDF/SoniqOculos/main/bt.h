@@ -7,6 +7,7 @@
 
 #define BT_SPP_TAG "BT_SPP"
 
+#define RINGBUF_SIZE 3 * 4096
 #define BT_I2S_STACK_DEPTH 2 * 1024
 
 void bt_init();

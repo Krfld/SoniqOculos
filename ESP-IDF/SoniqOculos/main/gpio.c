@@ -226,11 +226,10 @@ static void gpio_task(void *arg)
                 case B1_MASK | B2_MASK | B3_MASK: // 111
                     ESP_LOGI(GPIO_TAG, "Change mode");
                     mode = !mode;
-                    //change_mode_task_init();
 
                     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
                     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-                    bt_music_deinit(); //TODO Fix
+                    bt_music_deinit();
 
                     i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
                     microphones_init();
@@ -277,9 +276,6 @@ static void gpio_task(void *arg)
                 case B1_MASK | B2_MASK | B3_MASK: // 111
                     ESP_LOGI(GPIO_TAG, "Change mode");
                     mode = !mode;
-                    //change_mode_task_init();
-
-                    //esp_restart(); //!
 
                     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
                     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);

@@ -96,22 +96,22 @@ void i2s_set_device_state(int device, bool state)
 {
     if (device == SPEAKERS_MICROPHONES_I2S_NUM)
     {
-        i2s0_state = state;
-
-        if (i2s0_state && i2s0_device == SPEAKERS)
+        if (state && i2s0_device == SPEAKERS)
             gpio_set_level(SPEAKERS_SD_PIN, HIGH); // Turn on speakers
         else
             gpio_set_level(SPEAKERS_SD_PIN, LOW); // Turn off speakers
+
+        i2s0_state = state;
     }
 
     if (device == BONE_CONDUCTORS_I2S_NUM)
     {
-        i2s1_state = state;
-
-        if (i2s1_state)
+        if (state)
             gpio_set_level(BONE_CONDUCTORS_SD_PIN, HIGH); // Turn on bone conductors
         else
             gpio_set_level(BONE_CONDUCTORS_SD_PIN, LOW); // Turn off bone conductors
+
+        i2s1_state = state;
     }
 }
 
@@ -119,24 +119,18 @@ void i2s_change_devices_state()
 {
     if (i2s0_state & i2s1_state)
     {
-        if (I2S_DEBUG)
-            printf("Only bone conductors\n");
-
+        ESP_LOGI(I2S_TAG, "Only bone conductors");
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     }
     else if (i2s1_state)
     {
-        if (I2S_DEBUG)
-            printf("Only speakers\n");
-
+        ESP_LOGI(I2S_TAG, "Only speakers");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
     }
     else if (i2s0_state)
     {
-        if (I2S_DEBUG)
-            printf("Both devices\n");
-
+        ESP_LOGI(I2S_TAG, "Both devices");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
     }
 }
@@ -169,8 +163,7 @@ static void speakers_deinit()
 
     //i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
 
-    //delay(DEVICE_DEINIT_DELAY);
-
+    delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
     //i2s_pins_reset(SPEAKERS_WS_PIN, SPEAKERS_BCK_PIN, SPEAKERS_DATA_PIN);
 }
@@ -200,8 +193,7 @@ static void microphones_deinit()
 
     i2s_read_task_deinit();
 
-    //delay(DEVICE_DEINIT_DELAY);
-
+    delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
     //i2s_pins_reset(MICROPHONES_WS_PIN, MICROPHONES_BCK_PIN, MICROPHONES_DATA_PIN);
 }

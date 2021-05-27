@@ -127,6 +127,8 @@ static void bt_i2s_task_handler(void *arg)
 
     for (;;)
     {
+        //TODO Fix
+
         if (xRingbufferGetCurFreeSize(s_ringbuf_i2s) > RINGBUF_SIZE - 4096)
         {
             delay(25);
@@ -164,11 +166,16 @@ void bt_i2s_task_start_up(void)
 
 void bt_i2s_task_shut_down(void)
 {
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+
     if (s_bt_i2s_task_handle)
     {
         vTaskDelete(s_bt_i2s_task_handle);
         s_bt_i2s_task_handle = NULL;
     }
+
+    delay(10); // Make sure task is deleted before deleting ringbuffer
 
     if (s_ringbuf_i2s)
     {

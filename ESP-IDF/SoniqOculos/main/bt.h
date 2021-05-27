@@ -8,7 +8,9 @@
 #define BT_SPP_TAG "BT_SPP"
 
 #define RINGBUF_SIZE 3 * 4096
-#define BT_I2S_STACK_DEPTH 2 * 1024
+#define BT_I2S_STACK_DEPTH 3 * 1024 // 2* might be enough
+
+void set_bda(uint8_t *addr);
 
 void bt_init();
 

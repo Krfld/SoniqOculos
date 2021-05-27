@@ -12,13 +12,15 @@ void delay(int millis)
 
 void app_main(void)
 {
+    ESP_LOGW(MAIN_TAG, "Setup init");
+
     bt_init();
     spi_init();
     sd_det_task_init();
     gpio_task_init();
 
-    speakers_init();
     bone_conductors_init();
+    speakers_init();
     bt_music_init();
 
     ESP_LOGW(MAIN_TAG, "Setup ready");

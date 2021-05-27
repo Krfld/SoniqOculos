@@ -318,17 +318,20 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         uint8_t *bda = a2d->conn_stat.remote_bda;
         ESP_LOGI(BT_AV_TAG, "A2DP connection state: %s, [%02x:%02x:%02x:%02x:%02x:%02x]",
                  s_a2d_conn_state_str[a2d->conn_stat.state], bda[0], bda[1], bda[2], bda[3], bda[4], bda[5]);
-        if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
+
+        if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
+        {
+            ESP_LOGW(BT_AV_TAG, "Connected to audio");
+            set_bda(bda);
+            s_audio_state = ESP_A2D_AUDIO_STATE_STOPPED;
+            esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
+            bt_i2s_task_start_up();
+        }
+        else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
         {
             ESP_LOGW(BT_AV_TAG, "Disconnected from audio");
             esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
             bt_i2s_task_shut_down();
-        }
-        else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
-        {
-            ESP_LOGW(BT_AV_TAG, "Connected to audio");
-            esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
-            bt_i2s_task_start_up();
         }
         break;
     }
@@ -337,6 +340,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         a2d = (esp_a2d_cb_param_t *)(p_param);
         ESP_LOGW(BT_AV_TAG, "A2DP audio state: %s", s_a2d_audio_state_str[a2d->audio_stat.state]);
         s_audio_state = a2d->audio_stat.state;
+
         if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state) // Turn on devices when music playing
         {
             s_pkt_cnt = 0;

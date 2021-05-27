@@ -14,7 +14,15 @@
 
 #include "bt.h"
 
-static bool bt_is_music_ready();
+static uint8_t *bda = NULL;
+void set_bda(uint8_t *addr)
+{
+    if (bda == NULL)
+        bda = (uint8_t *)malloc(ESP_BD_ADDR_LEN);
+    memcpy(bda, addr, ESP_BD_ADDR_LEN);
+}
+
+static bool bt_music_ready = false;
 
 // event for handler "bt_av_hdl_stack_up
 enum
@@ -27,27 +35,16 @@ void bt_av_hdl_stack_evt(uint16_t event, void *p_param);
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
+    ////ESP_LOGI(BT_SPP_TAG, "SPP event: %d", event);
     switch (event)
     {
     case ESP_SPP_INIT_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_INIT_EVT");
         esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, DEVICE_NAME);
         break;
-    case ESP_SPP_DISCOVERY_COMP_EVT:
-        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_DISCOVERY_COMP_EVT");
-        break;
-    case ESP_SPP_OPEN_EVT:
-        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_OPEN_EVT");
-        break;
     case ESP_SPP_CLOSE_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");
-        ESP_LOGW(BT_SPP_TAG, "Disconnected to server");
-        break;
-    case ESP_SPP_START_EVT:
-        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_START_EVT");
-        break;
-    case ESP_SPP_CL_INIT_EVT:
-        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CL_INIT_EVT");
+        ESP_LOGW(BT_SPP_TAG, "Disconnected from server");
         break;
     case ESP_SPP_DATA_IND_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%d",
@@ -63,12 +60,6 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         {
             esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);
         }
-        break;
-    case ESP_SPP_CONG_EVT:
-        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CONG_EVT");
-        break;
-    case ESP_SPP_WRITE_EVT:
-        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_WRITE_EVT");
         break;
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
@@ -214,22 +205,16 @@ void bt_init()
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 }
 
-static bool bt_music_ready = false;
-static bool bt_is_music_ready()
-{
-    return bt_music_ready;
-}
-
 void bt_music_init()
 {
-    if (bt_is_music_ready())
+    if (bt_music_ready)
         return;
 
     // initialize AVRCP controller
     esp_avrc_ct_init();
     esp_avrc_ct_register_callback(bt_app_rc_ct_cb);
     // initialize AVRCP target
-    assert(esp_avrc_tg_init() == ESP_OK);
+    esp_avrc_tg_init();
     esp_avrc_tg_register_callback(bt_app_rc_tg_cb);
 
     /*esp_avrc_rn_evt_cap_mask_t evt_set = {0};
@@ -241,19 +226,24 @@ void bt_music_init()
     esp_a2d_sink_register_data_callback(bt_app_a2d_data_cb);
     esp_a2d_sink_init();
 
+    if (bda != NULL)
+        esp_a2d_sink_connect(bda);
+
+    esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
     bt_music_ready = true;
 }
 void bt_music_deinit()
 {
-    if (!bt_is_music_ready())
+    if (!bt_music_ready)
         return;
 
-    //bt_send_cmd(ESP_AVRC_PT_CMD_STOP);
+    esp_a2d_sink_disconnect(bda);
 
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();
     esp_a2d_sink_deinit();
 
+    esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
     bt_music_ready = false;
 }
 
@@ -264,17 +254,5 @@ void bt_send_cmd(uint8_t cmd)
     if (++tl > 15) // "consecutive commands should use different values"
         tl = 0;
 
-    //TODO Fix
-
-    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-
     esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED); // Send AVRCP command
-    delay(1000);
-
-    if (cmd != ESP_AVRC_PT_CMD_PAUSE && cmd != ESP_AVRC_PT_CMD_STOP)
-    {
-        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
-        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
-    }
 }

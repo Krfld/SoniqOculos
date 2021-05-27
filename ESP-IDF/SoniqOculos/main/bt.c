@@ -227,7 +227,7 @@ void bt_music_init()
     esp_a2d_sink_init();
 
     if (bda != NULL)
-        esp_a2d_sink_connect(bda);
+        esp_a2d_sink_connect(bda); // Connect to previous device
 
     esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
     bt_music_ready = true;
@@ -237,7 +237,7 @@ void bt_music_deinit()
     if (!bt_music_ready)
         return;
 
-    esp_a2d_sink_disconnect(bda);
+    esp_a2d_sink_disconnect(bda); // Disconnect from device
 
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();

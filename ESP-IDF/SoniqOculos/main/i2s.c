@@ -117,6 +117,7 @@ void i2s_set_device_state(int device, bool state)
 
 void i2s_change_devices_state()
 {
+    //TODO Fix | When hit play, always starts with both devices
     if (i2s0_state & i2s1_state)
     {
         ESP_LOGI(I2S_TAG, "Only bone conductors");

@@ -60,11 +60,21 @@ static void power_off_task(void *arg)
 {
     delay(POWER_OFF_HOLD_TIME);
 
-    ESP_LOGE(GPIO_TAG, "Powering off...");
+    s_power_off_task_handle = NULL;
+
+    delay(COMMAND_DELAY);
 
     //!gpio_task_deinit(); //! Deep-sleep
+    ESP_LOGE(GPIO_TAG, "Powering off...");
 
-    s_power_off_task_handle = NULL;
+    esp_sleep_enable_ulp_wakeup(); // Set wakeup reason
+
+    rtc_gpio_isolate(B1); // Isolate so it doesn't draw current on the pulldown resistors
+    rtc_gpio_isolate(B2); // Isolate so it doesn't draw current on the pulldown resistors
+    rtc_gpio_isolate(B3); // Isolate so it doesn't draw current on the pulldown resistors
+
+    esp_deep_sleep_start();
+
     vTaskDelete(NULL);
 }
 

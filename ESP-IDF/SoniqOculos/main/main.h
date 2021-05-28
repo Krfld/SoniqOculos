@@ -15,6 +15,7 @@
 
 #include "esp_log.h"
 #include "esp_vfs_fat.h"
+#include "esp_sleep.h"
 
 #include "esp_bt.h"
 #include "esp_bt_main.h"
@@ -27,6 +28,7 @@
 #include "driver/i2s.h"
 #include "driver/dac.h"
 #include "driver/gpio.h"
+#include "driver/rtc_io.h"
 
 //#include "esp_dsp.h"
 #include "dsps_fir.h"

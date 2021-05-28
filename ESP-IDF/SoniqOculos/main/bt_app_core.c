@@ -127,7 +127,7 @@ static void bt_i2s_task_handler(void *arg)
 
     for (;;)
     {
-        //TODO Fix
+        //TODO Fix | Not sending avrcp commands
 
         if (xRingbufferGetCurFreeSize(s_ringbuf_i2s) > RINGBUF_SIZE - 4096)
         {
@@ -137,14 +137,12 @@ static void bt_i2s_task_handler(void *arg)
 
         data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY, 4096);
 
+        //xRingbufferPrintInfo(s_ringbuf_i2s);
         if (BT_DEBUG)
             ESP_LOGI(BT_APP_CORE_TAG, "Ringbuffer packet size (should always be 4096): %d", item_size);
 
         if (item_size == 0)
             continue;
-
-        //xRingbufferPrintInfo(s_ringbuf_i2s);
-
         if (item_size != 4096)
             ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than 4096: %d", item_size);
 
@@ -166,8 +164,7 @@ void bt_i2s_task_start_up(void)
 
 void bt_i2s_task_shut_down(void)
 {
-    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+    //turn_devices_off(); // No need
 
     if (s_bt_i2s_task_handle)
     {

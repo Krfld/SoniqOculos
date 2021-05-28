@@ -4,6 +4,15 @@
 #include "sd.h"
 #include "bt.h"
 
+enum DEVICES
+{
+    BOTH_DEVICES,
+    ONLY_BONE_CONDUCTORS,
+    ONLY_SPEAKERS
+};
+
+static enum DEVICES devices = BOTH_DEVICES;
+
 static int i2s0_device = NONE;
 
 static bool i2s0_state = OFF;
@@ -13,8 +22,6 @@ static xTaskHandle s_i2s_read_task_handle = NULL;
 static void i2s_read_task(void *arg);
 static void i2s_read_task_init();
 static void i2s_read_task_deinit();
-
-//static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin);
 
 static void speakers_deinit();
 static void microphones_deinit();
@@ -68,21 +75,6 @@ static i2s_config_t i2s_config_rx = {
     .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
     .fixed_mclk = 0};
 
-/*static void i2s_pins_reset(int ws_pin, int bck_pin, int data_pin)
-{
-    gpio_pad_select_gpio(ws_pin);                 // Set GPIO
-    gpio_set_direction(ws_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
-    gpio_set_level(ws_pin, LOW);                  // Set LOW
-
-    gpio_pad_select_gpio(bck_pin);                 // Set GPIO
-    gpio_set_direction(bck_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
-    gpio_set_level(bck_pin, LOW);                  // Set LOW
-
-    gpio_pad_select_gpio(data_pin);                 // Set GPIO
-    gpio_set_direction(data_pin, GPIO_MODE_OUTPUT); // Set OUTPUT
-    gpio_set_level(data_pin, LOW);                  // Set LOW
-}*/
-
 bool i2s_get_device_state(int device)
 {
     if (device == SPEAKERS_MICROPHONES_I2S_NUM)
@@ -117,23 +109,51 @@ void i2s_set_device_state(int device, bool state)
 
 void i2s_change_devices_state()
 {
-    //TODO Fix | When hit play, always starts with both devices
-    if (i2s0_state & i2s1_state)
+    switch (devices)
     {
-        ESP_LOGI(I2S_TAG, "Only bone conductors");
+    case BOTH_DEVICES:
+        ESP_LOGI(I2S_TAG, "Change to only bone conductors");
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-    }
-    else if (i2s1_state)
-    {
-        ESP_LOGI(I2S_TAG, "Only speakers");
+        devices = ONLY_BONE_CONDUCTORS;
+        break;
+
+    case ONLY_BONE_CONDUCTORS:
+        ESP_LOGI(I2S_TAG, "Change to only speakers");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
-    }
-    else if (i2s0_state)
-    {
-        ESP_LOGI(I2S_TAG, "Both devices");
+        devices = ONLY_SPEAKERS;
+        break;
+
+    case ONLY_SPEAKERS:
+        ESP_LOGI(I2S_TAG, "Change to both devices");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+        devices = BOTH_DEVICES;
+        break;
     }
+}
+
+void turn_devices_on()
+{
+    switch (devices)
+    {
+    case BOTH_DEVICES:
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+        break;
+
+    case ONLY_SPEAKERS:
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+        break;
+
+    case ONLY_BONE_CONDUCTORS:
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+        break;
+    }
+}
+void turn_devices_off()
+{
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 }
 
 void speakers_init()

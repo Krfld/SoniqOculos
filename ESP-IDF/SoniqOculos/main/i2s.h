@@ -39,6 +39,8 @@
 bool i2s_get_device_state(int device);
 void i2s_set_device_state(int device, bool state);
 void i2s_change_devices_state();
+void turn_devices_on();
+void turn_devices_off();
 
 void speakers_init();
 

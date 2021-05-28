@@ -62,17 +62,22 @@ static void power_off_task(void *arg)
 
     s_power_off_task_handle = NULL;
 
-    delay(COMMAND_DELAY);
-
-    //!gpio_task_deinit(); //! Deep-sleep
+    delay(COMMAND_DELAY); // 
     ESP_LOGE(GPIO_TAG, "Powering off...");
 
-    esp_sleep_enable_ulp_wakeup(); // Set wakeup reason
+    gpio_task_deinit(); //! Deep-sleep
 
+    /*esp_sleep_enable_ulp_wakeup(); // Set wakeup reason
     rtc_gpio_isolate(B1); // Isolate so it doesn't draw current on the pulldown resistors
     rtc_gpio_isolate(B2); // Isolate so it doesn't draw current on the pulldown resistors
     rtc_gpio_isolate(B3); // Isolate so it doesn't draw current on the pulldown resistors
+    esp_deep_sleep_start();*/
 
+    while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
+        delay(DEBOUNCE);
+
+    esp_sleep_enable_ext0_wakeup(B1, HIGH);
+    rtc_gpio_pullup_en(B1); //TODO Test if needed
     esp_deep_sleep_start();
 
     vTaskDelete(NULL);
@@ -103,6 +108,7 @@ static void volume_task(void *arg)
 
 static void gpio_task(void *arg)
 {
+    rtc_gpio_deinit(B1);
     gpio_pad_select_gpio(B1);                   // Set GPIO
     gpio_set_direction(B1, GPIO_MODE_INPUT);    // Set INPUT
     gpio_set_pull_mode(B1, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
@@ -234,11 +240,10 @@ static void gpio_task(void *arg)
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
-                    ESP_LOGI(GPIO_TAG, "Change mode");
+                    ESP_LOGI(GPIO_TAG, "Change to RECORD_PLAYBACK mode");
                     mode = !mode;
 
-                    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-                    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+                    turn_devices_off();
                     bt_music_deinit();
 
                     i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
@@ -284,11 +289,10 @@ static void gpio_task(void *arg)
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
-                    ESP_LOGI(GPIO_TAG, "Change mode");
+                    ESP_LOGI(GPIO_TAG, "Change to MUSIC mode");
                     mode = !mode;
 
-                    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-                    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+                    turn_devices_off();
                     sd_card_deinit();
 
                     i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S

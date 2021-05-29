@@ -12,21 +12,22 @@ static int buttons_command = 0;
 
 static int buttons_pressed(int buttons);
 
-static xTaskHandle s_gpio_task_handle = NULL;
+static xTaskHandle gpio_task_handle = NULL;
 static void gpio_task(void *arg);
 
-static xTaskHandle s_releasing_task_handle = NULL;
+static xTaskHandle releasing_task_handle = NULL;
 static void releasing_task(void *arg);
 static void releasing_task_init();
 static void releasing_task_deinit();
 
-static xTaskHandle s_power_off_task_handle = NULL;
+static QueueHandle_t power_off_queue_handle = NULL;
+static xTaskHandle power_off_task_handle = NULL;
 static void power_off_task(void *arg);
 static void power_off_task_init();
 static void power_off_task_deinit();
 
 static bool changed_volume = false;
-static xTaskHandle s_volume_task_handle = NULL;
+static xTaskHandle volume_task_handle = NULL;
 static void volume_task(void *arg);
 static void volume_task_init();
 static void volume_task_deinit();
@@ -52,17 +53,26 @@ static void releasing_task(void *arg)
     delay(RELEASE_DELAY);
     buttons_command = buttons_map;
 
-    s_releasing_task_handle = NULL;
+    releasing_task_handle = NULL;
     vTaskDelete(NULL);
 }
 
 static void power_off_task(void *arg)
 {
+    bool powering_off = false;
+    for (;;)
+    {
+        if (xQueueReceive(power_off_queue_handle, &powering_off, portMAX_DELAY))
+        {
+            //TODO Finish
+        }
+    }
+
     delay(POWER_OFF_HOLD_TIME);
 
-    s_power_off_task_handle = NULL;
+    power_off_task_handle = NULL;
 
-    delay(COMMAND_DELAY); // 
+    delay(COMMAND_DELAY); // Make sure task isn't deleted
     ESP_LOGE(GPIO_TAG, "Powering off...");
 
     gpio_task_deinit(); //! Deep-sleep
@@ -75,6 +85,8 @@ static void power_off_task(void *arg)
 
     while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
         delay(DEBOUNCE);
+
+    delay(COMMAND_DELAY);
 
     esp_sleep_enable_ext0_wakeup(B1, HIGH);
     rtc_gpio_pullup_en(B1); //TODO Test if needed
@@ -102,12 +114,14 @@ static void volume_task(void *arg)
         delay(VOLUME_CHANGE_PERIOD);
     }
 
-    s_volume_task_handle = NULL;
+    volume_task_handle = NULL;
     vTaskDelete(NULL);
 }
 
 static void gpio_task(void *arg)
 {
+    power_off_task_init();
+
     rtc_gpio_deinit(B1);
     gpio_pad_select_gpio(B1);                   // Set GPIO
     gpio_set_direction(B1, GPIO_MODE_INPUT);    // Set INPUT
@@ -138,8 +152,8 @@ static void gpio_task(void *arg)
                     ESP_LOGI(GPIO_TAG, "Released B1");
             }
 
-            if ((buttons_map & B1_MASK) && buttons_map == B1_MASK) // Pressed only button 1
-                power_off_task_init();
+            ////if ((buttons_map & B1_MASK) && buttons_map == B1_MASK) // Pressed only button 1
+            ////power_off_task_init();
         }
 
         if (gpio_get_level(B2) != ((buttons_map & B2_MASK) ? 1 : 0))
@@ -314,21 +328,21 @@ static void gpio_task(void *arg)
         }
     }
 
-    s_gpio_task_handle = NULL;
+    gpio_task_handle = NULL;
     vTaskDelete(NULL);
 }
 
 void gpio_task_init()
 {
-    if (!s_gpio_task_handle)
-        xTaskCreate(gpio_task, "gpio_task", GPIO_STACK_DEPTH, NULL, 10, &s_gpio_task_handle);
+    if (!gpio_task_handle)
+        xTaskCreate(gpio_task, "gpio_task", GPIO_STACK_DEPTH, NULL, 10, &gpio_task_handle);
 }
 void gpio_task_deinit()
 {
-    if (s_gpio_task_handle)
+    if (gpio_task_handle)
     {
-        vTaskDelete(s_gpio_task_handle);
-        s_gpio_task_handle = NULL;
+        vTaskDelete(gpio_task_handle);
+        gpio_task_handle = NULL;
     }
 
     releasing_task_deinit();
@@ -338,42 +352,55 @@ void gpio_task_deinit()
 
 static void releasing_task_init()
 {
-    if (!s_releasing_task_handle)
-        xTaskCreate(releasing_task, "releasing_task", RELEASING_STACK_DEPTH, NULL, 10, &s_releasing_task_handle);
+    if (!releasing_task_handle)
+        xTaskCreate(releasing_task, "releasing_task", RELEASING_STACK_DEPTH, NULL, 10, &releasing_task_handle);
 }
 static void releasing_task_deinit()
 {
-    if (s_releasing_task_handle)
+    if (releasing_task_handle)
     {
-        vTaskDelete(s_releasing_task_handle);
-        s_releasing_task_handle = NULL;
+        vTaskDelete(releasing_task_handle);
+        releasing_task_handle = NULL;
     }
 }
 
 static void power_off_task_init()
 {
-    if (!s_power_off_task_handle)
-        xTaskCreate(power_off_task, "power_off_task", POWER_OFF_STACK_DEPTH, NULL, 10, &s_power_off_task_handle);
+    if (!power_off_task_handle)
+        if (xTaskCreate(power_off_task, "power_off_task", POWER_OFF_STACK_DEPTH, NULL, 10, &power_off_task_handle) != pdPASS)
+            ESP_LOGE(GPIO_TAG, "Error creating power off task");
+
+    power_off_queue_handle = xQueueCreate(1, sizeof(bool));
+    if (!power_off_queue_handle)
+        ESP_LOGE(GPIO_TAG, "Error creating power off queue");
 }
 static void power_off_task_deinit()
 {
-    if (s_power_off_task_handle)
+    if (power_off_task_handle)
     {
-        vTaskDelete(s_power_off_task_handle);
-        s_power_off_task_handle = NULL;
+        vTaskDelete(power_off_task_handle);
+        power_off_task_handle = NULL;
+    }
+
+    delay(10); // Make sure task is deleted before deleting queue
+
+    if (power_off_queue_handle)
+    {
+        vQueueDelete(power_off_queue_handle);
+        power_off_queue_handle = NULL;
     }
 }
 
 static void volume_task_init()
 {
-    if (!s_volume_task_handle)
-        xTaskCreate(volume_task, "volume_task", VOLUME_STACK_DEPTH, NULL, 10, &s_volume_task_handle);
+    if (!volume_task_handle)
+        xTaskCreate(volume_task, "volume_task", VOLUME_STACK_DEPTH, NULL, 10, &volume_task_handle);
 }
 static void volume_task_deinit()
 {
-    if (s_volume_task_handle)
+    if (volume_task_handle)
     {
-        vTaskDelete(s_volume_task_handle);
-        s_volume_task_handle = NULL;
+        vTaskDelete(volume_task_handle);
+        volume_task_handle = NULL;
     }
 }

@@ -6,7 +6,7 @@ Fs = 44100;
 BitsPerSample = 16;
 BytesPerSample = (BitsPerSample / 8 * 2);
 
-file = fopen('E:\SAMPLES.TXT');
+file = fopen('TESTING.TXT');
 data = fread(file);
 
 out = zeros(length(data)/BytesPerSample, 2);

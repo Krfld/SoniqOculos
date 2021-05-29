@@ -62,37 +62,33 @@ static void power_off_task(void *arg)
     bool powering_off = false;
     for (;;)
     {
-        if (xQueueReceive(power_off_queue_handle, &powering_off, portMAX_DELAY))
+        if (xQueueGenericReceive(power_off_queue_handle, &powering_off, portMAX_DELAY, false) && powering_off)
         {
-            //TODO Finish
+            if (!xQueueGenericReceive(power_off_queue_handle, NULL, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME), false)) // if timeout occurs (2 seconds)
+            {
+                //gpio_task_deinit(); //! Deep-sleep
+
+                /*while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
+                    delay(DEBOUNCE);*/
+
+                ESP_LOGE(GPIO_TAG, "Powering off...");
+
+                /*esp_sleep_enable_ext0_wakeup(B1, HIGH);
+                rtc_gpio_pullup_en(B1); //TODO Test if needed
+                esp_deep_sleep_start();*/
+            }
+            powering_off = false;
         }
     }
 
-    delay(POWER_OFF_HOLD_TIME);
-
     power_off_task_handle = NULL;
-
-    delay(COMMAND_DELAY); // Make sure task isn't deleted
-    ESP_LOGE(GPIO_TAG, "Powering off...");
-
-    gpio_task_deinit(); //! Deep-sleep
+    vTaskDelete(NULL);
 
     /*esp_sleep_enable_ulp_wakeup(); // Set wakeup reason
     rtc_gpio_isolate(B1); // Isolate so it doesn't draw current on the pulldown resistors
     rtc_gpio_isolate(B2); // Isolate so it doesn't draw current on the pulldown resistors
     rtc_gpio_isolate(B3); // Isolate so it doesn't draw current on the pulldown resistors
     esp_deep_sleep_start();*/
-
-    while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
-        delay(DEBOUNCE);
-
-    delay(COMMAND_DELAY);
-
-    esp_sleep_enable_ext0_wakeup(B1, HIGH);
-    rtc_gpio_pullup_en(B1); //TODO Test if needed
-    esp_deep_sleep_start();
-
-    vTaskDelete(NULL);
 }
 
 static void volume_task(void *arg)
@@ -230,6 +226,18 @@ static void gpio_task(void *arg)
                     if (!changed_volume)
                     {
                         ESP_LOGI(GPIO_TAG, "Volume up");
+
+                        //! Testing
+                        if (!sd_file_state())
+                        {
+                            ESP_LOGI(GPIO_TAG, "Start recording");
+                            sd_card_init();
+                        }
+                        else
+                        {
+                            ESP_LOGI(GPIO_TAG, "Stop recording");
+                            sd_card_deinit();
+                        }
                     }
                     break;
                 case B3_MASK: // 100
@@ -344,10 +352,6 @@ void gpio_task_deinit()
         vTaskDelete(gpio_task_handle);
         gpio_task_handle = NULL;
     }
-
-    releasing_task_deinit();
-    power_off_task_deinit();
-    volume_task_deinit();
 }
 
 static void releasing_task_init()

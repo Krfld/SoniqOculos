@@ -3,37 +3,90 @@ clear
 close all
 
 Fs = 44100;
-BitsPerSample = 16;
-BytesPerSample = (BitsPerSample / 8 * 2);
+bitsPerSample = 32; % 32 bits when recorded with microphones
+
+file = fopen('TESTING.TXT');
+file_data = fread(file);
+
+if bitsPerSample == 16
+    data = file_data;
+else % Convert 32 bit to 16 bits (ignore bytes 1 and 2)
+    data = zeros(length(file_data)/2, 1);
+    for i = 1:2:length(file_data) / 2
+        data(i) = file_data((i-1)*2+3);
+        data(i+1) = file_data((i-1)*2+4);
+    end
+end
+
+out = zeros(length(data)/4, 2);
+for i = 1:length(data) / 4
+    % Left
+    out(i, 1) = data((i-1)*4+2) * 2^8 + data((i-1)*4+1) * 2^0;
+
+    % Convert unsigned to signed
+    if (out(i, 1) >= 2^15)
+        out(i, 1) = out(i, 1) - 2^16;
+    end
+
+    % Right
+    out(i, 2) = data((i-1)*4+4) * 2^8 + data((i-1)*4+3) * 2^0;
+
+    % Convert unsigned to signed
+    if (out(i, 2) >= 2^15)
+        out(i, 2) = out(i, 2) - 2^16;
+    end
+end
+
+fclose(file);
+
+out = out / 2^15; % Normalize
+
+plot(out);
+sound(out, Fs, 16);
+
+%% Backup
+
+clc
+clear
+close all
+
+Fs = 44100;
+bitsPerSample = 32;
+
+bytesPerSample = (bitsPerSample / 8 * 2);
 
 file = fopen('TESTING.TXT');
 data = fread(file);
+data_16 = typecast(typecast(data, 'uint8'), 'uint16');
 
-out = zeros(length(data)/BytesPerSample, 2);
-for i = 1:length(data) / BytesPerSample
-    out(i, 1) = data((i-1)*BytesPerSample+2) * 2^8 + data((i-1)*BytesPerSample+1); % Left
-
-    if (BitsPerSample == 32)
-        out(i, 1) = data((i-1)*BytesPerSample+4) * 2^24 + data((i-1)*BytesPerSample+3) * 2^16;
+out = zeros(length(data)/bytesPerSample, 2);
+for i = 1:length(data) / bytesPerSample
+    % Left
+    out(i, 1) = data((i-1)*bytesPerSample+2) * 2^8 + data((i-1)*bytesPerSample+1) * 2^0;
+    if (bitsPerSample == 32)
+        out(i, 1) = data((i-1)*bytesPerSample+4) * 2^24 + data((i-1)*bytesPerSample+3) * 2^16;
     end
 
-    if (out(i, 1) >= 2^(BitsPerSample - 1))
-        out(i, 1) = out(i, 1) - 2^BitsPerSample;
+    % Convert unsigned to signed
+    if (out(i, 1) >= 2^(bitsPerSample - 1))
+        out(i, 1) = out(i, 1) - 2^bitsPerSample;
     end
 
-    out(i, 2) = data((i-1)*BytesPerSample+BytesPerSample/2+2) * 2^8 + data((i-1)*BytesPerSample+BytesPerSample/2+1); % Right
-
-    if (BitsPerSample == 32)
-        out(i, 1) = data((i-1)*BytesPerSample+BytesPerSample/2+4) * 2^24 + data((i-1)*BytesPerSample+BytesPerSample/2+3) * 2^16;
+    % Right
+    out(i, 2) = data((i-1)*bytesPerSample+bytesPerSample/2+2) * 2^8 + data((i-1)*bytesPerSample+bytesPerSample/2+1) * 2^0;
+    if (bitsPerSample == 32)
+        out(i, 1) = data((i-1)*bytesPerSample+bytesPerSample/2+4) * 2^24 + data((i-1)*bytesPerSample+bytesPerSample/2+3) * 2^16;
     end
 
-    if (out(i, 2) >= 2^(BitsPerSample - 1))
-        out(i, 2) = out(i, 2) - 2^BitsPerSample;
+    % Convert unsigned to signed
+    if (out(i, 2) >= 2^(bitsPerSample - 1))
+        out(i, 2) = out(i, 2) - 2^bitsPerSample;
     end
 end
+
 fclose(file);
 
-out = out / 2^15; % Real Volume
+out = out / 2^(bitsPerSample - 1); % Normalize
 
 plot(out);
-sound(out, Fs, BitsPerSample);
+% sound(out, Fs, bitsPerSample);

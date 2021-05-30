@@ -243,7 +243,7 @@ void bone_conductors_init()
 
 void i2s_write_data(uint8_t *data, size_t *len)
 {
-    //! I2S is writing data with inversed stereo
+    //? I2S writes data with stereo inverted
 
     //int16_t *samples = (int16_t *)data;
 

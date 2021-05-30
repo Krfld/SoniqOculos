@@ -17,4 +17,4 @@ void bt_init();
 void bt_music_init();
 void bt_music_deinit();
 
-void bt_send_cmd(uint8_t command);
+void bt_send_avrc_cmd(uint8_t command);

@@ -14,7 +14,7 @@
 
 #include "bt.h"
 
-static uint8_t *bda = NULL;
+static uint8_t *bda = NULL; //! Deep-sleep
 void set_bda(uint8_t *addr)
 {
     if (bda == NULL)
@@ -237,7 +237,8 @@ void bt_music_deinit()
     if (!bt_music_ready)
         return;
 
-    esp_a2d_sink_disconnect(bda); // Disconnect from device
+    if (bda != NULL)
+        esp_a2d_sink_disconnect(bda); // Disconnect from device
 
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();
@@ -247,7 +248,7 @@ void bt_music_deinit()
     bt_music_ready = false;
 }
 
-void bt_send_cmd(uint8_t cmd)
+void bt_send_avrc_cmd(uint8_t cmd)
 {
     static uint8_t tl = 0; // 'static' will keep value
 

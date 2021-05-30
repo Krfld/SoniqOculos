@@ -3,9 +3,33 @@ clear
 close all
 
 Fs = 44100;
-bitsPerSample = 32; % 32 bits when recorded with microphones
+precision = 'uint8=>int16'; % 'int32' when recorded with microphones
 
-file = fopen('TESTING.TXT');
+file = fopen('E:\TESTING.TXT');
+[data, len] = fread(file, precision);
+
+out = zeros(len/2, 2);
+for i = 1:len / 2
+    out(i, 1) = data((i-1)*2+1);
+    out(i, 2) = data((i-1)*2+2);
+end
+
+fclose(file);
+
+out = out / 2^15; % Normalize
+
+plot(out);
+
+%%
+
+clc
+clear
+close all
+
+Fs = 44100;
+bitsPerSample = 16;
+
+file = fopen('E:\TESTING.TXT');
 file_data = fread(file);
 
 if bitsPerSample == 16

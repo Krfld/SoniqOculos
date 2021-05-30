@@ -88,4 +88,4 @@ void sd_close_file();
  * @param data buffer of samples to write
  * @param len buffer length
  */
-void sd_write_data(uint8_t *data, size_t *len);
+void sd_write_data(int16_t *data, size_t *len);

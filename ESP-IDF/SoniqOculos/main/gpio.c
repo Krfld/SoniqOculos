@@ -236,6 +236,17 @@ static void gpio_task(void *arg)
                     if (!changed_volume)
                     {
                         ESP_LOGI(GPIO_TAG, "Volume up");
+                        if (!sd_file_state())
+                        {
+                            ESP_LOGI(GPIO_TAG, "Start recording");
+                            sd_card_init(); // Mount SD card and create file to write
+                        }
+                        else
+                        {
+                            ESP_LOGI(GPIO_TAG, "Stop recording");
+                            sd_card_deinit(); // Close file and unmount SD card
+                        }
+                        delay(COMMAND_DELAY);
                     }
                     break;
                 case B3_MASK: // 100

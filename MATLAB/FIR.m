@@ -12,3 +12,5 @@ Wn = Fc/Fn
 b = fir1(127, Wn, 'low');
 
 freqz(b)
+
+%filterDesigner

@@ -77,4 +77,4 @@ void handleMsgs(char *msg);
  * @param data buffer of samples to process
  * @param len buffer length
  */
-void process_data(uint8_t *data, size_t *len);
+void process_data(int16_t *data, size_t *len);

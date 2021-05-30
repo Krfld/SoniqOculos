@@ -42,9 +42,8 @@ static void sd_det_task(void *arg)
             }
         }
     }
-
-    s_sd_det_task_handle = NULL;
-    vTaskDelete(NULL);
+    ////s_sd_det_task_handle = NULL;
+    ////vTaskDelete(NULL);
 }
 void sd_det_task_init()
 {
@@ -161,10 +160,10 @@ void sd_close_file()
     ESP_LOGI(SD_CARD_TAG, "File closed");
 }
 
-void sd_write_data(uint8_t *data, size_t *len)
+void sd_write_data(int16_t *data, size_t *len)
 {
     if (f == NULL || !sd_det_state)
         return;
 
-    fwrite(data, sizeof(*data), *len, f);
+    fwrite((uint8_t *)data, sizeof(uint8_t), *len, f); //TODO Check if can write int16_t
 }

@@ -36,14 +36,13 @@ void handleMsgs(char *msg)
     sprintf(msg, "Message received\n");
 }
 
-void process_data(uint8_t *data, size_t *len)
+void process_data(int16_t *data, size_t *len)
 {
-    int16_t *samples = (int16_t *)data; //* [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
 
     //dsps_fir_f32_ae32(fir,);
 
     //TODO Process data
     i2s_write_data(data, len);
 
-    //sd_write_data(data, len); //! Testing
+    sd_write_data(data, len); //! Testing
 }

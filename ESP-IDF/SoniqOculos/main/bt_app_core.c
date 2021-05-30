@@ -122,7 +122,7 @@ void bt_app_task_shut_down(void)
 
 static void bt_i2s_task_handler(void *arg)
 {
-    uint8_t *data = NULL;
+    int16_t *data = NULL;
     size_t item_size = 0;
 
     for (;;)
@@ -135,7 +135,7 @@ static void bt_i2s_task_handler(void *arg)
             continue;
         }
 
-        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY, 4096);
+        data = (int16_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY, 4096);
 
         //xRingbufferPrintInfo(s_ringbuf_i2s);
         if (BT_DEBUG)
@@ -148,7 +148,7 @@ static void bt_i2s_task_handler(void *arg)
 
         process_data(data, &item_size);
 
-        vRingbufferReturnItem(s_ringbuf_i2s, (void *)data);
+        vRingbufferReturnItem(s_ringbuf_i2s, data);
     }
 }
 

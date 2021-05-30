@@ -62,4 +62,4 @@ void bone_conductors_init();
  * @param data buffer of samples to write
  * @param len buffer length
  */
-void i2s_write_data(uint8_t *data, size_t *len);
+void i2s_write_data(int16_t *data, size_t *len);

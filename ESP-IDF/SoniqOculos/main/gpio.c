@@ -5,6 +5,9 @@
 #include "bt.h"
 #include "bt_app_av.h"
 
+const bool _true_ = true;
+const bool _false_ = false;
+
 static int mode = MUSIC;
 
 static int buttons_map = 0;
@@ -60,8 +63,6 @@ static void releasing_task(void *arg)
                 ;
         buttons_command = buttons_map;
     }
-    ////releasing_task_handle = NULL;
-    ////vTaskDelete(NULL);
 }
 
 static void power_off_task(void *arg)
@@ -84,8 +85,6 @@ static void power_off_task(void *arg)
                     esp_deep_sleep_start();*/
             }
     }
-    ////power_off_task_handle = NULL;
-    /////vTaskDelete(NULL);
 
     /*esp_sleep_enable_ulp_wakeup(); // Set wakeup reason
     rtc_gpio_isolate(B1); // Isolate so it doesn't draw current on the pulldown resistors
@@ -115,8 +114,6 @@ static void volume_task(void *arg)
             }
         }
     }
-    ////volume_task_handle = NULL;
-    ////vTaskDelete(NULL);
 }
 
 static void gpio_task(void *arg)
@@ -141,8 +138,6 @@ static void gpio_task(void *arg)
     while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
         delay(DEBOUNCE);
 
-    const bool _true_ = true;
-    const bool _false_ = false;
     for (;;)
     {
         delay(DEBOUNCE); // Debounce delay
@@ -344,8 +339,6 @@ static void gpio_task(void *arg)
             buttons_command = 0;
         }
     }
-    ////gpio_task_handle = NULL;
-    ////vTaskDelete(NULL);
 }
 
 void gpio_task_init()

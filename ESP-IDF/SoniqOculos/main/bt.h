@@ -7,8 +7,10 @@
 
 #define BT_SPP_TAG "BT_SPP"
 
-#define RINGBUF_SIZE 3 * 4096
-#define BT_I2S_STACK_DEPTH 3 * 1024 // 2* might be enough
+#define RINGBUFFER_SIZE 3 * 4096
+#define BT_I2S_STACK_DEPTH 2 * 1024
+
+#define FIXED_SAMPLES_SIZE 4 * 1024
 
 void set_bda(uint8_t *addr);
 
@@ -16,5 +18,3 @@ void bt_init();
 
 void bt_music_init();
 void bt_music_deinit();
-
-void bt_send_avrc_cmd(uint8_t command);

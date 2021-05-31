@@ -174,9 +174,10 @@ static void bt_av_hdl_avrc_ct_evt(uint16_t event, void *p_param)
         }
         break;
     }
-    case ESP_AVRC_CT_PASSTHROUGH_RSP_EVT:
+    case ESP_AVRC_CT_PASSTHROUGH_RSP_EVT: //! CHECK IF CMD WAS SENT
     {
         ESP_LOGI(BT_RC_CT_TAG, "AVRC passthrough rsp: key_code 0x%x, key_state %d", rc->psth_rsp.key_code, rc->psth_rsp.key_state);
+        stop_sending_command();
         break;
     }
     case ESP_AVRC_CT_METADATA_RSP_EVT:
@@ -400,9 +401,7 @@ void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
 
     write_ringbuf(data, len);
     if (++s_pkt_cnt % 100 == 0)
-    {
         ESP_LOGI(BT_AV_TAG, "Audio packet count %u", s_pkt_cnt);
-    }
 }
 
 bool bt_is_music_playing()

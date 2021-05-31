@@ -247,13 +247,3 @@ void bt_music_deinit()
     esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
     bt_music_ready = false;
 }
-
-void bt_send_avrc_cmd(uint8_t cmd)
-{
-    static uint8_t tl = 0; // 'static' will keep value
-
-    if (++tl > 15) // "consecutive commands should use different values"
-        tl = 0;
-
-    esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED); // Send AVRCP command
-}

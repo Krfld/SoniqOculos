@@ -8,7 +8,10 @@
 
 #include "bt.h"
 
-static void bt_app_task_handler(void *arg);
+static bool sending_command = false;
+
+static void
+bt_app_task_handler(void *arg);
 static bool bt_app_send_msg(bt_app_msg_t *msg);
 static void bt_app_work_dispatched(bt_app_msg_t *msg);
 
@@ -16,7 +19,7 @@ static xQueueHandle s_bt_app_task_queue = NULL;
 static xTaskHandle s_bt_app_task_handle = NULL;
 static xTaskHandle s_bt_i2s_task_handle = NULL;
 static RingbufHandle_t s_ringbuf_i2s = NULL;
-;
+static QueueHandle_t bt_i2s_queue_handle = NULL;
 
 bool bt_app_work_dispatch(bt_app_cb_t p_cback, uint16_t event, void *p_params, int param_len, bt_app_copy_cb_t p_copy_cback)
 {
@@ -129,22 +132,15 @@ static void bt_i2s_task_handler(void *arg)
     {
         //TODO Fix | Not sending avrcp commands
 
-        if (xRingbufferGetCurFreeSize(s_ringbuf_i2s) > RINGBUF_SIZE - 4096)
-        {
-            delay(25);
+        if (!xQueueReceive(bt_i2s_queue_handle, &item_size, portMAX_DELAY)) // Wait for ringbuffer to have at least 4096 samples
             continue;
-        }
 
-        data = (int16_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY, 4096);
-
-        //xRingbufferPrintInfo(s_ringbuf_i2s);
-        if (BT_DEBUG)
-            ESP_LOGI(BT_APP_CORE_TAG, "Ringbuffer packet size (should always be 4096): %d", item_size);
+        data = (int16_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &item_size, (portTickType)portMAX_DELAY, FIXED_SAMPLES_SIZE); // Get 4096 samples from the ringbuffer
 
         if (item_size == 0)
             continue;
-        if (item_size != 4096)
-            ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than 4096: %d", item_size);
+        if (item_size != FIXED_SAMPLES_SIZE)
+            ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than %d: %d", FIXED_SAMPLES_SIZE, item_size);
 
         process_data(data, &item_size);
 
@@ -154,18 +150,20 @@ static void bt_i2s_task_handler(void *arg)
 
 void bt_i2s_task_start_up(void)
 {
-    s_ringbuf_i2s = xRingbufferCreate(RINGBUF_SIZE, RINGBUF_TYPE_BYTEBUF);
-    if (s_ringbuf_i2s == NULL)
-        return;
+    bt_i2s_queue_handle = xQueueCreate(1, sizeof(bool));
+    if (!bt_i2s_queue_handle)
+        ESP_LOGE(BT_APP_CORE_TAG, "Error creating queue");
 
-    xTaskCreate(bt_i2s_task_handler, "BtI2ST", BT_I2S_STACK_DEPTH, NULL, configMAX_PRIORITIES - 3, &s_bt_i2s_task_handle);
-    return;
+    s_ringbuf_i2s = xRingbufferCreate(RINGBUFFER_SIZE, RINGBUF_TYPE_BYTEBUF);
+    if (!s_ringbuf_i2s)
+        ESP_LOGE(BT_APP_CORE_TAG, "Error creating ringbuffer");
+
+    if (!xTaskCreate(bt_i2s_task_handler, "BtI2ST", BT_I2S_STACK_DEPTH, NULL, configMAX_PRIORITIES, &s_bt_i2s_task_handle))
+        ESP_LOGE(BT_APP_CORE_TAG, "Error creating BtI2ST task");
 }
 
 void bt_i2s_task_shut_down(void)
 {
-    //turn_devices_off(); // No need
-
     if (s_bt_i2s_task_handle)
     {
         vTaskDelete(s_bt_i2s_task_handle);
@@ -179,17 +177,52 @@ void bt_i2s_task_shut_down(void)
         vRingbufferDelete(s_ringbuf_i2s);
         s_ringbuf_i2s = NULL;
     }
+    if (bt_i2s_queue_handle)
+    {
+        vQueueDelete(bt_i2s_queue_handle);
+        bt_i2s_queue_handle = NULL;
+    }
 }
 
 size_t write_ringbuf(const uint8_t *data, size_t size)
 {
-    BaseType_t done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, (portTickType)portMAX_DELAY);
-    if (done)
-    {
-        return size;
-    }
-    else
-    {
+    if (!s_ringbuf_i2s || sending_command) // Check if buffer is created
         return 0;
-    }
+
+    BaseType_t done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, (portTickType)portMAX_DELAY);
+
+    if (RINGBUFFER_SIZE - xRingbufferGetCurFreeSize(s_ringbuf_i2s) > FIXED_SAMPLES_SIZE) // Checks if ringbuffer has at least 4096 samples
+        xQueueOverwrite(bt_i2s_queue_handle, &size);
+
+    if (done)
+        return size;
+    return 0;
+}
+
+void bt_send_avrc_cmd(uint8_t cmd)
+{
+    static uint8_t tl = 0; // 'static' will keep value
+
+    if (++tl > 15) // "consecutive commands should use different values"
+        tl = 0;
+
+    sending_command = true;
+
+    esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED); // Send AVRCP command pressing
+                                                                              //esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_RELEASED); // Send AVRCP command releasing
+}
+
+void stop_sending_command()
+{
+    int16_t *data = NULL;
+    size_t item_size;
+
+    data = (int16_t *)xRingbufferReceive(s_ringbuf_i2s, &item_size, 0);
+    ESP_LOGE(BT_APP_CORE_TAG, "RECEIVED");
+    if (item_size != 0)
+        vRingbufferReturnItem(s_ringbuf_i2s, data);
+
+    delay(100);
+
+    sending_command = false;
 }

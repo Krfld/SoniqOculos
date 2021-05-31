@@ -152,6 +152,9 @@ void turn_devices_on()
 }
 void turn_devices_off()
 {
+    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
+    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 }

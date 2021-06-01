@@ -4,6 +4,8 @@
 #include "sd.h"
 #include "bt.h"
 
+#include "dsp.h"
+
 enum DEVICES
 {
     BOTH_DEVICES,
@@ -258,6 +260,10 @@ void i2s_write_data(int16_t *data, size_t *len)
         data[i + 1] = temp;
     }*/
 
+    int16_t data_lpf[*len];
+    int16_t data_hpf[*len];
+    apply_crossover(data, data_lpf, data_hpf, len);
+
     size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
 
     int64_t tick_1, tick_2, tick_3;
@@ -268,7 +274,7 @@ void i2s_write_data(int16_t *data, size_t *len)
     }
 
     if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
-        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
+        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data_hpf, *len, &i2s0_bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
     {
@@ -277,7 +283,7 @@ void i2s_write_data(int16_t *data, size_t *len)
     }
 
     if (i2s1_state) // If bone conductors are on
-        i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
+        i2s_write(BONE_CONDUCTORS_I2S_NUM, data_lpf, *len, &i2s1_bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
     {

@@ -50,6 +50,5 @@ void bt_i2s_task_shut_down(void);
 size_t write_ringbuf(const uint8_t *data, size_t size);
 
 void bt_send_avrc_cmd(uint8_t command);
-void stop_sending_command();
 
 #endif /* __BT_APP_CORE_H__ */

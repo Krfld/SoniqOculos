@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 #include <sys/stat.h>
 
 #include "nvs.h"
@@ -34,12 +35,12 @@
 //#include "esp_dsp.h"
 #include "dsps_fir.h"
 
+#define DEVICE_NAME "SoniqOculos"
+
 #define GPIO_DEBUG OFF
 #define I2S_DEBUG OFF
 #define SD_DEBUG OFF
 #define BT_DEBUG OFF
-
-#define DEVICE_NAME "SoniqOculos"
 
 #define MAIN_TAG "MAIN"
 

@@ -8,10 +8,7 @@
 
 #include "bt.h"
 
-static bool sending_command = false;
-
-static void
-bt_app_task_handler(void *arg);
+static void bt_app_task_handler(void *arg);
 static bool bt_app_send_msg(bt_app_msg_t *msg);
 static void bt_app_work_dispatched(bt_app_msg_t *msg);
 
@@ -186,7 +183,7 @@ void bt_i2s_task_shut_down(void)
 
 size_t write_ringbuf(const uint8_t *data, size_t size)
 {
-    if (!s_ringbuf_i2s || sending_command) // Check if buffer is created
+    if (!s_ringbuf_i2s) // Check if buffer is created
         return 0;
 
     BaseType_t done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, (portTickType)portMAX_DELAY);
@@ -206,23 +203,6 @@ void bt_send_avrc_cmd(uint8_t cmd)
     if (++tl > 15) // "consecutive commands should use different values"
         tl = 0;
 
-    sending_command = true;
-
-    esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED); // Send AVRCP command pressing
-                                                                              //esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_RELEASED); // Send AVRCP command releasing
-}
-
-void stop_sending_command()
-{
-    int16_t *data = NULL;
-    size_t item_size;
-
-    data = (int16_t *)xRingbufferReceive(s_ringbuf_i2s, &item_size, 0);
-    ESP_LOGE(BT_APP_CORE_TAG, "RECEIVED");
-    if (item_size != 0)
-        vRingbufferReturnItem(s_ringbuf_i2s, data);
-
-    delay(100);
-
-    sending_command = false;
+    esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED);  // Send AVRCP command pressing
+    esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_RELEASED); // Send AVRCP command releasing
 }

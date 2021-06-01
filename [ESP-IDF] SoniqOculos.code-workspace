@@ -12,7 +12,15 @@
 			"ringbuf.h": "c",
 			"freertos.h": "c",
 			"task.h": "c",
-			"queue.h": "c"
+			"queue.h": "c",
+			"bt.h": "c",
+			"bt_app_core.h": "c",
+			"bt_app_av.h": "c",
+			"i2s.h": "c",
+			"filters.h": "c",
+			"array": "c",
+			"string": "c",
+			"string_view": "c"
 		}
 	}
 }

@@ -5,10 +5,7 @@
 #include "gpio.h"
 #include "sd.h"
 
-void delay(int millis)
-{
-    vTaskDelay(pdMS_TO_TICKS(millis));
-}
+#include "dsp.h"
 
 void app_main(void)
 {
@@ -19,11 +16,18 @@ void app_main(void)
     sd_det_task_init();
     gpio_task_init();
 
+    crossover_init();
+
     bone_conductors_init();
     speakers_init();
     bt_music_init();
 
     ESP_LOGW(MAIN_TAG, "Setup ready");
+}
+
+void delay(int millis)
+{
+    vTaskDelay(pdMS_TO_TICKS(millis));
 }
 
 void handleMsgs(char *msg)
@@ -38,9 +42,6 @@ void handleMsgs(char *msg)
 
 void process_data(int16_t *data, size_t *len)
 {
-
-    //dsps_fir_f32_ae32(fir,);
-
     //TODO Process data
     i2s_write_data(data, len);
 

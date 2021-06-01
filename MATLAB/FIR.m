@@ -2,6 +2,14 @@ clc
 clear
 close all
 
+filterDesigner
+
+%%
+
+clc
+clear
+close all
+
 Fs = 44100;
 Fn = Fs/2;
 

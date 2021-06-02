@@ -56,8 +56,6 @@
 #define MUSIC 0
 #define RECORD_PLAYBACK 1
 
-#define MSG_BUFFER_SIZE 128
-
 /**
  * @brief Delay in milliseconds
  * 
@@ -71,11 +69,3 @@ void delay(int millis);
  * @param msg message received
  */
 void handleMsgs(char *msg);
-
-/**
- * @brief Process data
- * 
- * @param data buffer of samples to process
- * @param len buffer length
- */
-void process_data(int16_t *data, size_t *len);

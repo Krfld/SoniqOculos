@@ -4,13 +4,16 @@
 #include "bt_app_av.h"
 
 #include "i2s.h"
+#include "dsp.h"
 
 #define BT_SPP_TAG "BT_SPP"
 
-#define RINGBUFFER_SIZE 3 * 4096
-#define BT_I2S_STACK_DEPTH 2 * 1024
+#define MSG_BUFFER_SIZE 128
 
-#define FIXED_SAMPLES_SIZE 4 * 1024
+#define DATA_LENGTH 4 * 1024
+
+#define RINGBUFFER_SIZE 3 * DATA_LENGTH
+#define BT_I2S_STACK_DEPTH 2 * 1024
 
 void set_bda(uint8_t *addr);
 

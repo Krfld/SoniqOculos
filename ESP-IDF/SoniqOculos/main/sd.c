@@ -1,7 +1,5 @@
 #include "sd.h"
 
-#include "gpio.h"
-
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
@@ -160,10 +158,10 @@ void sd_close_file()
     ESP_LOGI(SD_CARD_TAG, "File closed");
 }
 
-void sd_write_data(int16_t *data, size_t *len)
+void sd_write_data(uint8_t *data, size_t *len)
 {
     if (f == NULL || !sd_det_state)
         return;
 
-    fwrite((uint8_t *)data, sizeof(uint8_t), *len, f); //TODO Check if can write int16_t
+    fwrite(data, sizeof(uint8_t), *len, f);
 }

@@ -3,7 +3,6 @@
 #include "gpio.h"
 #include "sd.h"
 #include "bt.h"
-
 #include "dsp.h"
 
 enum DEVICES
@@ -246,11 +245,9 @@ void bone_conductors_init()
     i2s_pins_reset(BONE_CONDUCTORS_WS_PIN, BONE_CONDUCTORS_BCK_PIN, BONE_CONDUCTORS_DATA_PIN);
 }*/
 
-void i2s_write_data(int16_t *data, size_t *len)
+void i2s_write_data(uint8_t *data, size_t *len)
 {
     //! I2S writes data with stereo inverted
-
-    //* DATA -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
 
     /*int16_t temp;
     for (size_t i = 0; i < *len; i += 2)
@@ -259,10 +256,6 @@ void i2s_write_data(int16_t *data, size_t *len)
         data[i] = data[i + 1];
         data[i + 1] = temp;
     }*/
-
-    int16_t data_lpf[*len];
-    int16_t data_hpf[*len];
-    apply_crossover(data, data_lpf, data_hpf, len);
 
     size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
 
@@ -274,7 +267,7 @@ void i2s_write_data(int16_t *data, size_t *len)
     }
 
     if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
-        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data_hpf, *len, &i2s0_bytes_written, portMAX_DELAY);
+        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
     {
@@ -283,7 +276,7 @@ void i2s_write_data(int16_t *data, size_t *len)
     }
 
     if (i2s1_state) // If bone conductors are on
-        i2s_write(BONE_CONDUCTORS_I2S_NUM, data_lpf, *len, &i2s1_bytes_written, portMAX_DELAY);
+        i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
     {
@@ -297,7 +290,7 @@ void i2s_write_data(int16_t *data, size_t *len)
 static void i2s_read_task(void *arg)
 {
     size_t bytes_read = 0;
-    int16_t data[DATA_READ_SIZE] = {0};
+    uint8_t data[DATA_READ_SIZE] = {0};
 
     for (;;)
     {
@@ -307,10 +300,7 @@ static void i2s_read_task(void *arg)
             continue;
         }
 
-        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, sizeof(data), &bytes_read, portMAX_DELAY);
-
-        if (bytes_read == 0)
-            continue;
+        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_READ_SIZE, &bytes_read, portMAX_DELAY);
 
         i2s_write_data(data, &bytes_read);
 

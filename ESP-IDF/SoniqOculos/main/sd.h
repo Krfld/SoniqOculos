@@ -11,9 +11,9 @@
 
 #define SD_DET_PIN GPIO_NUM_35
 
-#define SD_DET_STACK_DEPTH 3 * 1024
-
 #define SD_DET_DELAY 50 // ms
+
+#define SD_DET_STACK_DEPTH 3 * 1024
 
 /*typedef struct _wav_header
 {
@@ -88,4 +88,4 @@ void sd_close_file();
  * @param data buffer of samples to write
  * @param len buffer length
  */
-void sd_write_data(int16_t *data, size_t *len);
+void sd_write_data(uint8_t *data, size_t *len);

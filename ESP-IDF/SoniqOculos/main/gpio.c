@@ -231,6 +231,7 @@ static void gpio_task(void *arg)
                     if (!changed_volume)
                     {
                         ESP_LOGI(GPIO_TAG, "Volume up");
+                        //! TESTING
                         if (!sd_file_state())
                         {
                             ESP_LOGI(GPIO_TAG, "Start recording");
@@ -242,6 +243,7 @@ static void gpio_task(void *arg)
                             sd_card_deinit(); // Close file and unmount SD card
                         }
                         delay(COMMAND_DELAY);
+                        //!
                     }
                     break;
                 case B3_MASK: // 100
@@ -287,29 +289,36 @@ static void gpio_task(void *arg)
             case RECORD_PLAYBACK:
                 switch (buttons_command)
                 {
-                case B1_MASK: // 001
-                    if (!sd_file_state())
+                case B1_MASK:
+                case B3_MASK:
+                case B1_MASK | B2_MASK:
+                case B3_MASK | B2_MASK:
+                case B1_MASK | B3_MASK:            // 101
+                    if (buttons_command & B1_MASK) // 001
                     {
-                        ESP_LOGI(GPIO_TAG, "Start recording");
-                        sd_card_init(); // Mount SD card and create file to write
+                        if (!sd_file_state())
+                        {
+                            ESP_LOGI(GPIO_TAG, "Start recording");
+                            sd_card_init(); // Mount SD card and create file to write
+                        }
+                        else
+                        {
+                            ESP_LOGI(GPIO_TAG, "Stop recording");
+                            sd_card_deinit(); // Close file and unmount SD card
+                        }
                     }
-                    else
+                    if (buttons_command & B3_MASK) // 100
                     {
-                        ESP_LOGI(GPIO_TAG, "Stop recording");
-                        sd_card_deinit(); // Close file and unmount SD card
-                    }
-                    delay(COMMAND_DELAY);
-                    break;
-                case B3_MASK: // 100
-                    if (!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
-                    {
-                        ESP_LOGI(GPIO_TAG, "Start playback");
-                        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON); // Turn bone conductors on and start playback
-                    }
-                    else
-                    {
-                        ESP_LOGI(GPIO_TAG, "Stop playback");
-                        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF); // Stop playback and turn bone conductors off
+                        if (!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
+                        {
+                            ESP_LOGI(GPIO_TAG, "Start playback");
+                            i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON); // Turn bone conductors on and start playback
+                        }
+                        else
+                        {
+                            ESP_LOGI(GPIO_TAG, "Stop playback");
+                            i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF); // Stop playback and turn bone conductors off
+                        }
                     }
                     delay(COMMAND_DELAY);
                     break;

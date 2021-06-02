@@ -17,6 +17,8 @@ class SoniqOculos extends StatelessWidget {
         builder: (context, setup) {
           if (setup.connectionState == ConnectionState.waiting)
             return Scaffold(body: Center(child: Text('Loading...')));
+
+          if (bt.isBluetoothOn) return Scaffold(body: Center(child: Text("SoniqOculos")));
           return Scaffold(body: Center(child: Text("SoniqOculos")));
         },
       ),

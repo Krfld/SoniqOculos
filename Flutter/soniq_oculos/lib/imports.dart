@@ -5,4 +5,6 @@ export './main.dart';
 export './bluetooth.dart';
 export './tools.dart';
 
+export './screens/home.dart';
+
 export 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';

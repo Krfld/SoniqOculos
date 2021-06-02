@@ -163,5 +163,5 @@ void sd_write_data(uint8_t *data, size_t *len)
     if (f == NULL || !sd_det_state)
         return;
 
-    fwrite(data, sizeof(uint8_t), *len, f);
+    fwrite(data, sizeof(*data), *len, f);
 }

@@ -37,5 +37,5 @@ void handleMsgs(char *msg)
     ESP_LOGW(BT_SPP_TAG, "Message recevied %s", msg);
 
     // Response
-    sprintf(msg, "Message received\n");
+    sprintf(msg, "Message received %s\n", msg);
 }

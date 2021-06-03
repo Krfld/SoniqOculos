@@ -12,16 +12,12 @@ class SoniqOculos extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         brightness: Brightness.dark,
       ),
-      home: FutureBuilder(
-        future: bt.setup(),
-        builder: (context, setup) {
-          if (setup.connectionState == ConnectionState.waiting)
-            return Scaffold(body: Center(child: Text('Loading...')));
-
-          if (!bt.isBluetoothOn) return Home();
-          return Scaffold(body: Center(child: Text("SoniqOculos")));
-        },
-      ),
+      routes: {
+        'Home': (context) => Home(),
+        'Music': (context) => Music(),
+        'Record': (context) => Record(),
+      },
+      home: Home(),
     );
   }
 }

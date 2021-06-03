@@ -57,13 +57,14 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
             esp_spp_write(param->write.handle, strlen(msg), (uint8_t *)msg);      // Send response
         }
         else
-        {
             esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);
-        }
         break;
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
         ESP_LOGW(BT_SPP_TAG, "Connected to server");
+
+        char *msg = "Welcome\n";
+        esp_spp_write(param->write.handle, strlen(msg), (uint8_t *)msg);
         break;
     default:
         break;
@@ -78,32 +79,32 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
     {
         if (param->auth_cmpl.stat == ESP_BT_STATUS_SUCCESS)
         {
-            ESP_LOGI(BT_AV_TAG, "authentication success: %s", param->auth_cmpl.device_name);
-            esp_log_buffer_hex(BT_AV_TAG, param->auth_cmpl.bda, ESP_BD_ADDR_LEN);
+            ESP_LOGI(BT_TAG, "authentication success: %s", param->auth_cmpl.device_name);
+            esp_log_buffer_hex(BT_TAG, param->auth_cmpl.bda, ESP_BD_ADDR_LEN);
         }
         else
         {
-            ESP_LOGE(BT_AV_TAG, "authentication failed, status:%d", param->auth_cmpl.stat);
+            ESP_LOGE(BT_TAG, "authentication failed, status:%d", param->auth_cmpl.stat);
         }
         break;
     }
 
 #if (CONFIG_BT_SSP_ENABLED == true)
     case ESP_BT_GAP_CFM_REQ_EVT:
-        ESP_LOGI(BT_AV_TAG, "ESP_BT_GAP_CFM_REQ_EVT Please compare the numeric value: %d", param->cfm_req.num_val);
+        ESP_LOGI(BT_TAG, "ESP_BT_GAP_CFM_REQ_EVT Please compare the numeric value: %d", param->cfm_req.num_val);
         esp_bt_gap_ssp_confirm_reply(param->cfm_req.bda, true);
         break;
     case ESP_BT_GAP_KEY_NOTIF_EVT:
-        ESP_LOGI(BT_AV_TAG, "ESP_BT_GAP_KEY_NOTIF_EVT passkey:%d", param->key_notif.passkey);
+        ESP_LOGI(BT_TAG, "ESP_BT_GAP_KEY_NOTIF_EVT passkey:%d", param->key_notif.passkey);
         break;
     case ESP_BT_GAP_KEY_REQ_EVT:
-        ESP_LOGI(BT_AV_TAG, "ESP_BT_GAP_KEY_REQ_EVT Please enter passkey!");
+        ESP_LOGI(BT_TAG, "ESP_BT_GAP_KEY_REQ_EVT Please enter passkey!");
         break;
 #endif
 
     default:
     {
-        ESP_LOGI(BT_AV_TAG, "event: %d", event);
+        ESP_LOGI(BT_TAG, "event: %d", event);
         break;
     }
     }
@@ -112,7 +113,7 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
 
 void bt_av_hdl_stack_evt(uint16_t event, void *p_param)
 {
-    ESP_LOGD(BT_AV_TAG, "%s evt %d", __func__, event);
+    ESP_LOGD(BT_TAG, "%s evt %d", __func__, event);
     switch (event)
     {
     case BT_APP_EVT_STACK_UP:
@@ -127,7 +128,7 @@ void bt_av_hdl_stack_evt(uint16_t event, void *p_param)
         break;
     }
     default:
-        ESP_LOGE(BT_AV_TAG, "%s unhandled evt %d", __func__, event);
+        ESP_LOGE(BT_TAG, "%s unhandled evt %d", __func__, event);
         break;
     }
 }
@@ -148,37 +149,37 @@ void bt_init()
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     if ((err = esp_bt_controller_init(&bt_cfg)) != ESP_OK)
     {
-        ESP_LOGE(BT_AV_TAG, "%s initialize controller failed: %s\n", __func__, esp_err_to_name(err));
+        ESP_LOGE(BT_TAG, "%s initialize controller failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
     if ((err = esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT)) != ESP_OK)
     {
-        ESP_LOGE(BT_AV_TAG, "%s enable controller failed: %s\n", __func__, esp_err_to_name(err));
+        ESP_LOGE(BT_TAG, "%s enable controller failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
     if ((err = esp_bluedroid_init()) != ESP_OK)
     {
-        ESP_LOGE(BT_AV_TAG, "%s initialize bluedroid failed: %s\n", __func__, esp_err_to_name(err));
+        ESP_LOGE(BT_TAG, "%s initialize bluedroid failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
     if ((err = esp_bluedroid_enable()) != ESP_OK)
     {
-        ESP_LOGE(BT_AV_TAG, "%s enable bluedroid failed: %s\n", __func__, esp_err_to_name(err));
+        ESP_LOGE(BT_TAG, "%s enable bluedroid failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
     if ((err = esp_spp_register_callback(esp_spp_cb)) != ESP_OK)
     {
-        ESP_LOGE(BT_AV_TAG, "%s spp register failed: %s\n", __func__, esp_err_to_name(err));
+        ESP_LOGE(BT_TAG, "%s spp register failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
     if ((err = esp_spp_init(ESP_SPP_MODE_CB)) != ESP_OK)
     {
-        ESP_LOGE(BT_AV_TAG, "%s spp init failed: %s\n", __func__, esp_err_to_name(err));
+        ESP_LOGE(BT_TAG, "%s spp init failed: %s\n", __func__, esp_err_to_name(err));
         return;
     }
 
@@ -203,6 +204,10 @@ void bt_init()
     pin_code[2] = '3';
     pin_code[3] = '4';
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
+
+    //* Print address
+    const uint8_t *esp_address = esp_bt_dev_get_address();
+    ESP_LOGW(BT_TAG, "ESP Address [%02X:%02X:%02X:%02X:%02X:%02X]", esp_address[0], esp_address[1], esp_address[2], esp_address[3], esp_address[4], esp_address[5]);
 }
 
 void bt_music_init()

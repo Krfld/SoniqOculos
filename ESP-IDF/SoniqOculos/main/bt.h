@@ -6,6 +6,7 @@
 #include "i2s.h"
 #include "dsp.h"
 
+#define BT_TAG "BT"
 #define BT_SPP_TAG "BT_SPP"
 
 #define MSG_BUFFER_SIZE 128

@@ -2,6 +2,8 @@
 
 #define DSP_TAG "DSP"
 
+#define DATA_LENGTH 4 * 1024
+
 #define FIR_LENGTH 51
 
 fir_f32_t *fir_lpf_1kHz;

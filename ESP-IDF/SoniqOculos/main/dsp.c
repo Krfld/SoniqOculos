@@ -35,11 +35,11 @@ static float hpf_1kHz_coeffs[FIR_LENGTH] = {
 void crossover_init()
 {
     //* Init LPF
-    fir_lpf_1kHz = (fir_f32_t *)malloc(sizeof(fir_f32_t));
+    fir_lpf_1kHz = (fir_f32_t *)pvPortMalloc(sizeof(fir_f32_t));
     dsps_fir_init_f32(fir_lpf_1kHz, lpf_1kHz_coeffs, lpf_1kHz_delays, FIR_LENGTH);
 
     //* Init HPF
-    fir_hpf_1kHz = (fir_f32_t *)malloc(sizeof(fir_f32_t));
+    fir_hpf_1kHz = (fir_f32_t *)pvPortMalloc(sizeof(fir_f32_t));
     dsps_fir_init_f32(fir_hpf_1kHz, hpf_1kHz_coeffs, hpf_1kHz_delays, FIR_LENGTH);
 }
 
@@ -54,8 +54,8 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
 
     //* Normalize
 
-    float *input_left = (float *)malloc(channel_length_16);
-    float *input_right = (float *)malloc(channel_length_16);
+    float *input_left = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
+    float *input_right = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
 
     for (size_t i = 0; i < channel_length_16; i++)
     {
@@ -63,12 +63,10 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         input_right[i] = input_16[i * 2 + 1] / pow(2, 15); //* Normalize right
     }
 
-    ESP_LOGE(DSP_TAG, "After normalize");
-
     //* LPF
 
-    float *output_low_left = (float *)malloc(channel_length_16);
-    float *output_low_right = (float *)malloc(channel_length_16);
+    float *output_low_left = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
+    float *output_low_right = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
     dsps_fir_f32_ae32(fir_lpf_1kHz, input_left, output_low_left, channel_length_16);   //* Process left
     dsps_fir_f32_ae32(fir_lpf_1kHz, input_right, output_low_right, channel_length_16); //* Process right
 
@@ -78,15 +76,13 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         output_low_16[i * 2 + 1] = output_low_right[i] * pow(2, 15); //* Denormalize right
     }
 
-    free(output_low_left);
-    free(output_low_right);
-
-    ESP_LOGE(DSP_TAG, "After LPF");
+    vPortFree(output_low_left);
+    vPortFree(output_low_right);
 
     //* HPF
 
-    float *output_high_left = (float *)malloc(channel_length_16);
-    float *output_high_right = (float *)malloc(channel_length_16);
+    float *output_high_left = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
+    float *output_high_right = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
     dsps_fir_f32_ae32(fir_hpf_1kHz, input_left, output_high_left, channel_length_16);   //* Process left
     dsps_fir_f32_ae32(fir_hpf_1kHz, input_right, output_high_right, channel_length_16); //* Process right
 
@@ -96,32 +92,18 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         output_high_16[i * 2 + 1] = output_high_right[i] * pow(2, 15); //* Denormalize right
     }
 
-    free(output_high_left);
-    free(output_high_right);
+    vPortFree(output_high_left);
+    vPortFree(output_high_right);
 
-    ESP_LOGE(DSP_TAG, "After HPF");
-
-    free(input_left);
-    free(input_right);
+    vPortFree(input_left);
+    vPortFree(input_right);
 }
 
 void process_data(uint8_t *data, size_t *len) //* (int16_t *) data -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
 {
-    uint8_t *samples_low = (uint8_t *)malloc(*len);
-    uint8_t *samples_high = (uint8_t *)malloc(*len);
-
-    //! TESTING | NEEDS FIXING
-    apply_crossover(data, samples_low, samples_high, len);
-
-    sd_write_data(samples_low, len);
-    //!
-
-    free(samples_low);
-    free(samples_high);
-
     //TODO Process data
 
-    //i2s_write_data(data, len);
+    i2s_write_data(data, len);
 
     //sd_write_data(data, len); //! Testing
 }

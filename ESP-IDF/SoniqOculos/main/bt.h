@@ -11,10 +11,8 @@
 
 #define MSG_BUFFER_SIZE 128
 
-#define DATA_LENGTH 4 * 1024
-
 #define RINGBUFFER_SIZE 3 * DATA_LENGTH
-#define BT_I2S_STACK_DEPTH 2 * 1024
+#define BT_I2S_STACK_DEPTH 2 * 1024 //? 2k is enough?
 
 void set_bda(uint8_t *addr);
 

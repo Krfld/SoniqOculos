@@ -9,6 +9,8 @@
 
 void app_main(void)
 {
+    ESP_LOGW(MAIN_TAG, "Wakeup cause: %d", esp_sleep_get_wakeup_cause()); // 2 - ESP_SLEEP_WAKEUP_EXT0
+
     ESP_LOGW(MAIN_TAG, "Setup init");
 
     bt_init();
@@ -37,5 +39,5 @@ void handleMsgs(char *msg)
     ESP_LOGW(BT_SPP_TAG, "Message recevied %s", msg);
 
     // Response
-    sprintf(msg, "Message received %s\n", msg);
+    sprintf(msg, "Message received\n");
 }

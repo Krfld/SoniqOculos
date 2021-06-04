@@ -133,7 +133,7 @@ void i2s_change_devices_state()
     }
 }
 
-void turn_devices_on()
+void i2s_turn_devices_on()
 {
     switch (devices)
     {
@@ -151,7 +151,7 @@ void turn_devices_on()
         break;
     }
 }
-void turn_devices_off()
+void i2s_turn_devices_off()
 {
     i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
     i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
@@ -174,8 +174,6 @@ void speakers_init()
 
     i2s0_device = SPEAKERS;
 
-    gpio_pad_select_gpio(SPEAKERS_SD_PIN);                 // Set GPIO
-    gpio_set_direction(SPEAKERS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
 }
 static void speakers_deinit()
@@ -190,7 +188,6 @@ static void speakers_deinit()
 
     delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
-    //i2s_pins_reset(SPEAKERS_WS_PIN, SPEAKERS_BCK_PIN, SPEAKERS_DATA_PIN);
 }
 
 void microphones_init()
@@ -220,7 +217,6 @@ static void microphones_deinit()
 
     delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
-    //i2s_pins_reset(MICROPHONES_WS_PIN, MICROPHONES_BCK_PIN, MICROPHONES_DATA_PIN);
 }
 
 void bone_conductors_init()
@@ -230,8 +226,6 @@ void bone_conductors_init()
 
     //i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
 
-    gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
-    gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 }
 /*void bone_conductors_deinit()
@@ -242,7 +236,6 @@ void bone_conductors_init()
     //i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
     delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM);
-    i2s_pins_reset(BONE_CONDUCTORS_WS_PIN, BONE_CONDUCTORS_BCK_PIN, BONE_CONDUCTORS_DATA_PIN);
 }*/
 
 void i2s_write_data(uint8_t *data, size_t *len)
@@ -257,7 +250,12 @@ void i2s_write_data(uint8_t *data, size_t *len)
         data[i + 1] = temp;
     }*/
 
-    size_t i2s0_bytes_written = 0, i2s1_bytes_written = 0;
+    uint8_t *low_samples = (uint8_t *)pvPortMalloc(*len * sizeof(uint8_t));
+    uint8_t *high_samples = (uint8_t *)pvPortMalloc(*len * sizeof(uint8_t));
+
+    apply_crossover(data, low_samples, high_samples, len);
+
+    size_t bytes_written = 0;
 
     int64_t tick_1, tick_2, tick_3;
     if (I2S_DEBUG)
@@ -267,7 +265,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
     }
 
     if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
-        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &i2s0_bytes_written, portMAX_DELAY);
+        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, high_samples, *len, &bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
     {
@@ -276,7 +274,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
     }
 
     if (i2s1_state) // If bone conductors are on
-        i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &i2s1_bytes_written, portMAX_DELAY);
+        i2s_write(BONE_CONDUCTORS_I2S_NUM, low_samples, *len, &bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
     {
@@ -285,12 +283,17 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
         printf("Total time to write to i2s: %lldus\n\n", tick_3 - tick_1);
     }
+
+    sd_write_data(low_samples, len); //! Testing
+
+    vPortFree(low_samples);
+    vPortFree(high_samples);
 }
 
 static void i2s_read_task(void *arg)
 {
     size_t bytes_read = 0;
-    uint8_t data[DATA_READ_SIZE] = {0};
+    uint8_t data[DATA_LENGTH] = {0};
 
     for (;;)
     {
@@ -300,7 +303,7 @@ static void i2s_read_task(void *arg)
             continue;
         }
 
-        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_READ_SIZE, &bytes_read, portMAX_DELAY);
+        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY);
 
         i2s_write_data(data, &bytes_read);
 

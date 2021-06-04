@@ -107,6 +107,7 @@ void sd_card_deinit()
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
 
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");
+    ESP_LOGW(SD_CARD_TAG, "Safe to remove card");
 }
 
 void spi_init()

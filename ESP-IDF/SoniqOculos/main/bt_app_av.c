@@ -344,14 +344,10 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state) // Turn on devices when music playing
         {
             s_pkt_cnt = 0;
-            //turn_devices_on(); //! Uncomment
+            i2s_turn_devices_on();
         }
         else // Turn off devices when no music playing
-            turn_devices_off();
-
-        //!i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-        //!i2s_zero_dma_buffer(SPEAKERS_I2S_NUM);
-        //TODO Test buffer clear
+            i2s_turn_devices_off();
         break;
     }
     case ESP_A2D_AUDIO_CFG_EVT:

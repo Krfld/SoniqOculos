@@ -19,6 +19,7 @@ fclose(file);
 out = out / 2^15; % Normalize
 
 plot(out);
+% sound(out, Fs, 16);
 
 %%
 

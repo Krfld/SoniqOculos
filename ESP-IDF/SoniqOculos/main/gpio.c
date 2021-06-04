@@ -73,16 +73,18 @@ static void power_off_task(void *arg)
         if (xQueueReceive(power_off_queue_handle, &powering_off, portMAX_DELAY) && powering_off)           // Wait for true value
             if (!xQueueReceive(power_off_queue_handle, &powering_off, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME))) // Enter deep-sleep mode when timeout occurs (2 seconds)
             {
-                //gpio_task_deinit(); //! Deep-sleep
-
-                /*while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
-                    delay(DEBOUNCE);*/
-
                 ESP_LOGE(GPIO_TAG, "Powering off...");
 
-                /*esp_sleep_enable_ext0_wakeup(B1, HIGH);
-                    rtc_gpio_pullup_en(B1); //TODO Test if needed
-                    esp_deep_sleep_start();*/
+                gpio_task_deinit(); //! Deep-sleep
+
+                while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
+                    delay(DEBOUNCE);
+
+                delay(POWER_OFF_HOLD_TIME);
+                esp_sleep_enable_ext0_wakeup(B1, HIGH);
+                rtc_gpio_pulldown_en(B1);
+                //rtc_gpio_isolate(B1); //TODO Test if needed
+                esp_deep_sleep_start();
             }
     }
 
@@ -118,11 +120,17 @@ static void volume_task(void *arg)
 
 static void gpio_task(void *arg)
 {
+    gpio_pad_select_gpio(SPEAKERS_SD_PIN);                 // Set GPIO
+    gpio_set_direction(SPEAKERS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
+
+    gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
+    gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
+
     releasing_task_init();
     power_off_task_init();
     volume_task_init();
 
-    rtc_gpio_deinit(B1);
+    rtc_gpio_deinit(B1);                        // Deinit RTC_GPIO
     gpio_pad_select_gpio(B1);                   // Set GPIO
     gpio_set_direction(B1, GPIO_MODE_INPUT);    // Set INPUT
     gpio_set_pull_mode(B1, GPIO_PULLDOWN_ONLY); // Set PULLDOWN
@@ -271,7 +279,7 @@ static void gpio_task(void *arg)
                     ESP_LOGW(GPIO_TAG, "Change to RECORD_PLAYBACK mode");
                     mode = !mode;
 
-                    turn_devices_off();
+                    i2s_turn_devices_off();
                     bt_music_deinit();
 
                     i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
@@ -327,7 +335,7 @@ static void gpio_task(void *arg)
                     ESP_LOGW(GPIO_TAG, "Change to MUSIC mode");
                     mode = !mode;
 
-                    turn_devices_off();
+                    i2s_turn_devices_off();
                     sd_card_deinit();
 
                     i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
@@ -362,10 +370,6 @@ void gpio_task_deinit()
         vTaskDelete(gpio_task_handle);
         gpio_task_handle = NULL;
     }
-
-    releasing_task_deinit();
-    power_off_task_deinit();
-    volume_task_deinit();
 }
 
 static void releasing_task_init()

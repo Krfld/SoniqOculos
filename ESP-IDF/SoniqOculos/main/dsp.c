@@ -45,7 +45,7 @@ void crossover_init()
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len)
 {
-    //* Convert to 2 bytes per sample
+    //* Convert to 2 bytes per sample (16 bit)
 
     int16_t *input_16 = (int16_t *)input;
     int16_t *output_low_16 = (int16_t *)output_low;
@@ -65,35 +65,41 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
 
     //* LPF
 
-    float *output_low_left = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
-    float *output_low_right = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
-    dsps_fir_f32_ae32(fir_lpf_1kHz, input_left, output_low_left, channel_length_16);   //* Process left
-    dsps_fir_f32_ae32(fir_lpf_1kHz, input_right, output_low_right, channel_length_16); //* Process right
-
-    for (size_t i = 0; i < channel_length_16; i++)
+    if (i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
     {
-        output_low_16[i * 2] = output_low_left[i] * pow(2, 15);      //* Denormalize left
-        output_low_16[i * 2 + 1] = output_low_right[i] * pow(2, 15); //* Denormalize right
-    }
+        float *output_low_left = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
+        float *output_low_right = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
+        dsps_fir_f32_ae32(fir_lpf_1kHz, input_left, output_low_left, channel_length_16);   //* Process left
+        dsps_fir_f32_ae32(fir_lpf_1kHz, input_right, output_low_right, channel_length_16); //* Process right
 
-    vPortFree(output_low_left);
-    vPortFree(output_low_right);
+        for (size_t i = 0; i < channel_length_16; i++)
+        {
+            output_low_16[i * 2] = output_low_left[i] * pow(2, 15);      //* Denormalize left
+            output_low_16[i * 2 + 1] = output_low_right[i] * pow(2, 15); //* Denormalize right
+        }
+
+        vPortFree(output_low_left);
+        vPortFree(output_low_right);
+    }
 
     //* HPF
 
-    float *output_high_left = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
-    float *output_high_right = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
-    dsps_fir_f32_ae32(fir_hpf_1kHz, input_left, output_high_left, channel_length_16);   //* Process left
-    dsps_fir_f32_ae32(fir_hpf_1kHz, input_right, output_high_right, channel_length_16); //* Process right
-
-    for (size_t i = 0; i < channel_length_16; i++)
+    if (i2s_get_device_state(SPEAKERS_MICROPHONES_I2S_NUM))
     {
-        output_high_16[i * 2] = output_high_left[i] * pow(2, 15);      //* Denormalize left
-        output_high_16[i * 2 + 1] = output_high_right[i] * pow(2, 15); //* Denormalize right
-    }
+        float *output_high_left = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
+        float *output_high_right = (float *)pvPortMalloc(channel_length_16 * sizeof(float));
+        dsps_fir_f32_ae32(fir_hpf_1kHz, input_left, output_high_left, channel_length_16);   //* Process left
+        dsps_fir_f32_ae32(fir_hpf_1kHz, input_right, output_high_right, channel_length_16); //* Process right
 
-    vPortFree(output_high_left);
-    vPortFree(output_high_right);
+        for (size_t i = 0; i < channel_length_16; i++)
+        {
+            output_high_16[i * 2] = output_high_left[i] * pow(2, 15);      //* Denormalize left
+            output_high_16[i * 2 + 1] = output_high_right[i] * pow(2, 15); //* Denormalize right
+        }
+
+        vPortFree(output_high_left);
+        vPortFree(output_high_right);
+    }
 
     vPortFree(input_left);
     vPortFree(input_right);

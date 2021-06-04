@@ -4,17 +4,6 @@ RTC_DATA_ATTR static uint8_t last_device[ESP_BD_ADDR_LEN];
 
 static bool bt_music_ready = false;
 
-static bool has_last_device();
-
-void save_last_device(uint8_t *addr)
-{
-    memcpy(last_device, addr, ESP_BD_ADDR_LEN);
-}
-static bool has_last_device()
-{
-    return last_device[0] | last_device[1] | last_device[2] | last_device[3] | last_device[4] | last_device[5];
-}
-
 // event for handler "bt_av_hdl_stack_up
 enum
 {
@@ -22,7 +11,20 @@ enum
 };
 
 // handler for bluetooth stack enabled events
-void bt_av_hdl_stack_evt(uint16_t event, void *p_param);
+static void bt_av_hdl_stack_evt(uint16_t event, void *p_param);
+
+static bool has_last_device();
+void save_last_device(uint8_t *addr)
+{
+    memcpy(last_device, addr, ESP_BD_ADDR_LEN);
+}
+static bool has_last_device()
+{
+    for (size_t i = 0; i < ESP_BD_ADDR_LEN; i++)
+        if (last_device[i]) // If any not 0
+            return true;
+    return false; // If all 0's
+}
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
@@ -102,7 +104,7 @@ void bt_app_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param)
     return;
 }
 
-void bt_av_hdl_stack_evt(uint16_t event, void *p_param)
+static void bt_av_hdl_stack_evt(uint16_t event, void *p_param)
 {
     ESP_LOGD(BT_TAG, "%s evt %d", __func__, event);
     switch (event)

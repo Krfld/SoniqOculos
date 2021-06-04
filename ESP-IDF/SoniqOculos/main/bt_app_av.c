@@ -313,7 +313,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
         {
             ESP_LOGW(BT_AV_TAG, "Connected to audio");
-            save_last_device_address(bda);
+            save_last_device(bda);
             s_audio_state = ESP_A2D_AUDIO_STATE_STOPPED;
             esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
             bt_i2s_task_start_up();

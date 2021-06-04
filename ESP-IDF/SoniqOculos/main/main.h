@@ -63,6 +63,8 @@
  */
 void delay(int millis);
 
+void shutdown();
+
 /**
  * @brief Handle messages recevied
  * 

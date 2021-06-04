@@ -238,6 +238,18 @@ void bone_conductors_init()
     i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM);
 }*/
 
+static uint8_t *bone_conductors_samples;
+static uint8_t *speaker_samples;
+
+void i2s_init()
+{
+    bone_conductors_init();
+    speakers_init();
+
+    bone_conductors_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
+    speaker_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
+}
+
 void i2s_write_data(uint8_t *data, size_t *len)
 {
     //! I2S writes data with stereo inverted
@@ -250,10 +262,11 @@ void i2s_write_data(uint8_t *data, size_t *len)
         data[i + 1] = temp;
     }*/
 
-    uint8_t *low_samples = (uint8_t *)pvPortMalloc(*len * sizeof(uint8_t));
-    uint8_t *high_samples = (uint8_t *)pvPortMalloc(*len * sizeof(uint8_t));
+    memcpy(bone_conductors_samples, data, *len);
+    memcpy(speaker_samples, data, *len);
 
-    apply_crossover(data, low_samples, high_samples, len);
+    if (devices == BOTH_DEVICES)
+        apply_crossover(data, bone_conductors_samples, speaker_samples, len);
 
     size_t bytes_written = 0;
 
@@ -265,7 +278,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
     }
 
     if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
-        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, high_samples, *len, &bytes_written, portMAX_DELAY);
+        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speaker_samples, *len, &bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
     {
@@ -274,7 +287,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
     }
 
     if (i2s1_state) // If bone conductors are on
-        i2s_write(BONE_CONDUCTORS_I2S_NUM, low_samples, *len, &bytes_written, portMAX_DELAY);
+        i2s_write(BONE_CONDUCTORS_I2S_NUM, bone_conductors_samples, *len, &bytes_written, portMAX_DELAY);
 
     if (I2S_DEBUG)
     {
@@ -284,10 +297,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
         printf("Total time to write to i2s: %lldus\n\n", tick_3 - tick_1);
     }
 
-    sd_write_data(low_samples, len); //! Testing
-
-    vPortFree(low_samples);
-    vPortFree(high_samples);
+    sd_write_data(bone_conductors_samples, len); //! Testing
 }
 
 static void i2s_read_task(void *arg)

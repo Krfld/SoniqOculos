@@ -5,10 +5,14 @@
 #include "bt.h"
 #include "bt_app_av.h"
 
+RTC_DATA_ATTR static int mode = MUSIC; //* Keep value while in deep-sleep
+int get_mode()
+{
+    return mode;
+}
+
 const bool _true_ = true;
 const bool _false_ = false;
-
-static int mode = MUSIC;
 
 static int buttons_map = 0;
 static int buttons_command = 0;
@@ -23,20 +27,20 @@ static QueueHandle_t releasing_queue_handle = NULL;
 static xTaskHandle releasing_task_handle = NULL;
 static void releasing_task(void *arg);
 static void releasing_task_init();
-static void releasing_task_deinit();
+////static void releasing_task_deinit();
 
 static QueueHandle_t power_off_queue_handle = NULL;
 static xTaskHandle power_off_task_handle = NULL;
 static void power_off_task(void *arg);
 static void power_off_task_init();
-static void power_off_task_deinit();
+////static void power_off_task_deinit();
 
 static bool changed_volume = false;
 static QueueHandle_t volume_queue_handle = NULL;
 static xTaskHandle volume_task_handle = NULL;
 static void volume_task(void *arg);
 static void volume_task_init();
-static void volume_task_deinit();
+////static void volume_task_deinit();
 
 static int buttons_pressed(int buttons)
 {
@@ -69,30 +73,9 @@ static void power_off_task(void *arg)
 {
     bool powering_off;
     for (;;)
-    {
         if (xQueueReceive(power_off_queue_handle, &powering_off, portMAX_DELAY) && powering_off)           // Wait for true value
-            if (!xQueueReceive(power_off_queue_handle, &powering_off, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME))) // Enter deep-sleep mode when timeout occurs (2 seconds)
-            {
-                ESP_LOGE(GPIO_TAG, "Powering off...");
-
-                gpio_task_deinit(); //! Deep-sleep
-
-                while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
-                    delay(DEBOUNCE);
-
-                delay(POWER_OFF_HOLD_TIME);
-                esp_sleep_enable_ext0_wakeup(B1, HIGH);
-                rtc_gpio_pulldown_en(B1);
-                //rtc_gpio_isolate(B1); //TODO Test if needed
-                esp_deep_sleep_start();
-            }
-    }
-
-    /*esp_sleep_enable_ulp_wakeup(); // Set wakeup reason
-    rtc_gpio_isolate(B1); // Isolate so it doesn't draw current on the pulldown resistors
-    rtc_gpio_isolate(B2); // Isolate so it doesn't draw current on the pulldown resistors
-    rtc_gpio_isolate(B3); // Isolate so it doesn't draw current on the pulldown resistors
-    esp_deep_sleep_start();*/
+            if (!xQueueReceive(power_off_queue_handle, &powering_off, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME))) // Timeout occurs (2 seconds)
+                shutdown();
 }
 
 static void volume_task(void *arg)
@@ -382,7 +365,7 @@ static void releasing_task_init()
         if (!xTaskCreate(releasing_task, "releasing_task", RELEASING_STACK_DEPTH, NULL, 10, &releasing_task_handle))
             ESP_LOGE(GPIO_TAG, "Error creating RELEASING task");
 }
-static void releasing_task_deinit()
+/*static void releasing_task_deinit()
 {
     if (releasing_task_handle)
     {
@@ -395,7 +378,7 @@ static void releasing_task_deinit()
         vQueueDelete(releasing_queue_handle);
         releasing_queue_handle = NULL;
     }
-}
+}*/
 
 static void power_off_task_init()
 {
@@ -407,7 +390,7 @@ static void power_off_task_init()
         if (!xTaskCreate(power_off_task, "power_off_task", POWER_OFF_STACK_DEPTH, NULL, 10, &power_off_task_handle))
             ESP_LOGE(GPIO_TAG, "Error creating POWER OFF task");
 }
-static void power_off_task_deinit()
+/*static void power_off_task_deinit()
 {
     if (power_off_task_handle)
     {
@@ -420,7 +403,7 @@ static void power_off_task_deinit()
         vQueueDelete(power_off_queue_handle);
         power_off_queue_handle = NULL;
     }
-}
+}*/
 
 static void volume_task_init()
 {
@@ -431,7 +414,7 @@ static void volume_task_init()
     if (!volume_task_handle)
         xTaskCreate(volume_task, "volume_task", VOLUME_STACK_DEPTH, NULL, 10, &volume_task_handle);
 }
-static void volume_task_deinit()
+/*static void volume_task_deinit()
 {
     if (volume_task_handle)
     {
@@ -444,4 +427,4 @@ static void volume_task_deinit()
         vQueueDelete(volume_queue_handle);
         volume_queue_handle = NULL;
     }
-}
+}*/

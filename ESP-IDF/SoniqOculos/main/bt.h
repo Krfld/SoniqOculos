@@ -14,7 +14,7 @@
 #define RINGBUFFER_SIZE 3 * DATA_LENGTH
 #define BT_I2S_STACK_DEPTH 2 * 1024 //? 2k is enough?
 
-void set_bda(uint8_t *addr);
+void save_last_device_address(uint8_t *addr);
 
 void bt_init();
 

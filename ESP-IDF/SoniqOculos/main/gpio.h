@@ -21,6 +21,8 @@
 #define VOLUME_CHANGE_PERIOD 250 // ms
 #define COMMAND_DELAY 500        // ms
 
+int get_mode();
+
 /**
  * @brief Create gpio task
  * 

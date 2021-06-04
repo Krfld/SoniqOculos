@@ -47,6 +47,8 @@ void microphones_init();
 void bone_conductors_init();
 //void bone_conductors_deinit();
 
+void i2s_init();
+
 /**
  * @brief Set mode
  * 

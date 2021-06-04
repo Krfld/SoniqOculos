@@ -1,28 +1,19 @@
-// Copyright 2015-2016 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "bt.h"
 
-static uint8_t *bda = NULL; //! Deep-sleep
-void set_bda(uint8_t *addr)
-{
-    if (bda == NULL)
-        bda = (uint8_t *)malloc(ESP_BD_ADDR_LEN);
-    memcpy(bda, addr, ESP_BD_ADDR_LEN);
-}
+RTC_DATA_ATTR static uint8_t last_device[ESP_BD_ADDR_LEN];
 
 static bool bt_music_ready = false;
+
+static bool has_last_device();
+
+void save_last_device(uint8_t *addr)
+{
+    memcpy(last_device, addr, ESP_BD_ADDR_LEN);
+}
+static bool has_last_device()
+{
+    return last_device[0] | last_device[1] | last_device[2] | last_device[3] | last_device[4] | last_device[5];
+}
 
 // event for handler "bt_av_hdl_stack_up
 enum
@@ -205,7 +196,7 @@ void bt_init()
     pin_code[3] = '4';
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
-    //* Print address
+    //* Print bluetooth address
     const uint8_t *esp_address = esp_bt_dev_get_address();
     ESP_LOGW(BT_TAG, "ESP Address [%02X:%02X:%02X:%02X:%02X:%02X]", esp_address[0], esp_address[1], esp_address[2], esp_address[3], esp_address[4], esp_address[5]);
 }
@@ -231,8 +222,8 @@ void bt_music_init()
     esp_a2d_sink_register_data_callback(bt_app_a2d_data_cb);
     esp_a2d_sink_init();
 
-    if (bda != NULL)
-        esp_a2d_sink_connect(bda); // Connect to previous device
+    if (has_last_device())
+        esp_a2d_sink_connect(last_device); // Connect to previous device
 
     esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
     bt_music_ready = true;
@@ -242,8 +233,8 @@ void bt_music_deinit()
     if (!bt_music_ready)
         return;
 
-    if (bda != NULL)
-        esp_a2d_sink_disconnect(bda); // Disconnect from device
+    if (has_last_device())
+        esp_a2d_sink_disconnect(last_device); // Disconnect from device
 
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();

@@ -4,10 +4,16 @@
 #include "i2s.h"
 #include "gpio.h"
 #include "sd.h"
+#include "nvs_tools.h"
 
 #include "dsp.h"
 
-//TODO flash memory
+/**
+ * TODO
+ * flash memory
+ */
+
+#include "time.h"
 
 void app_main(void)
 {
@@ -15,8 +21,10 @@ void app_main(void)
 
     ESP_LOGW(MAIN_TAG, "Setup init");
 
-    bt_init();
+    nvs_init();
     spi_init();
+
+    bt_init();
     sd_det_task_init();
     gpio_task_init();
 
@@ -27,12 +35,14 @@ void app_main(void)
     case MUSIC:
         i2s_init();
         bt_music_init();
+        ESP_LOGW(MAIN_TAG, "Mode MUSIC");
         break;
 
     case RECORD_PLAYBACK:
         bone_conductors_init();
         i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
         microphones_init();
+        ESP_LOGW(MAIN_TAG, "Mode RECORD_PLAYBACK");
         break;
     }
 
@@ -54,9 +64,7 @@ void shutdown()
     bt_music_deinit();
     sd_card_deinit();
 
-    //esp_spp_deinit();
     esp_bluedroid_disable();
-    //esp_bluedroid_deinit();
     esp_bt_controller_disable();
 
     while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button

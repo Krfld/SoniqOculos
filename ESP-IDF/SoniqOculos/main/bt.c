@@ -128,17 +128,9 @@ static void bt_av_hdl_stack_evt(uint16_t event, void *p_param)
 
 void bt_init()
 {
-    // Initialize NVS — it is used to store PHY calibration data
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
-    {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(err);
-
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_BLE));
 
+    esp_err_t err;
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
     if ((err = esp_bt_controller_init(&bt_cfg)) != ESP_OK)
     {
@@ -237,6 +229,8 @@ void bt_music_deinit()
 
     if (has_last_device())
         esp_a2d_sink_disconnect(last_device); // Disconnect from device
+
+    //! Optimize | Try to disable only
 
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();

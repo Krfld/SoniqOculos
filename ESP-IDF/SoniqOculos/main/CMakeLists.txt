@@ -1,1 +1,1 @@
-idf_component_register(SRCS "dsp.c" "sd.c" "gpio.c" "i2s.c" "bt.c" "bt_app_av.c" "bt_app_core.c" "main.c" INCLUDE_DIRS ".")
+idf_component_register(SRCS "nvs_tools.c" "dsp.c" "sd.c" "gpio.c" "i2s.c" "bt.c" "bt_app_av.c" "bt_app_core.c" "main.c" INCLUDE_DIRS ".")

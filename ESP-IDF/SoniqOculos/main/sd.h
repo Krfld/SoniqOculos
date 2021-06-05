@@ -4,6 +4,9 @@
 
 #define MOUNT_POINT "/sdcard"
 
+#define WRITE "wb"
+#define READ "rb"
+
 #define SD_CLK_PIN GPIO_NUM_16 // RX2
 #define SD_MISO_PIN GPIO_NUM_4
 #define SD_MOSI_PIN GPIO_NUM_2

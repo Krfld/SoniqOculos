@@ -265,7 +265,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
     memcpy(bone_conductors_samples, data, *len);
     memcpy(speaker_samples, data, *len);
 
-    if (devices == BOTH_DEVICES && i2s0_device == SPEAKERS)
+    if (get_mode() == MUSIC && devices == BOTH_DEVICES)
         apply_crossover(data, bone_conductors_samples, speaker_samples, len);
 
     size_t bytes_written = 0;

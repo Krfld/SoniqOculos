@@ -21,7 +21,28 @@
 			"array": "c",
 			"string": "c",
 			"string_view": "c",
-			"sstream": "c"
+			"sstream": "c",
+			"rtc_clk_common.h": "c",
+			"time.h": "c",
+			"*.tcc": "c",
+			"limits": "c",
+			"tuple": "c",
+			"type_traits": "c",
+			"*.ipp": "c",
+			"chrono": "c",
+			"ctime": "c",
+			"future": "c",
+			"iomanip": "c",
+			"numeric": "c",
+			"ratio": "c",
+			"streambuf": "c",
+			"utility": "c",
+			"*.inc": "c",
+			"nvs.h": "c",
+			"nvs_flash.h": "c",
+			"math.h": "c",
+			"typeinfo": "cpp",
+			"nvs_tools.h": "c"
 		}
 	}
 }

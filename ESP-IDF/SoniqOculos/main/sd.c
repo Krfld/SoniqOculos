@@ -1,5 +1,7 @@
 #include "sd.h"
 
+#include "nvs_tools.h"
+
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
@@ -93,7 +95,7 @@ void sd_card_init()
 
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
-    sd_open_file("testing.txt", "wb"); //TODO Change name logic
+    sd_open_file("testing.txt", WRITE); //TODO Change name logic
 
     return;
 }

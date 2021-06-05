@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
-#include <sys/stat.h>
 
 #include "nvs.h"
 #include "nvs_flash.h"

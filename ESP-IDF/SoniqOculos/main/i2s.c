@@ -296,8 +296,6 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
         printf("Total time to write to i2s: %lldus\n\n", tick_3 - tick_1);
     }
-
-    sd_write_data(bone_conductors_samples, len); //! Testing
 }
 
 static void i2s_read_task(void *arg)

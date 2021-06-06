@@ -141,7 +141,7 @@ void sd_open_file(char *filename, char *type)
 
     int32_t file_number = nvs_read(FILE_NAME);
     char file[64];
-    sprintf(file, "%s/%s_%d.txt", MOUNT_POINT, filename, file_number);
+    sprintf(file, MOUNT_POINT "/%s_%d.txt", filename, file_number);
 
     f = fopen(file, type);
     if (f == NULL)

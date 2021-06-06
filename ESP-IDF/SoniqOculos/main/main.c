@@ -44,7 +44,7 @@ void app_main(void)
         break;
     }
 
-    ESP_LOGE(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
+    ESP_LOGW(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 
 void delay(int millis)

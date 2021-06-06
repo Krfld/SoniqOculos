@@ -28,14 +28,14 @@ clear
 close all
 
 Fs = 44100;
-bitsPerSample = 16;
+bitsPerSample = 32;
 
-file = fopen('E:\TESTING.TXT');
+file = fopen('E:\REC_0.TXT');
 file_data = fread(file);
 
 if bitsPerSample == 16
     data = file_data;
-else % Convert 32 bit to 16 bits (ignore bytes 1 and 2)
+elseif bitsPerSample == 32 % Convert 32 bit to 16 bits (ignore bytes 1 and 2)
     data = zeros(length(file_data)/2, 1);
     for i = 1:2:length(file_data) / 2
         data(i) = file_data((i-1)*2+3);

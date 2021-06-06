@@ -19,8 +19,6 @@ void app_main(void)
 {
     ESP_LOGW(MAIN_TAG, "Wakeup cause: %d", esp_sleep_get_wakeup_cause()); // 2 - ESP_SLEEP_WAKEUP_EXT0
 
-    ESP_LOGW(MAIN_TAG, "Setup init");
-
     nvs_init();
     spi_init();
 
@@ -35,18 +33,18 @@ void app_main(void)
     case MUSIC:
         i2s_init();
         bt_music_init();
-        ESP_LOGW(MAIN_TAG, "Mode MUSIC");
+        ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
         break;
 
     case RECORD_PLAYBACK:
         bone_conductors_init();
         i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
         microphones_init();
-        ESP_LOGW(MAIN_TAG, "Mode RECORD_PLAYBACK");
+        ESP_LOGW(MAIN_TAG, "RECORD_PLAYBACK mode ready");
         break;
     }
 
-    ESP_LOGW(MAIN_TAG, "Setup ready");
+    ESP_LOGE(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 
 void delay(int millis)

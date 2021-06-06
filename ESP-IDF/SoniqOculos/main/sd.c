@@ -38,6 +38,7 @@ static void sd_det_task(void *arg)
                 if (f != NULL)
                     ESP_LOGE(SD_CARD_TAG, "Card fault");
 
+                nvs_write(nvs_read(FILE_NAME) - 1, FILE_NAME);
                 sd_card_deinit();
             }
         }
@@ -95,7 +96,7 @@ void sd_card_init()
 
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
-    sd_open_file("testing.txt", WRITE); //TODO Change name logic
+    sd_open_file(FILE_NAME, WRITE); //TODO Change name logic
 
     return;
 }
@@ -138,8 +139,9 @@ void sd_open_file(char *filename, char *type)
         return;
     }
 
+    int32_t file_number = nvs_read(FILE_NAME);
     char file[64];
-    sprintf(file, MOUNT_POINT "/%s", filename);
+    sprintf(file, "%s/%s_%d.txt", MOUNT_POINT, filename, file_number);
 
     f = fopen(file, type);
     if (f == NULL)
@@ -148,6 +150,7 @@ void sd_open_file(char *filename, char *type)
         return;
     }
 
+    nvs_write(++file_number, FILE_NAME);
     ESP_LOGI(SD_CARD_TAG, "File opened");
 }
 

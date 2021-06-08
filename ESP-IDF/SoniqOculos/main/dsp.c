@@ -96,7 +96,7 @@ void process_data(uint8_t *data, size_t *len)
 {
     //TODO Process data
 
-    i2s_write_data(data, len);
+    //i2s_write_data(data, len);
 
-    //sd_write_data(data, len); //! Testing
+    sd_write_data(data, len); //! Testing
 }

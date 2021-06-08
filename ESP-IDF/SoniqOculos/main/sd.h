@@ -62,10 +62,7 @@
     }
 } wav_header_t;*/
 
-bool sd_file_state();
-
-void sd_det_task_init();
-//void sd_det_task_deinit();
+bool sd_card_state();
 
 void sd_card_init();
 void sd_card_deinit();
@@ -73,13 +70,7 @@ void sd_card_deinit();
 void spi_init();
 //void spi_deinit();
 
-/**
- * @brief Open a file
- * 
- * @param filename name of the file (with extention)
- * @param type type of operation
- */
-void sd_open_file(char *filename, char *type);
+void sd_open_file(char *file, char *type);
 /**
  * @brief Close the file
  * 

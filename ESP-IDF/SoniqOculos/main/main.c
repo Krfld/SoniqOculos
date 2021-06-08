@@ -10,7 +10,10 @@
 
 /**
  * TODO
- * flash memory
+ * debug mode change
+ * change sd task to gpio
+ * test SD card without filters //?
+ * test FIR with SD card
  */
 
 #include "time.h"
@@ -23,7 +26,6 @@ void app_main(void)
     spi_init();
 
     bt_init();
-    sd_det_task_init();
     gpio_task_init();
 
     crossover_init();
@@ -59,8 +61,8 @@ void shutdown()
     gpio_task_deinit();
 
     i2s_turn_devices_off();
-    bt_music_deinit();
     sd_card_deinit();
+    bt_music_deinit();
 
     esp_bluedroid_disable();
     esp_bt_controller_disable();
@@ -72,7 +74,6 @@ void shutdown()
 
     esp_sleep_enable_ext0_wakeup(B1, HIGH);
     rtc_gpio_pulldown_en(B1);
-    //rtc_gpio_isolate(B1); //TODO Test if needed
     esp_deep_sleep_start();
 }
 

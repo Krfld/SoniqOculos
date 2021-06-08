@@ -129,8 +129,8 @@ static void bt_i2s_task_handler(void *arg)
         if (size != DATA_LENGTH)
         {
             ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than %d: %d", DATA_LENGTH, size);
-            vRingbufferReturnItem(s_ringbuf_i2s, data);
-            continue;
+            ////vRingbufferReturnItem(s_ringbuf_i2s, data);
+            ////continue;
         }
 
         process_data(data, &size);
@@ -161,7 +161,7 @@ void bt_i2s_task_shut_down(void)
         s_bt_i2s_task_handle = NULL;
     }
 
-    delay(10); // Make sure task is deleted before deleting ringbuffer
+    delay(100); // Make sure task is deleted before deleting ringbuffer
 
     if (s_ringbuf_i2s)
     {

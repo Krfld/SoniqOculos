@@ -153,11 +153,11 @@ void i2s_turn_devices_on()
 }
 void i2s_turn_devices_off()
 {
-    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
-    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+
+    ////i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM); //* No problem
+    ////i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);      //* No problem
 }
 
 void speakers_init()
@@ -262,39 +262,24 @@ void i2s_write_data(uint8_t *data, size_t *len)
         data[i + 1] = temp;
     }*/
 
-    memcpy(bone_conductors_samples, data, *len);
-    memcpy(speaker_samples, data, *len);
-
-    if (get_mode() == MUSIC && devices == BOTH_DEVICES)
-        apply_crossover(data, bone_conductors_samples, speaker_samples, len);
-
     size_t bytes_written = 0;
 
-    int64_t tick_1, tick_2, tick_3;
-    if (I2S_DEBUG)
+    if (get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
-        printf("Length: %d\n", *len);
-        tick_1 = esp_timer_get_time();
-    }
+        int64_t time = esp_timer_get_time();
+        apply_crossover(data, bone_conductors_samples, speaker_samples, len);
+        ESP_LOGE(I2S_TAG, "Crossover delay: %lld", esp_timer_get_time() - time);
 
-    if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
         i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speaker_samples, *len, &bytes_written, portMAX_DELAY);
-
-    if (I2S_DEBUG)
-    {
-        tick_2 = esp_timer_get_time();
-        printf("After writing first i2s: +%lldus\n", tick_2 - tick_1);
-    }
-
-    if (i2s1_state) // If bone conductors are on
         i2s_write(BONE_CONDUCTORS_I2S_NUM, bone_conductors_samples, *len, &bytes_written, portMAX_DELAY);
-
-    if (I2S_DEBUG)
+    }
+    else
     {
-        tick_3 = esp_timer_get_time();
-        printf("After writing second i2s: +%lldus\n", tick_3 - tick_2);
+        if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
+            i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
 
-        printf("Total time to write to i2s: %lldus\n\n", tick_3 - tick_1);
+        if (i2s1_state) // If bone conductors are on
+            i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
     }
 }
 
@@ -305,7 +290,7 @@ static void i2s_read_task(void *arg)
 
     for (;;)
     {
-        if (!i2s1_state && !sd_file_state())
+        if (!i2s1_state && !sd_card_state())
         {
             delay(READ_TASK_IDLE_DELAY);
             continue;

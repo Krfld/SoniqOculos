@@ -14,6 +14,12 @@ int get_mode()
 const bool _true_ = true;
 const bool _false_ = false;
 
+static bool sd_det_state = false;
+bool get_sd_det_state()
+{
+    return sd_det_state;
+}
+
 static int buttons_map = 0;
 static int buttons_command = 0;
 
@@ -109,6 +115,9 @@ static void gpio_task(void *arg)
     gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
     gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
 
+    gpio_pad_select_gpio(SD_DET_PIN);                // Set GPIO
+    gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT); // Set INPUT
+
     releasing_task_init();
     power_off_task_init();
     volume_task_init();
@@ -132,6 +141,23 @@ static void gpio_task(void *arg)
     for (;;)
     {
         delay(DEBOUNCE); // Debounce delay
+
+        if (gpio_get_level(SD_DET_PIN) != sd_det_state)
+        {
+            sd_det_state = !sd_det_state;
+
+            if (sd_det_state)
+                ESP_LOGW(SD_CARD_TAG, "Card inserted");
+            else // SD removed
+            {
+                ESP_LOGW(SD_CARD_TAG, "Card removed");
+
+                if (sd_card_state())
+                    ESP_LOGE(SD_CARD_TAG, "SD fault");
+
+                sd_card_deinit();
+            }
+        }
 
         if (gpio_get_level(B1) != ((buttons_map & B1_MASK) ? 1 : 0))
         {
@@ -223,7 +249,7 @@ static void gpio_task(void *arg)
                     {
                         ESP_LOGI(GPIO_TAG, "Volume up");
                         //! TESTING
-                        if (!sd_file_state())
+                        if (!sd_card_state())
                         {
                             ESP_LOGI(GPIO_TAG, "Start recording");
                             sd_card_init(); // Mount SD card and create file to write
@@ -262,6 +288,10 @@ static void gpio_task(void *arg)
                     ESP_LOGW(GPIO_TAG, "Change to RECORD_PLAYBACK mode");
                     mode = !mode;
 
+                    sd_card_deinit(); //! TESTING
+
+                    //TODO Debug
+
                     i2s_turn_devices_off();
                     bt_music_deinit();
 
@@ -287,7 +317,7 @@ static void gpio_task(void *arg)
                 case B1_MASK | B3_MASK:            // 101
                     if (buttons_command & B1_MASK) // 001
                     {
-                        if (!sd_file_state())
+                        if (!sd_card_state())
                         {
                             ESP_LOGI(GPIO_TAG, "Start recording");
                             sd_card_init(); // Mount SD card and create file to write
@@ -372,7 +402,7 @@ static void releasing_task_init()
         vTaskDelete(releasing_task_handle);
         releasing_task_handle = NULL;
     }
-    delay(10); // Make sure task is deleted before deleting queue
+    delay(100); // Make sure task is deleted before deleting queue
     if (releasing_queue_handle)
     {
         vQueueDelete(releasing_queue_handle);
@@ -397,7 +427,7 @@ static void power_off_task_init()
         vTaskDelete(power_off_task_handle);
         power_off_task_handle = NULL;
     }
-    delay(10); // Make sure task is deleted before deleting queue
+    delay(100); // Make sure task is deleted before deleting queue
     if (power_off_queue_handle)
     {
         vQueueDelete(power_off_queue_handle);
@@ -421,7 +451,7 @@ static void volume_task_init()
         vTaskDelete(volume_task_handle);
         volume_task_handle = NULL;
     }
-    delay(10); // Make sure task is deleted before deleting queue
+    delay(100); // Make sure task is deleted before deleting queue
     if (volume_queue_handle)
     {
         vQueueDelete(volume_queue_handle);

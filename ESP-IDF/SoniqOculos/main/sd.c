@@ -97,19 +97,24 @@ void sd_open_file(char *file, char *type)
     // Check if previous file is empty
     f = fopen(name, type);
     if (f != NULL)
-    {
         if (fseek(f, 0, SEEK_END) == 0)
             if (ftell(f) != 0) // TODO Check performance with large files
+            {
                 file_number++;
-        fclose(f);
-    }
+                fclose(f);
+                f == NULL;
+            }
 
-    sprintf(name, MOUNT_POINT "/%s_%d.txt", file, file_number);
-    f = fopen(name, type);
-    if (f == NULL)
+    if (f == NULL) // File is already opened if empty
     {
-        ESP_LOGE(SD_CARD_TAG, "Failed to open file");
-        return;
+        sprintf(name, MOUNT_POINT "/%s_%d.txt", file, file_number);
+        f = fopen(name, type);
+
+        if (f == NULL)
+        {
+            ESP_LOGE(SD_CARD_TAG, "Failed to open file");
+            return;
+        }
     }
 
     nvs_write(file_number, FILE_NAME);

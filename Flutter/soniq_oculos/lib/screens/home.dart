@@ -29,35 +29,27 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
 
-    return StreamBuilder(
-      stream: bt.bluetoothStateStream,
-      builder: (context, state) {
-        return Scaffold(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: Center(
-                  child: Text(
-                    'SoniqOculos',
-                    style: textTheme.headline3,
+    return SafeArea(
+      child: StreamBuilder(
+        stream: bt.bluetoothStateStream,
+        builder: (context, state) {
+          return Scaffold(
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: Center(child: Text('SoniqOculos', style: textTheme.headline3))),
+                Expanded(
+                  child: Center(
+                    child: this._connecting
+                        ? SpinKitChasingDots(color: Colors.teal)
+                        : Button(text: 'Connect Device', function: () => this._connect()),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Center(
-                  child: this._connecting
-                      ? SpinKitChasingDots(color: Colors.teal)
-                      : Button(
-                          text: 'Connect Device',
-                          function: () => this._connect(),
-                        ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -50,7 +50,6 @@ class Button extends StatelessWidget {
         padding: EdgeInsets.all(this.margin),
         child: OutlineButton(
           //splashColor: Colors.teal,
-
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(this.border)),
           padding: EdgeInsets.all(this.padding),
           onPressed: this.enable ? this.function : null,

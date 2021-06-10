@@ -64,6 +64,7 @@ void shutdown()
     sd_card_deinit();
     bt_music_deinit();
 
+    //? Maybe change to bt_deinit()
     esp_bluedroid_disable();
     esp_bt_controller_disable();
 

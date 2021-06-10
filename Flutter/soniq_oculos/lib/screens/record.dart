@@ -30,7 +30,10 @@ class _RecordState extends State<Record> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text('Record'),
-                Button(text: 'Music', function: () => Navigator.pushReplacementNamed(context, 'Music')),
+                Button(
+                  text: 'Music',
+                  function: () => Navigator.pushReplacementNamed(context, 'Music'),
+                ),
               ],
             ),
           ),

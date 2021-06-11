@@ -15,6 +15,7 @@
 
 /**
  * TODO
+ * volume
  * test SD card without filters //?
  * sincronize devices
  * test FIR with SD card
@@ -82,7 +83,7 @@ void shutdown()
 
 void server_welcome_msg(uint32_t handle)
 {
-    char msg[MSG_BUFFER_SIZE] = "Mode\n";
+    char msg[MSG_BUFFER_SIZE] = "[0]:[100]\n";
     esp_spp_write(handle, MSG_BUFFER_SIZE, (uint8_t *)msg);
 }
 

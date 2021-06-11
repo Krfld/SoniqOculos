@@ -1,9 +1,7 @@
 #include "gpio.h"
 
-#include "i2s.h"
-#include "sd.h"
 #include "bt.h"
-#include "bt_app_av.h"
+#include "sd.h"
 
 RTC_DATA_ATTR static int mode = MUSIC; //* Keep value while in deep-sleep
 int get_mode()
@@ -152,8 +150,11 @@ static void gpio_task(void *arg)
             {
                 ESP_LOGW(SD_CARD_TAG, "Card removed");
 
-                if (sd_card_state())
+                if (sd_card_state()) // Check if card was removed unexpectedly
+                {
                     ESP_LOGE(SD_CARD_TAG, "SD fault");
+                    nvs_write(nvs_read(FILE_NAME) - 1, FILE_NAME);
+                }
 
                 sd_card_deinit();
             }
@@ -249,18 +250,8 @@ static void gpio_task(void *arg)
                     {
                         ESP_LOGI(GPIO_TAG, "Volume up");
                         //! TESTING
-                        if (!sd_card_state())
-                        {
-                            ESP_LOGI(GPIO_TAG, "Start recording");
-                            sd_card_init(); // Mount SD card and create file to write
-                        }
-                        else
-                        {
-                            ESP_LOGI(GPIO_TAG, "Stop recording");
-                            sd_card_deinit(); // Close file and unmount SD card
-                        }
-                        delay(COMMAND_DELAY);
-                        //!
+                        /*record_toggle_sd_card();
+                        delay(COMMAND_DELAY);*/
                     }
                     break;
                 case B3_MASK: // 100
@@ -280,25 +271,14 @@ static void gpio_task(void *arg)
                     break;
                 case B1_MASK | B3_MASK: // 101
                     ESP_LOGI(GPIO_TAG, "Change devices");
-                    i2s_change_devices_state();
+                    music_toggle_devices();
                     delay(COMMAND_DELAY);
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
                     ESP_LOGW(GPIO_TAG, "Change to RECORD_PLAYBACK mode");
                     mode = !mode;
-
-                    sd_card_deinit(); //! TESTING
-
-                    //TODO Debug
-
-                    i2s_turn_devices_off();
-                    bt_music_deinit();
-
-                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
-                    microphones_init();
-
-                    ESP_LOGW(GPIO_TAG, "RECORD_PLAYBACK mode ready");
+                    change_to_mode(mode);
                     delay(COMMAND_DELAY);
                     break;
 
@@ -316,46 +296,16 @@ static void gpio_task(void *arg)
                 case B3_MASK | B2_MASK:
                 case B1_MASK | B3_MASK:            // 101
                     if (buttons_command & B1_MASK) // 001
-                    {
-                        if (!sd_card_state())
-                        {
-                            ESP_LOGI(GPIO_TAG, "Start recording");
-                            sd_card_init(); // Mount SD card and create file to write
-                        }
-                        else
-                        {
-                            ESP_LOGI(GPIO_TAG, "Stop recording");
-                            sd_card_deinit(); // Close file and unmount SD card
-                        }
-                    }
+                        record_toggle_sd_card();
                     if (buttons_command & B3_MASK) // 100
-                    {
-                        if (!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
-                        {
-                            ESP_LOGI(GPIO_TAG, "Start playback");
-                            i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON); // Turn bone conductors on and start playback
-                        }
-                        else
-                        {
-                            ESP_LOGI(GPIO_TAG, "Stop playback");
-                            i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF); // Stop playback and turn bone conductors off
-                        }
-                    }
+                        record_toggle_bone_conductors();
                     delay(COMMAND_DELAY);
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
                     ESP_LOGW(GPIO_TAG, "Change to MUSIC mode");
                     mode = !mode;
-
-                    i2s_turn_devices_off();
-                    sd_card_deinit();
-
-                    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
-                    speakers_init();
-                    bt_music_init();
-
-                    ESP_LOGW(GPIO_TAG, "MUSIC mode ready");
+                    change_to_mode(mode);
                     delay(COMMAND_DELAY);
                     break;
 

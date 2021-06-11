@@ -88,7 +88,6 @@ class _Bluetooth {
           .timeout(Duration(seconds: 5));
     } catch (e) {
       //app.msg(e, prefix: 'Connection');
-      this._bluetoothConnection = null;
     }
 
     if (isDeviceConnected)
@@ -101,7 +100,6 @@ class _Bluetooth {
     this._bluetoothInputStream = this._bluetoothConnection.input;
     this._bluetoothInputStream.listen((data) => app.msg(ascii.decode(data), prefix: 'Input Stream')).onDone(() {
       app.msg('Disconnected', prefix: 'Input Stream');
-      this._bluetoothConnection = null;
 
       if (this._context != null) Navigator.pop(context);
     });

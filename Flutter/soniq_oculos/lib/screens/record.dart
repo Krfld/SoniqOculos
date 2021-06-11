@@ -18,9 +18,9 @@ class _RecordState extends State<Record> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        bt.context = null;
+        /*bt.context = null;
         bt.disconnect();
-        Navigator.pop(context);
+        Navigator.pop(context);*/
         return;
       },
       child: SafeArea(

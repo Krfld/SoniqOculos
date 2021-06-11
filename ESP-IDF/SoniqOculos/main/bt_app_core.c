@@ -180,10 +180,10 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
     if (!s_ringbuf_i2s) // Check if buffer is created
         return 0;
 
-    BaseType_t done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, (portTickType)portMAX_DELAY);
+    BaseType_t done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, portMAX_DELAY); // Send data to buffer
 
     if (RINGBUFFER_SIZE - xRingbufferGetCurFreeSize(s_ringbuf_i2s) > DATA_LENGTH) // Checks if ringbuffer has at least 4096 bytes
-        xQueueSend(bt_i2s_queue_handle, &size, portMAX_DELAY);                    //TODO Test
+        xQueueOverwrite(bt_i2s_queue_handle, &size);                              //TODO Test
 
     if (done)
         return size;

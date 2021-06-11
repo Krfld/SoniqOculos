@@ -13,6 +13,10 @@ enum DEVICES
 };
 
 static enum DEVICES devices = BOTH_DEVICES;
+int get_devices()
+{
+    return devices;
+}
 
 static int i2s0_device = NONE;
 
@@ -138,6 +142,9 @@ void i2s_turn_devices_on()
     switch (devices)
     {
     case BOTH_DEVICES:
+        i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
+        i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
         break;
@@ -155,9 +162,6 @@ void i2s_turn_devices_off()
 {
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-
-    ////i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM); //* No problem
-    ////i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);      //* No problem
 }
 
 void speakers_init()
@@ -264,7 +268,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
     size_t bytes_written = 0;
 
-    if (get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
+    if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
         int64_t time = esp_timer_get_time();
         apply_crossover(data, bone_conductors_samples, speaker_samples, len);
@@ -290,7 +294,7 @@ static void i2s_read_task(void *arg)
 
     for (;;)
     {
-        if (!i2s1_state && !sd_card_state())
+        if (i2s0_device != MICROPHONES || (!i2s1_state && !sd_card_state()))
         {
             delay(READ_TASK_IDLE_DELAY);
             continue;
@@ -298,7 +302,7 @@ static void i2s_read_task(void *arg)
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY);
 
-        i2s_write_data(data, &bytes_read);
+        i2s_write_data(data, &bytes_read); // Will only write to bone conductors
 
         sd_write_data(data, &bytes_read);
     }

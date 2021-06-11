@@ -1,7 +1,6 @@
 #include "sd.h"
 
 #include "gpio.h"
-#include "nvs_tools.h"
 
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
@@ -94,30 +93,14 @@ void sd_open_file(char *file, char *type)
     int32_t file_number = nvs_read(FILE_NAME);
     sprintf(name, MOUNT_POINT "/%s_%d.txt", file, file_number);
 
-    // Check if previous file is empty
     f = fopen(name, type);
-    if (f != NULL)
-        if (fseek(f, 0, SEEK_END) == 0)
-            if (ftell(f) != 0) // TODO Check performance with large files
-            {
-                file_number++;
-                fclose(f);
-                f == NULL;
-            }
-
-    if (f == NULL) // File is already opened if empty
+    if (f == NULL)
     {
-        sprintf(name, MOUNT_POINT "/%s_%d.txt", file, file_number);
-        f = fopen(name, type);
-
-        if (f == NULL)
-        {
-            ESP_LOGE(SD_CARD_TAG, "Failed to open file");
-            return;
-        }
+        ESP_LOGE(SD_CARD_TAG, "Failed to open file");
+        return;
     }
 
-    nvs_write(file_number, FILE_NAME);
+    nvs_write(++file_number, FILE_NAME);
     ESP_LOGI(SD_CARD_TAG, "File opened");
 }
 

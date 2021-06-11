@@ -18,9 +18,9 @@ class _MusicState extends State<Music> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        bt.context = null;
+        /*bt.context = null;
         bt.disconnect();
-        Navigator.pop(context);
+        Navigator.pop(context);*/
         return;
       },
       child: SafeArea(

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -51,6 +52,8 @@
 #define ON true
 #define OFF false
 
+#define PROCESSING OFF
+
 //* Modes
 #define MUSIC 0
 #define RECORD_PLAYBACK 1
@@ -64,9 +67,14 @@ void delay(int millis);
 
 void shutdown();
 
-/**
- * @brief Handle messages recevied
- * 
- * @param msg message received
- */
+//* SPP Server
+void server_welcome_msg(uint32_t handle);
 void handleMsgs(char *msg);
+
+//* Modes
+void change_to_mode(int mode);
+
+void music_toggle_devices();
+
+void record_toggle_sd_card();
+void record_toggle_bone_conductors();

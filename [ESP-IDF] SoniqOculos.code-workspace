@@ -43,6 +43,7 @@
 			"math.h": "c",
 			"typeinfo": "cpp",
 			"nvs_tools.h": "c"
-		}
+		},
+		"idf.flashType": "UART"
 	}
 }

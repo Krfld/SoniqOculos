@@ -16,9 +16,8 @@
 /**
  * TODO
  * volume
- * test SD card without filters //?
  * sincronize devices
- * test FIR with SD card
+ * test FIR with less coeffs
  */
 
 void app_main(void)
@@ -133,7 +132,7 @@ void change_to_mode(int mode)
 
 void music_toggle_devices()
 {
-    i2s_change_devices_state();
+    //TODO Change to specific device
 }
 
 void record_toggle_sd_card()

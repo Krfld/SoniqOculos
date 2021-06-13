@@ -5,10 +5,6 @@ final String deviceAddress = '10:52:1C:67:9C:EA'; //* ESP Address
 final _Bluetooth bt = _Bluetooth();
 
 class _Bluetooth {
-  BuildContext _context;
-  BuildContext get context => this._context;
-  set context(BuildContext context) => this._context = context;
-
   FlutterBluetoothSerial bluetooth = FlutterBluetoothSerial.instance;
 
   Stream bluetoothStateStream = FlutterBluetoothSerial.instance.onStateChanged();
@@ -23,16 +19,19 @@ class _Bluetooth {
   BluetoothConnection _bluetoothConnection;
   bool get isDeviceConnected => this._bluetoothConnection?.isConnected ?? false;
 
+  Future sendCmd(var cmd) async {
+    if (!isDeviceConnected) return;
+
+    this._bluetoothConnection.output.add(ascii.encode(cmd.toString()));
+    ////await this._bluetoothConnection.output.allSent;
+  }
+
   void setup() {
     bluetoothStateStream.listen((state) {
       this._bluetoothState = state;
 
-      if (state == BluetoothState.STATE_OFF && this._context != null) Navigator.pop(context);
+      if (state == BluetoothState.STATE_OFF) app.pop();
     });
-
-    return;
-
-    this._bluetoothConnection.output.add(ascii.encode('Xiu'));
   }
 
   void disconnect() {
@@ -98,10 +97,10 @@ class _Bluetooth {
     }
 
     this._bluetoothInputStream = this._bluetoothConnection.input;
-    this._bluetoothInputStream.listen((data) => app.msg(ascii.decode(data), prefix: 'Input Stream')).onDone(() {
-      app.msg('Disconnected', prefix: 'Input Stream');
+    this._bluetoothInputStream.listen((data) => app.msg(ascii.decode(data), prefix: 'Input')).onDone(() {
+      app.msg('Disconnected', prefix: 'Input');
 
-      if (this._context != null) Navigator.pop(context);
+      app.pop();
     });
 
     return true;

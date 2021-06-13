@@ -3,6 +3,33 @@ import './imports.dart';
 final _App app = _App();
 
 class _App {
+  ///
+  /// Volume
+  ///
+  int _volume = 50;
+  int get volume => this._volume;
+  set volume(int volume) => this._volume = volume;
+
+  ///
+  /// Context
+  ///
+  BuildContext _context;
+  BuildContext get context => this._context;
+  set context(BuildContext context) => this._context = context;
+
+  ///
+  /// Navigation
+  ///
+  void pop() {
+    if (this._context != null) {
+      Navigator.pop(context);
+      this._context = null;
+    }
+  }
+
+  ///
+  /// Debug
+  ///
   final String tag = '+';
   int _debugID = 1; // if 0, debug won't work
   dynamic msg(var msg, {BuildContext context, String prefix = 'DEBUG'}) {
@@ -13,6 +40,9 @@ class _App {
   }
 }
 
+///
+/// Loading
+///
 class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -20,6 +50,9 @@ class Loading extends StatelessWidget {
   }
 }
 
+///
+/// Button
+///
 class Button extends StatelessWidget {
   final String text;
   final Function function;
@@ -56,6 +89,37 @@ class Button extends StatelessWidget {
           child: Text(this.text, textAlign: TextAlign.center),
         ),
       ),
+    );
+  }
+}
+
+///
+/// Volume Slider
+///
+class VolumeSlider extends StatefulWidget {
+  @override
+  _VolumeSliderState createState() => _VolumeSliderState();
+}
+
+class _VolumeSliderState extends State<VolumeSlider> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text('Volume'),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: Slider.adaptive(
+            min: 0,
+            max: 100,
+            divisions: 10,
+            value: app.volume.toDouble(),
+            label: '${app.volume}', //* Label doesn't work without divisions
+            onChanged: (value) => setState(() => app.volume = value.toInt()),
+            onChangeEnd: (value) => bt.sendCmd(app.volume),
+          ),
+        ),
+      ],
     );
   }
 }

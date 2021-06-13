@@ -271,7 +271,7 @@ static void gpio_task(void *arg)
                     break;
                 case B1_MASK | B3_MASK: // 101
                     ESP_LOGI(GPIO_TAG, "Change devices");
-                    music_toggle_devices();
+                    i2s_change_devices_state();
                     delay(COMMAND_DELAY);
                     break;
 

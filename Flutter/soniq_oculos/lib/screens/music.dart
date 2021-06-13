@@ -11,7 +11,7 @@ class _MusicState extends State<Music> {
     super.initState();
     app.msg('InitState', context: context);
 
-    bt.context = app.msg(context, context: context);
+    app.context = app.msg(context, context: context);
   }
 
   @override
@@ -30,9 +30,10 @@ class _MusicState extends State<Music> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text('Music'),
-                Button(
-                  text: 'Record',
-                  function: () => Navigator.pushReplacementNamed(context, 'Record'),
+                VolumeSlider(),
+                FloatingActionButton.extended(
+                  label: Text('Switch to Record'),
+                  onPressed: () => Navigator.pushReplacementNamed(context, 'Record'),
                 ),
               ],
             ),

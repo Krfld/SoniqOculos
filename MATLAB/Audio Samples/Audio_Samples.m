@@ -2,8 +2,8 @@ clc
 clear
 close all
 
-frequency = 200; % Hz
-duration = 2; % Seconds
+frequency = 500; % Hz
+duration = 5; % Seconds
 
 Fs = 44100; % Sample Rate
 

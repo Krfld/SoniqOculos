@@ -13,6 +13,8 @@ void crossover_init();
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len);
 
+void apply_volume(uint8_t *data, size_t *len);
+
 /**
  * @brief Process data
  * 

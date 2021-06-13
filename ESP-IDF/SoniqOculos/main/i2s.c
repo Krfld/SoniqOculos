@@ -270,15 +270,23 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
-        int64_t time = esp_timer_get_time();
+        //int64_t time = esp_timer_get_time();
         apply_crossover(data, bone_conductors_samples, speaker_samples, len);
-        ESP_LOGE(I2S_TAG, "Crossover delay: %lld", esp_timer_get_time() - time);
+        //ESP_LOGE(I2S_TAG, "Crossover delay: %lld", esp_timer_get_time() - time);
 
+        sd_write_data(bone_conductors_samples, len);
+
+        return;
+
+        apply_volume(speaker_samples, len);
+        apply_volume(bone_conductors_samples, len);
         i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speaker_samples, *len, &bytes_written, portMAX_DELAY);
         i2s_write(BONE_CONDUCTORS_I2S_NUM, bone_conductors_samples, *len, &bytes_written, portMAX_DELAY);
     }
     else
     {
+        apply_volume(data, len);
+
         if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
             i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
 

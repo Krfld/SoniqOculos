@@ -3,14 +3,34 @@
 #include "bt.h"
 #include "sd.h"
 
+const bool _true_ = true;
+const bool _false_ = false;
+
 RTC_DATA_ATTR static int mode = MUSIC; //* Keep value while in deep-sleep
 int get_mode()
 {
     return mode;
 }
 
-const bool _true_ = true;
-const bool _false_ = false;
+RTC_DATA_ATTR static int volume = 50; //* Keep value while in deep-sleep
+int get_volume()
+{
+    return volume;
+}
+void volume_up()
+{
+    if (volume + VOLUME_INCREMENTS > MAX_VOLUME)
+        volume = MAX_VOLUME;
+    else
+        volume += VOLUME_INCREMENTS;
+}
+void volume_down()
+{
+    if (volume - VOLUME_INCREMENTS < 0)
+        volume = 0;
+    else
+        volume -= VOLUME_INCREMENTS;
+}
 
 static bool sd_det_state = false;
 bool get_sd_det_state()
@@ -95,10 +115,12 @@ static void volume_task(void *arg)
                 if (buttons_map == B2_MASK)
                 {
                     ESP_LOGI(GPIO_TAG, "Volume up");
+                    volume_up();
                 }
                 if (buttons_map == B3_MASK)
                 {
                     ESP_LOGI(GPIO_TAG, "Volume down");
+                    volume_down();
                 }
             }
         }
@@ -249,15 +271,17 @@ static void gpio_task(void *arg)
                     if (!changed_volume)
                     {
                         ESP_LOGI(GPIO_TAG, "Volume up");
+                        volume_up();
                         //! TESTING
-                        /*record_toggle_sd_card();
-                        delay(COMMAND_DELAY);*/
+                        record_toggle_sd_card();
+                        delay(COMMAND_DELAY);
                     }
                     break;
                 case B3_MASK: // 100
                     if (!changed_volume)
                     {
                         ESP_LOGI(GPIO_TAG, "Volume down");
+                        volume_down();
                     }
                     break;
 

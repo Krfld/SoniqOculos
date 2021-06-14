@@ -102,6 +102,8 @@ class VolumeSlider extends StatefulWidget {
 }
 
 class _VolumeSliderState extends State<VolumeSlider> {
+  int sliderValue = app.volume;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -113,10 +115,15 @@ class _VolumeSliderState extends State<VolumeSlider> {
             min: 0,
             max: 100,
             divisions: 10,
-            value: app.volume.toDouble(),
-            label: '${app.volume}', //* Label doesn't work without divisions
-            onChanged: (value) => setState(() => app.volume = value.toInt()),
-            onChangeEnd: (value) => bt.sendCmd(app.volume),
+            value: sliderValue.toDouble(),
+            label: '$sliderValue', //* Label doesn't work without divisions
+            onChanged: (value) => setState(() => sliderValue = value.toInt()),
+            onChangeEnd: (value) {
+              if (sliderValue != app.volume) {
+                app.volume = sliderValue;
+                bt.sendCmd(app.volume);
+              }
+            },
           ),
         ),
       ],

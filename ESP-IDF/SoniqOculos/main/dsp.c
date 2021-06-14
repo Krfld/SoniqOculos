@@ -122,7 +122,7 @@ void apply_volume(uint8_t *data, size_t *len)
 {
     int16_t *data_16 = (int16_t *)data;
 
-    for (size_t i = 0; i < *len; i++)
+    for (size_t i = 0; i < *len / 2; i++)
         data_16[i] *= get_volume();
 }
 

@@ -25,25 +25,24 @@ void app_main(void)
 
     ESP_LOGW(MAIN_TAG, "Wakeup cause: %d", esp_sleep_get_wakeup_cause()); // 2 - ESP_SLEEP_WAKEUP_EXT0
 
-    nvs_init();
-    spi_init();
+    nvs_init(); //* Flash to store non-volatile data
+    spi_init(); //* SPI to comunicate with SD card
 
-    bt_init();
-    gpio_task_init();
+    bt_init();        //* Start BT SPP server
+    gpio_task_init(); //* Start task to handle GPIOs
+    i2s_init();       //* Setup I2S interface
 
-    crossover_init();
+    crossover_init(); //* Allocate variables for DSP
 
     switch (get_mode())
     {
     case MUSIC:
-        i2s_init();
+        speakers_init();
         bt_music_init();
         ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
         break;
 
     case RECORD_PLAYBACK:
-        i2s_init();
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
         microphones_init();
         ESP_LOGW(MAIN_TAG, "RECORD_PLAYBACK mode ready");
         break;
@@ -81,10 +80,10 @@ void shutdown()
     esp_deep_sleep_start();
 }
 
-void server_welcome_msg(uint32_t handle)
+void server_setup_msg(uint32_t handle)
 {
     char msg[MSG_BUFFER_SIZE] = "[0]:[100]\n";
-    esp_spp_write(handle, MSG_BUFFER_SIZE, (uint8_t *)msg);
+    esp_spp_write(handle, MSG_BUFFER_SIZE, (uint8_t *)msg); //* Send app setup message
 }
 
 void handleMsgs(char *msg)

@@ -32,8 +32,7 @@
 #include "driver/gpio.h"
 #include "driver/rtc_io.h"
 
-//#include "esp_dsp.h"
-#include "dsps_fir.h"
+#include "esp_dsp.h"
 
 #define DEVICE_NAME "SoniqOculos"
 
@@ -52,11 +51,12 @@
 #define ON true
 #define OFF false
 
+#define PROCESSING OFF
+
+//* Volume
 #define DEFAULT_VOLUME 50
 #define MAX_VOLUME 100 // Maybe 60
 #define VOLUME_INTERVAL 10
-
-#define PROCESSING OFF
 
 //* Modes
 #define MUSIC 0
@@ -72,7 +72,7 @@ void delay(int millis);
 void shutdown();
 
 //* SPP Server
-void server_welcome_msg(uint32_t handle);
+void server_setup_msg(uint32_t handle);
 void handleMsgs(char *msg);
 
 //* Modes

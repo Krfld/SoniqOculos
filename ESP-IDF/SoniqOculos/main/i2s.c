@@ -23,6 +23,9 @@ static int i2s0_device = NONE;
 static bool i2s0_state = OFF;
 static bool i2s1_state = OFF;
 
+static uint8_t *bone_conductors_samples;
+static uint8_t *speakers_samples;
+
 static xTaskHandle s_i2s_read_task_handle = NULL;
 static void i2s_read_task(void *arg);
 static void i2s_read_task_init();
@@ -204,6 +207,8 @@ void microphones_init()
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
 
+    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
+
     i2s_read_task_init();
 
     i2s0_device = MICROPHONES;
@@ -242,16 +247,12 @@ void bone_conductors_init()
     i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM);
 }*/
 
-static uint8_t *bone_conductors_samples;
-static uint8_t *speaker_samples;
-
 void i2s_init()
 {
     bone_conductors_init();
-    speakers_init();
 
     bone_conductors_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
-    speaker_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
+    speakers_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
 }
 
 void i2s_write_data(uint8_t *data, size_t *len)
@@ -271,16 +272,15 @@ void i2s_write_data(uint8_t *data, size_t *len)
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
         //int64_t time = esp_timer_get_time();
-        apply_crossover(data, bone_conductors_samples, speaker_samples, len);
+        apply_crossover(data, bone_conductors_samples, speakers_samples, len);
         //ESP_LOGE(I2S_TAG, "Crossover delay: %lld", esp_timer_get_time() - time);
 
-        sd_write_data(bone_conductors_samples, len); //! Testing
+        //sd_write_data(bone_conductors_samples, len); //! Testing
+        //return;
 
-        return;
-
-        apply_volume(speaker_samples, len);
-        apply_volume(bone_conductors_samples, len);
-        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speaker_samples, *len, &bytes_written, portMAX_DELAY);
+        //apply_volume(speakers_samples, len);
+        //apply_volume(bone_conductors_samples, len);
+        i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speakers_samples, *len, &bytes_written, portMAX_DELAY);
         i2s_write(BONE_CONDUCTORS_I2S_NUM, bone_conductors_samples, *len, &bytes_written, portMAX_DELAY);
     }
     else
@@ -304,19 +304,16 @@ static void i2s_read_task(void *arg)
     {
         if (i2s0_device != MICROPHONES || (!i2s1_state && !sd_card_state()))
         {
-            delay(READ_TASK_IDLE_DELAY);
+            delay(READ_TASK_IDLE_DELAY); //* Idle task
             continue;
         }
 
-        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY);
+        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); //* Read from microphone
 
-        i2s_write_data(data, &bytes_read); // Will only write to bone conductors
+        i2s_write_data(data, &bytes_read); //* Will only write to bone conductors
 
-        sd_write_data(data, &bytes_read);
+        sd_write_data(data, &bytes_read); //* Write to SD card
     }
-
-    s_i2s_read_task_handle = NULL;
-    vTaskDelete(NULL);
 }
 static void i2s_read_task_init()
 {

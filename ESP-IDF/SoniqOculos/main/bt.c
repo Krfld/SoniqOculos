@@ -55,7 +55,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
         ESP_LOGW(BT_SPP_TAG, "Connected to server");
-        server_welcome_msg(param->write.handle);
+        server_setup_msg(param->write.handle);
         break;
     default:
         break;

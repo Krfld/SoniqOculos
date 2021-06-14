@@ -10,7 +10,7 @@
 
 /**
  * !Warnings
- * FIR filters might be delaying to much
+ * FIR filters fail every 512 samples
  */
 
 /**
@@ -22,6 +22,8 @@
 
 void app_main(void)
 {
+    delay(1000);
+
     ESP_LOGW(MAIN_TAG, "Wakeup cause: %d", esp_sleep_get_wakeup_cause()); // 2 - ESP_SLEEP_WAKEUP_EXT0
 
     nvs_init();

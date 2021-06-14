@@ -55,7 +55,7 @@
 #define MAX_VOLUME 100
 #define VOLUME_INCREMENTS 10
 
-#define PROCESSING ON
+#define PROCESSING OFF
 
 //* Modes
 #define MUSIC 0

@@ -12,10 +12,10 @@ int get_mode()
     return mode;
 }
 
-RTC_DATA_ATTR static int volume = 50; //* Keep value while in deep-sleep
-int get_volume()
+RTC_DATA_ATTR static int volume = 100; //* Keep value while in deep-sleep
+double get_volume()
 {
-    return volume;
+    return volume / 100.0; //* Normalize volume
 }
 void volume_up()
 {

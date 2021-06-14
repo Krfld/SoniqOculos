@@ -52,8 +52,9 @@
 #define ON true
 #define OFF false
 
-#define MAX_VOLUME 100
-#define VOLUME_INCREMENTS 10
+#define DEFAULT_VOLUME 50
+#define MAX_VOLUME 100 // Maybe 60
+#define VOLUME_INTERVAL 10
 
 #define PROCESSING OFF
 

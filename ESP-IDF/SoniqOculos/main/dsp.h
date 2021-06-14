@@ -4,8 +4,6 @@
 
 #define DATA_LENGTH 4 * 1024
 
-#define FIR_LENGTH 51
-
 fir_f32_t *fir_lpf_1kHz;
 fir_f32_t *fir_hpf_1kHz;
 

@@ -124,7 +124,7 @@ static void bt_i2s_task_handler(void *arg)
         if (!xQueueReceive(bt_i2s_queue_handle, &size, portMAX_DELAY)) // Wait for ringbuffer to have at least 4096 bytes
             continue;
 
-        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &size, (portTickType)portMAX_DELAY, DATA_LENGTH); // Get 4096 bytes
+        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &size, portMAX_DELAY, DATA_LENGTH); // Get 4096 bytes
 
         if (size != DATA_LENGTH)
         {
@@ -161,7 +161,7 @@ void bt_i2s_task_shut_down(void)
         s_bt_i2s_task_handle = NULL;
     }
 
-    delay(100); // Make sure task is deleted before deleting ringbuffer
+    delay(10); // Make sure task is deleted before deleting ringbuffer
 
     if (s_ringbuf_i2s)
     {

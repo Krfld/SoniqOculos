@@ -12,24 +12,28 @@ int get_mode()
     return mode;
 }
 
-RTC_DATA_ATTR static int volume = 100; //* Keep value while in deep-sleep
-double get_volume()
+RTC_DATA_ATTR static int volume = DEFAULT_VOLUME; //* Keep value while in deep-sleep
+int get_volume()
 {
-    return volume / 100.0; //* Normalize volume
+    return volume;
 }
 void volume_up()
 {
-    if (volume + VOLUME_INCREMENTS > MAX_VOLUME)
+    if (volume + VOLUME_INTERVAL > MAX_VOLUME)
         volume = MAX_VOLUME;
     else
-        volume += VOLUME_INCREMENTS;
+        volume += VOLUME_INTERVAL;
+
+    ESP_LOGI(GPIO_TAG, "Volume: %d", volume);
 }
 void volume_down()
 {
-    if (volume - VOLUME_INCREMENTS < 0)
+    if (volume - VOLUME_INTERVAL < 0)
         volume = 0;
     else
-        volume -= VOLUME_INCREMENTS;
+        volume -= VOLUME_INTERVAL;
+
+    ESP_LOGI(GPIO_TAG, "Volume: %d", volume);
 }
 
 static bool sd_det_state = false;
@@ -273,8 +277,8 @@ static void gpio_task(void *arg)
                         ESP_LOGI(GPIO_TAG, "Volume up");
                         volume_up();
                         //! TESTING
-                        record_toggle_sd_card();
-                        delay(COMMAND_DELAY);
+                        /*record_toggle_sd_card();
+                        delay(COMMAND_DELAY);*/
                     }
                     break;
                 case B3_MASK: // 100
@@ -376,7 +380,7 @@ static void releasing_task_init()
         vTaskDelete(releasing_task_handle);
         releasing_task_handle = NULL;
     }
-    delay(100); // Make sure task is deleted before deleting queue
+    delay(10); // Make sure task is deleted before deleting queue
     if (releasing_queue_handle)
     {
         vQueueDelete(releasing_queue_handle);
@@ -401,7 +405,7 @@ static void power_off_task_init()
         vTaskDelete(power_off_task_handle);
         power_off_task_handle = NULL;
     }
-    delay(100); // Make sure task is deleted before deleting queue
+    delay(10); // Make sure task is deleted before deleting queue
     if (power_off_queue_handle)
     {
         vQueueDelete(power_off_queue_handle);
@@ -425,7 +429,7 @@ static void volume_task_init()
         vTaskDelete(volume_task_handle);
         volume_task_handle = NULL;
     }
-    delay(100); // Make sure task is deleted before deleting queue
+    delay(10); // Make sure task is deleted before deleting queue
     if (volume_queue_handle)
     {
         vQueueDelete(volume_queue_handle);

@@ -15,9 +15,8 @@
 
 /**
  * TODO
- * volume
+ * try ansi FIR
  * sincronize devices
- * test FIR with less coeffs
  */
 
 void app_main(void)

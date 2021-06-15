@@ -375,14 +375,12 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
 
 void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
 {
-    //if (BT_DEBUG)
+    if (BT_DEBUG)
+        ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d", len); //* 3584 or 3072 samples
 
     write_ringbuf(data, len);
-    if (++s_pkt_cnt % 50 == 0)
-    {
-        ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d", len);
-        ESP_LOGI(BT_AV_TAG, "Audio packet count %u", ++s_pkt_cnt);
-    }
+    if (++s_pkt_cnt % 100 == 0)
+        ESP_LOGI(BT_AV_TAG, "Audio packet count %u", s_pkt_cnt);
 }
 
 bool bt_is_music_playing()

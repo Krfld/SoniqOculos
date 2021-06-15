@@ -54,9 +54,9 @@
 #define PROCESSING OFF
 
 //* Volume
-#define DEFAULT_VOLUME 50
-#define MAX_VOLUME 100 // Maybe 60
-#define VOLUME_INTERVAL 10
+#define DEFAULT_VOLUME 25
+#define MAX_VOLUME 50
+#define VOLUME_INTERVAL 5
 
 //* Modes
 #define MUSIC 0

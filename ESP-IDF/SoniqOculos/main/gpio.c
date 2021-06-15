@@ -24,7 +24,7 @@ void volume_up()
     else
         volume += VOLUME_INTERVAL;
 
-    ESP_LOGI(GPIO_TAG, "Volume: %d", volume);
+    ESP_LOGI(GPIO_TAG, "Volume: %d%%", volume * 100 / MAX_VOLUME);
 }
 void volume_down()
 {
@@ -33,7 +33,7 @@ void volume_down()
     else
         volume -= VOLUME_INTERVAL;
 
-    ESP_LOGI(GPIO_TAG, "Volume: %d", volume);
+    ESP_LOGI(GPIO_TAG, "Volume: %d%%", volume * 100 / MAX_VOLUME);
 }
 
 static bool sd_det_state = false;

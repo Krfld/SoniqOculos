@@ -331,13 +331,11 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         a2d = (esp_a2d_cb_param_t *)(p_param);
         ESP_LOGW(BT_AV_TAG, "A2DP audio state: %s", s_a2d_audio_state_str[a2d->audio_stat.state]);
         s_audio_state = a2d->audio_stat.state;
+        s_pkt_cnt = 0;
 
-        if (ESP_A2D_AUDIO_STATE_STARTED == a2d->audio_stat.state) // Turn on devices when music playing
-        {
-            s_pkt_cnt = 0;
+        if (a2d->audio_stat.state == ESP_A2D_AUDIO_STATE_STARTED) //* Turn on devices when music playing
             i2s_turn_devices_on();
-        }
-        else // Turn off devices when no music playing
+        else //* Turn off devices when no music playing
             i2s_turn_devices_off();
         break;
     }
@@ -351,17 +349,12 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
             int sample_rate = 16000;
             char oct0 = a2d->audio_cfg.mcc.cie.sbc[0];
             if (oct0 & (0x01 << 6))
-            {
                 sample_rate = 32000;
-            }
             else if (oct0 & (0x01 << 5))
-            {
                 sample_rate = 44100;
-            }
             else if (oct0 & (0x01 << 4))
-            {
                 sample_rate = 48000;
-            }
+
             i2s_set_clk(SPEAKERS_MICROPHONES_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
             i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, sample_rate, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO);
 
@@ -382,12 +375,14 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
 
 void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
 {
-    if (BT_DEBUG)
-        ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d", len);
+    //if (BT_DEBUG)
 
     write_ringbuf(data, len);
-    if (++s_pkt_cnt % 100 == 0)
-        ESP_LOGI(BT_AV_TAG, "Audio packet count %u", s_pkt_cnt);
+    if (++s_pkt_cnt % 50 == 0)
+    {
+        ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d", len);
+        ESP_LOGI(BT_AV_TAG, "Audio packet count %u", ++s_pkt_cnt);
+    }
 }
 
 bool bt_is_music_playing()

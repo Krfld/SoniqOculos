@@ -190,7 +190,7 @@ void bt_init()
 
     //* Print bluetooth address
     const uint8_t *esp_address = esp_bt_dev_get_address();
-    ESP_LOGW(BT_TAG, "ESP Address [%02X:%02X:%02X:%02X:%02X:%02X]", esp_address[0], esp_address[1], esp_address[2], esp_address[3], esp_address[4], esp_address[5]);
+    ESP_LOGW(BT_TAG, "ESP BT Address [%02X:%02X:%02X:%02X:%02X:%02X]", esp_address[0], esp_address[1], esp_address[2], esp_address[3], esp_address[4], esp_address[5]);
 }
 
 void bt_music_init()

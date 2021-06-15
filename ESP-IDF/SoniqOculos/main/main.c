@@ -15,14 +15,11 @@
 
 /**
  * TODO
- * try ansi FIR
  * sincronize devices
  */
 
 void app_main(void)
 {
-    delay(1000);
-
     ESP_LOGW(MAIN_TAG, "Wakeup cause: %d", esp_sleep_get_wakeup_cause()); // 2 - ESP_SLEEP_WAKEUP_EXT0
 
     nvs_init(); //* Flash to store non-volatile data

@@ -1,5 +1,7 @@
 #include "bt.h"
 
+static void bt_i2s_task_handler(void *arg);
+
 static void bt_app_task_handler(void *arg);
 static bool bt_app_send_msg(bt_app_msg_t *msg);
 static void bt_app_work_dispatched(bt_app_msg_t *msg);
@@ -112,33 +114,6 @@ void bt_app_task_shut_down(void)
     }
 }
 
-static void bt_i2s_task_handler(void *arg)
-{
-    uint8_t *data = NULL;
-    size_t size = 0;
-
-    for (;;)
-    {
-        //TODO Fix | Not sending avrcp commands
-
-        if (!xQueueReceive(bt_i2s_queue_handle, &size, portMAX_DELAY)) // Wait for ringbuffer to have at least 4096 bytes
-            continue;
-
-        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &size, portMAX_DELAY, DATA_LENGTH); // Get 4096 bytes
-
-        if (size != DATA_LENGTH)
-        {
-            ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than %d: %d", DATA_LENGTH, size);
-            ////vRingbufferReturnItem(s_ringbuf_i2s, data);
-            ////continue;
-        }
-
-        process_data(data, &size);
-
-        vRingbufferReturnItem(s_ringbuf_i2s, data);
-    }
-}
-
 void bt_i2s_task_start_up(void)
 {
     bt_i2s_queue_handle = xQueueCreate(1, sizeof(bool));
@@ -175,6 +150,33 @@ void bt_i2s_task_shut_down(void)
     }
 }
 
+static void bt_i2s_task_handler(void *arg)
+{
+    uint8_t *data = NULL;
+    size_t size = 0;
+
+    for (;;)
+    {
+        //TODO Fix | Not sending avrcp commands
+
+        if (!xQueueReceive(bt_i2s_queue_handle, &size, portMAX_DELAY)) // Wait for ringbuffer to have at least 4096 bytes
+            continue;
+
+        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &size, portMAX_DELAY, DATA_LENGTH); // Get 4096 bytes
+
+        if (size != DATA_LENGTH)
+        {
+            ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than %d: %d", DATA_LENGTH, size);
+            ////vRingbufferReturnItem(s_ringbuf_i2s, data);
+            ////continue;
+        }
+
+        process_data(data, &size);
+
+        vRingbufferReturnItem(s_ringbuf_i2s, data);
+    }
+}
+
 size_t write_ringbuf(const uint8_t *data, size_t size)
 {
     if (!s_ringbuf_i2s) // Check if buffer is created
@@ -183,7 +185,7 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
     BaseType_t done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, portMAX_DELAY); // Send data to buffer
 
     if (RINGBUFFER_SIZE - xRingbufferGetCurFreeSize(s_ringbuf_i2s) > DATA_LENGTH) // Checks if ringbuffer has at least 4096 bytes
-        xQueueOverwrite(bt_i2s_queue_handle, &size);                              //TODO Test
+        xQueueOverwrite(bt_i2s_queue_handle, &size);
 
     if (done)
         return size;

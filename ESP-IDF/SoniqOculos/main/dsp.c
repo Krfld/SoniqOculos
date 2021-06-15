@@ -64,7 +64,8 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     int16_t *input_16 = (int16_t *)input;
     int16_t *output_low_16 = (int16_t *)output_low;
     int16_t *output_high_16 = (int16_t *)output_high;
-    size_t channel_length_16 = *len / 4;
+
+    size_t channel_length_16 = *len / 4; //* Number of samples per channel
 
     for (size_t i = 0; i < channel_length_16; i++)
     {

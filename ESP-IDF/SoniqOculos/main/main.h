@@ -39,7 +39,7 @@
 #define GPIO_DEBUG OFF
 #define I2S_DEBUG OFF
 #define SD_DEBUG OFF
-#define BT_DEBUG OFF
+#define BT_DEBUG ON
 
 #define MAIN_TAG "MAIN"
 

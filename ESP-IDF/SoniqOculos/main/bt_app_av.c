@@ -375,8 +375,15 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
 
 void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
 {
+    //* 3584 or 3072 samples
+    //* 2.5 ms - 50 ms intervals
     if (BT_DEBUG)
-        ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d", len); //* 3584 or 3072 samples
+    {
+        static int64_t last;
+        int64_t now = esp_timer_get_time();
+        ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d Took: %lld ms", len, now - last);
+        last = now;
+    }
 
     write_ringbuf(data, len);
     if (++s_pkt_cnt % 100 == 0)

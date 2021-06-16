@@ -68,7 +68,7 @@ out = out / 2^15; % Normalize
 
 plot(out(:,1));
 xlim([20e3 20e3+1024]);
-sound(out, Fs, 16);
+% sound(out, Fs, 16);
 
 %% Backup
 

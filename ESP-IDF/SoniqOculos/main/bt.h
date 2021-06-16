@@ -16,6 +16,8 @@
 
 void save_last_device(uint8_t *addr);
 
+void spp_send_msg(char *msg);
+
 void bt_init();
 
 void bt_music_init();

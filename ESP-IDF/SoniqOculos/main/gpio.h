@@ -22,6 +22,7 @@
 #define COMMAND_DELAY 1000       // ms
 
 int get_mode();
+
 int get_volume();
 void volume_up();
 void volume_down();

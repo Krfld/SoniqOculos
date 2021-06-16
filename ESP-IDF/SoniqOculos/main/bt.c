@@ -4,6 +4,8 @@ RTC_DATA_ATTR static uint8_t last_device[ESP_BD_ADDR_LEN];
 
 static bool bt_music_ready = false;
 
+static uint32_t spp_handle;
+
 // event for handler "bt_av_hdl_stack_up
 enum
 {
@@ -26,9 +28,15 @@ static bool has_last_device()
     return false; // If all 0's
 }
 
+void spp_send_msg(char *msg)
+{
+    esp_spp_write(spp_handle, strlen(msg), (uint8_t *)msg);
+}
+
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
     ////ESP_LOGI(BT_SPP_TAG, "SPP event: %d", event);
+    spp_handle = param->write.handle;
     switch (event)
     {
     case ESP_SPP_INIT_EVT:
@@ -47,7 +55,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
             char msg[MSG_BUFFER_SIZE];
             snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data); // Filter received message contents
             handleMsgs(msg);                                                      // Handle message received and response
-            esp_spp_write(param->write.handle, strlen(msg), (uint8_t *)msg);      // Send response
+            esp_spp_write(spp_handle, strlen(msg), (uint8_t *)msg);               // Send response
         }
         else
             esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);
@@ -55,7 +63,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
         ESP_LOGW(BT_SPP_TAG, "Connected to server");
-        server_setup_msg(param->write.handle);
+        spp_send_msg("Bouas\n");
         break;
     default:
         break;

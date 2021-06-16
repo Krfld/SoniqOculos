@@ -39,7 +39,7 @@
 #define GPIO_DEBUG OFF
 #define I2S_DEBUG OFF
 #define SD_DEBUG OFF
-#define BT_DEBUG ON
+#define BT_DEBUG OFF
 
 #define MAIN_TAG "MAIN"
 
@@ -72,7 +72,7 @@ void delay(int millis);
 void shutdown();
 
 //* SPP Server
-void server_setup_msg(uint32_t handle);
+void server_setup_msg();
 void handleMsgs(char *msg);
 
 //* Modes

@@ -77,12 +77,6 @@ void shutdown()
     esp_deep_sleep_start();
 }
 
-void server_setup_msg(uint32_t handle)
-{
-    char msg[MSG_BUFFER_SIZE] = "[0]:[100]\n";
-    esp_spp_write(handle, MSG_BUFFER_SIZE, (uint8_t *)msg); //* Send app setup message
-}
-
 void handleMsgs(char *msg)
 {
     //TODO Implement with flutter

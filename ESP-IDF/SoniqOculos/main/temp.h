@@ -1,3 +1,5 @@
-char *welcome_frmt = "mode:volume:devices:sd_state:bc_state";
+char *setup_msg = "mode:volume:m_devices:m_equalizer:r_sd_state:r_bc_state";
 
-char *welcome = "[0,1]:[0-100]:[0,1,2]:[0,1]:[0,1]";
+char *msg_format = "";
+
+char *mode = "md_";

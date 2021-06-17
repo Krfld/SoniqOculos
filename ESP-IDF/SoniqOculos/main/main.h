@@ -52,7 +52,7 @@
 #define OFF false
 
 #define PROCESSING ON
-#define FIXED_DATA_LENGTH OFF
+#define FIXED_DATA_LENGTH ON
 
 //* Volume
 #define DEFAULT_VOLUME 25

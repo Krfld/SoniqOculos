@@ -10,11 +10,12 @@
 
 /**
  * !Warnings
- * FIR filters fail every 512 samples
+ * FIR filters fail every length/8 samples
  */
 
 /**
  * TODO
+ * test empty samples
  * sincronize devices
  * shelf FIRs to equalize
  */

@@ -277,8 +277,8 @@ void i2s_write_data(uint8_t *data, size_t *len)
         apply_crossover(data, bone_conductors_samples, speakers_samples, len);
         //ESP_LOGE(I2S_TAG, "Crossover delay: %lld", esp_timer_get_time() - time);
 
-        ////sd_write_data(bone_conductors_samples, len); //! Testing
-        ////return;
+        sd_write_data(bone_conductors_samples, len); //! Testing
+        return;
 
         i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speakers_samples, *len, &bytes_written, portMAX_DELAY);
         i2s_write(BONE_CONDUCTORS_I2S_NUM, bone_conductors_samples, *len, &bytes_written, portMAX_DELAY);

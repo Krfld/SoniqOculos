@@ -55,7 +55,6 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
             char msg[MSG_BUFFER_SIZE];
             snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data); // Filter received message contents
             handleMsgs(msg);                                                      // Handle message received and response
-            esp_spp_write(spp_handle, strlen(msg), (uint8_t *)msg);               // Send response
         }
         else
             esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);

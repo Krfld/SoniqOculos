@@ -57,7 +57,7 @@ void crossover_init()
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len)
 {
-    //! Diracs every 512 samples
+    //! Diracs every *len/8 samples
 
     //* Convert to 2 bytes per sample (16 bit)
     //* (int16_t *) data -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...

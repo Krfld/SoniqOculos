@@ -5,6 +5,8 @@
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
+static char filename[64];
+
 static FILE *f = NULL;
 
 bool sd_card_state()
@@ -75,7 +77,7 @@ void sd_card_deinit()
     card = NULL;
 
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");
-    ESP_LOGW(SD_CARD_TAG, "Safe to remove card");
+    ESP_LOGW(SD_CARD_TAG, "File created: %s", filename);
 }
 
 void sd_open_file(char *file, char *type)
@@ -89,11 +91,10 @@ void sd_open_file(char *file, char *type)
         return;
     }
 
-    char name[64];
     int32_t file_number = nvs_read(FILE_NAME);
-    sprintf(name, MOUNT_POINT "/%s_%d.txt", file, file_number);
+    sprintf(filename, MOUNT_POINT "/%s_%d.txt", file, file_number);
 
-    f = fopen(name, type);
+    f = fopen(filename, type);
     if (f == NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "Failed to open file");

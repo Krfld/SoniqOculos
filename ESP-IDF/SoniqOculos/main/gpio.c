@@ -277,8 +277,8 @@ static void gpio_task(void *arg)
                         ESP_LOGI(GPIO_TAG, "Volume up");
                         volume_up();
                         //! TESTING
-                        /*record_toggle_sd_card();
-                        delay(COMMAND_DELAY);*/
+                        record_toggle_sd_card();
+                        delay(COMMAND_DELAY);
                     }
                     break;
                 case B3_MASK: // 100

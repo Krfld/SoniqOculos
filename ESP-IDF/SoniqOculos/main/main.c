@@ -16,6 +16,7 @@
 /**
  * TODO
  * sincronize devices
+ * shelf FIRs to equalize
  */
 
 void app_main(void)
@@ -83,8 +84,7 @@ void handleMsgs(char *msg)
 
     ESP_LOGW(BT_SPP_TAG, "Message recevied %s", msg);
 
-    // Response
-    sprintf(msg, "Message received\n");
+    spp_send_msg("Message received\n"); // Send response
 }
 
 void change_to_mode(int mode)

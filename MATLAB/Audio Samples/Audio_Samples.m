@@ -11,7 +11,7 @@ t = 0:1 / Fs:duration;
 w = 2 * pi * frequency;
 
 out(:, 1) = sin(w*t); % Left
-out(:, 2) = sin(w*t); % Right
+out(:, 2) = sin(w*t); % Right TODO Impulse
 
 audiowrite(strcat('Sine_', num2str(duration), 's_', num2str(frequency), 'Hz.wav'), out, Fs)
 % sound(out, Fs)

@@ -30,7 +30,7 @@ close all
 Fs = 44100;
 bitsPerSample = 32;
 
-file = fopen('fir_test_sin_500Hz.TXT');
+file = fopen('fir_test_sin_500Hz_5k.TXT');
 file_data = fread(file);
 
 if bitsPerSample == 16

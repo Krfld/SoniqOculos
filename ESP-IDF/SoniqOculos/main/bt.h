@@ -11,8 +11,8 @@
 
 #define MSG_BUFFER_SIZE 128
 
-#define RINGBUFFER_SIZE 3 * DATA_LENGTH
 #define BT_I2S_STACK_DEPTH 3 * 1024
+#define RINGBUFFER_SIZE 3 * DATA_LENGTH
 
 void save_last_device(uint8_t *addr);
 

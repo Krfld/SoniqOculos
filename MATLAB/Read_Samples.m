@@ -3,31 +3,6 @@ clear
 close all
 
 Fs = 44100;
-precision = 'uint8=>int16'; % 'int32' when recorded with microphones
-
-file = fopen('E:\TESTING.TXT');
-[data, len] = fread(file, precision);
-
-out = zeros(len/2, 2);
-for i = 1:len / 2
-    out(i, 1) = data((i-1)*2+1);
-    out(i, 2) = data((i-1)*2+2);
-end
-
-fclose(file);
-
-out = out / 2^15; % Normalize
-
-plot(out);
-% sound(out, Fs, 16);
-
-%%
-
-clc
-clear
-close all
-
-Fs = 44100;
 bitsPerSample = 32;
 
 file = fopen('fir_test_sin_500Hz_5k.TXT');
@@ -66,8 +41,8 @@ fclose(file);
 
 out = out / 2^15; % Normalize
 
-plot(out(:,1));
-xlim([20e3 20e3+1024]);
+plot(out(:, 1));
+xlim([20e3, 20e3 + 1024]);
 % sound(out, Fs, 16);
 
 %% Backup

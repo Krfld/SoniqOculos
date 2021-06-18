@@ -28,10 +28,10 @@ void app_main(void)
     spi_init(); //* SPI to comunicate with SD card
 
     bt_init();        //* Start BT SPP server
-    gpio_task_init(); //* Start task to handle GPIOs
     i2s_init();       //* Setup I2S interface
+    gpio_task_init(); //* Start task to handle GPIOs
 
-    crossover_init(); //* Allocate variables for DSP
+    crossover_init(); //* Allocate variables for crossover
 
     switch (get_mode())
     {

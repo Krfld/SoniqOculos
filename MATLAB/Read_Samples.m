@@ -5,7 +5,7 @@ close all
 Fs = 44100;
 bitsPerSample = 32;
 
-file = fopen('fir_test_sin_500Hz_4k_empty.TXT');
+file = fopen('half_sin_empty 3.TXT');
 file_data = fread(file);
 
 if bitsPerSample == 16
@@ -41,8 +41,8 @@ fclose(file);
 
 out = out / 2^15; % Normalize
 
-plot(out);
-xlim([20e3, 20e3 + 1024]);
+plot(out(:,1));
+% xlim([20e3, 20e3 + 1024]);
 % sound(out, Fs, 16);
 
 %% Backup

@@ -29,7 +29,7 @@
 #define I2S_DMA_BUFFER_COUNT 8
 #define I2S_DMA_BUFFER_LEN 1024
 
-#define I2S_READ_STACK_DEPTH 7 * 1024 //TODO Test values
+#define I2S_READ_STACK_DEPTH 7 * 1024
 
 #define DEVICE_DEINIT_DELAY 100  // ms
 #define READ_TASK_IDLE_DELAY 500 // ms

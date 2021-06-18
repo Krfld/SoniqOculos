@@ -118,7 +118,7 @@ void bt_i2s_task_start_up(void)
 {
     if (FIXED_DATA_LENGTH)
     {
-        bt_i2s_queue_handle = xQueueCreate(1, sizeof(bool));
+        bt_i2s_queue_handle = xQueueCreate(1, sizeof(size_t)); //! Maybe change to bool
         if (!bt_i2s_queue_handle)
             ESP_LOGE(BT_APP_CORE_TAG, "Error creating queue");
     }

@@ -1,7 +1,5 @@
 #include "main.h"
 
-#define NVS_TAG "NVS"
-
 #define DEFAULT_READ_VALUE 1
 
 void nvs_init();

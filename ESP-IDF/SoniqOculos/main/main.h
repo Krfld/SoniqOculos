@@ -40,8 +40,7 @@
 #define I2S_DEBUG OFF
 #define SD_DEBUG OFF
 #define BT_DEBUG OFF
-
-#define MAIN_TAG "MAIN"
+#define DSP_DEBUG OFF
 
 #define LOGIC 3.3
 
@@ -50,9 +49,6 @@
 
 #define ON true
 #define OFF false
-
-#define PROCESSING ON
-#define FIXED_DATA_LENGTH ON
 
 //* Volume
 #define DEFAULT_VOLUME 25

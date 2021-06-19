@@ -3,10 +3,6 @@
 
 #include "main.h"
 
-#define BT_AV_TAG "BT_AV"
-#define BT_RC_TG_TAG "RCTG"
-#define BT_RC_CT_TAG "RCCT"
-
 bool bt_is_music_playing();
 
 /**

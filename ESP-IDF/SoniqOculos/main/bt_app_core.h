@@ -3,8 +3,6 @@
 
 #include "main.h"
 
-#define BT_APP_CORE_TAG "BT_APP_CORE"
-
 #define BT_APP_SIG_WORK_DISPATCH (0x01)
 
 /**

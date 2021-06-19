@@ -2,8 +2,6 @@
 
 #include "nvs_tools.h"
 
-#define SD_CARD_TAG "SD_CARD"
-
 #define MOUNT_POINT "/sdcard"
 #define FILE_NAME "rec"
 

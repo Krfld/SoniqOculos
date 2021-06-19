@@ -1,5 +1,7 @@
 #include "bt.h"
 
+#define BT_APP_CORE_TAG "BT_APP_CORE"
+
 static void bt_i2s_task_handler(void *arg);
 
 static void bt_app_task_handler(void *arg);
@@ -118,7 +120,7 @@ void bt_i2s_task_start_up(void)
 {
     if (FIXED_DATA_LENGTH)
     {
-        bt_i2s_queue_handle = xQueueCreate(1, sizeof(size_t)); //! Maybe change to bool
+        bt_i2s_queue_handle = xQueueCreate(1, sizeof(size_t));
         if (!bt_i2s_queue_handle)
             ESP_LOGE(BT_APP_CORE_TAG, "Error creating queue");
     }
@@ -129,6 +131,8 @@ void bt_i2s_task_start_up(void)
 
     if (!xTaskCreate(bt_i2s_task_handler, "BtI2ST", BT_I2S_STACK_DEPTH, NULL, configMAX_PRIORITIES, &s_bt_i2s_task_handle))
         ESP_LOGE(BT_APP_CORE_TAG, "Error creating BtI2ST task");
+
+    ESP_LOGW(BT_APP_CORE_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 
 void bt_i2s_task_shut_down(void)
@@ -152,6 +156,8 @@ void bt_i2s_task_shut_down(void)
             vQueueDelete(bt_i2s_queue_handle);
             bt_i2s_queue_handle = NULL;
         }
+
+    ESP_LOGW(BT_APP_CORE_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 
 static void bt_i2s_task_handler(void *arg)

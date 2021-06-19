@@ -4,14 +4,12 @@
 #include "bt_app_av.h"
 
 #include "i2s.h"
+#include "sd.h"
 #include "dsp.h"
-
-#define BT_TAG "BT"
-#define BT_SPP_TAG "BT_SPP"
 
 #define MSG_BUFFER_SIZE 128
 
-#define BT_I2S_STACK_DEPTH 3 * 1024
+#define BT_I2S_STACK_DEPTH 4 * 1024
 #define RINGBUFFER_SIZE 3 * DATA_LENGTH
 
 void save_last_device(uint8_t *addr);

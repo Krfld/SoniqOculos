@@ -1,5 +1,8 @@
 #include "bt.h"
 
+#define BT_TAG "BT"
+#define BT_SPP_TAG "BT_SPP"
+
 RTC_DATA_ATTR static uint8_t last_device[ESP_BD_ADDR_LEN];
 
 static bool bt_music_ready = false;
@@ -234,8 +237,6 @@ void bt_music_deinit()
 
     if (has_last_device())
         esp_a2d_sink_disconnect(last_device); // Disconnect from device
-
-    //! Optimize | Try to disable only
 
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();

@@ -1,7 +1,5 @@
 #include "main.h"
 
-#define GPIO_TAG "GPIO"
-
 #define B1 GPIO_NUM_13 // Button 1
 #define B2 GPIO_NUM_12 // Button 2
 #define B3 GPIO_NUM_14 // Button 3

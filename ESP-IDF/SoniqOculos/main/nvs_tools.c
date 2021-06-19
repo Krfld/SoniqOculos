@@ -1,5 +1,7 @@
 #include "nvs_tools.h"
 
+#define NVS_TAG "NVS"
+
 static nvs_handle_t s_nvs_handle;
 
 void nvs_init()

@@ -5,6 +5,8 @@
 #include "bt.h"
 #include "dsp.h"
 
+#define I2S_TAG "I2S"
+
 enum DEVICES
 {
     BOTH_DEVICES,
@@ -269,15 +271,13 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
     size_t bytes_written = 0;
 
-    //apply_volume(data, len); //! Uncomment
+    //apply_volume(data, len);
 
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) //* Process only when both devices are playing
     {
-        //int64_t time = esp_timer_get_time();
         apply_crossover(data, bone_conductors_samples, speakers_samples, len);
-        //ESP_LOGE(I2S_TAG, "Crossover delay: %lld", esp_timer_get_time() - time);
 
-        sd_write_data(bone_conductors_samples, len); //! Testing
+        sd_write_data(speakers_samples, len); //! Testing
         return;
 
         i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speakers_samples, *len, &bytes_written, portMAX_DELAY);

@@ -8,14 +8,14 @@
 
 #include "dsp.h"
 
+#define MAIN_TAG "MAIN"
+
 /**
  * !Warnings
- * FIR filters fail every length/8 samples
  */
 
 /**
  * TODO
- * test empty samples
  * sincronize devices
  * shelf FIRs to equalize
  */
@@ -57,7 +57,7 @@ void delay(int millis)
 
 void shutdown()
 {
-    ESP_LOGE(GPIO_TAG, "Powering off...");
+    ESP_LOGE(MAIN_TAG, "Powering off...");
 
     gpio_task_deinit();
 
@@ -65,7 +65,6 @@ void shutdown()
     sd_card_deinit();
     bt_music_deinit();
 
-    //? Maybe change to bt_deinit()
     esp_bluedroid_disable();
     esp_bt_controller_disable();
 
@@ -83,7 +82,7 @@ void handleMsgs(char *msg)
 {
     //TODO Implement with flutter
 
-    ESP_LOGW(BT_SPP_TAG, "Message recevied %s", msg);
+    ESP_LOGW(MAIN_TAG, "Message recevied %s", msg);
 
     spp_send_msg("Message received\n"); // Send response
 }
@@ -100,7 +99,7 @@ void change_to_mode(int mode)
         speakers_init();
         bt_music_init();
 
-        ESP_LOGW(GPIO_TAG, "MUSIC mode ready");
+        ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
         break;
 
     case RECORD_PLAYBACK:
@@ -114,7 +113,7 @@ void change_to_mode(int mode)
         i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
         microphones_init();
 
-        ESP_LOGW(GPIO_TAG, "RECORD_PLAYBACK mode ready");
+        ESP_LOGW(MAIN_TAG, "RECORD_PLAYBACK mode ready");
         break;
 
     default:
@@ -131,12 +130,12 @@ void record_toggle_sd_card()
 {
     if (!sd_card_state())
     {
-        ESP_LOGI(GPIO_TAG, "Start recording");
+        ESP_LOGI(MAIN_TAG, "Start recording");
         sd_card_init(); // Mount SD card and create file to write
     }
     else
     {
-        ESP_LOGI(GPIO_TAG, "Stop recording");
+        ESP_LOGI(MAIN_TAG, "Stop recording");
         sd_card_deinit(); // Close file and unmount SD card
     }
 }
@@ -145,12 +144,12 @@ void record_toggle_bone_conductors()
 {
     if (!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
     {
-        ESP_LOGI(GPIO_TAG, "Start playback");
+        ESP_LOGI(MAIN_TAG, "Start playback");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON); // Turning bone conductors on starts playback
     }
     else
     {
-        ESP_LOGI(GPIO_TAG, "Stop playback");
+        ESP_LOGI(MAIN_TAG, "Stop playback");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF); // Turning bone conductors off stops playback
     }
 }

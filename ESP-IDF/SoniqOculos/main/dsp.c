@@ -5,8 +5,14 @@
 #include "bt.h"
 #include "gpio.h"
 
-static int lpf_32_1kHz_length = 33;
-static float lpf_1kHz_delays[33];
+#define DSP_TAG "DSP"
+
+static fir_f32_t *fir_lpf_1kHz;
+static fir_f32_t *fir_hpf_1kHz;
+
+static int lpf_length = 33;
+static float *lpf_left_delays;
+static float *lpf_right_delays;
 static float lpf_32_1kHz_coeffs[33] = {
     0.001760181854, 0.002317697275, 0.003472622717, 0.005398186389, 0.008218253031,
     0.01199117769, 0.0166987069, 0.02224117145, 0.02843963914, 0.03504508361,
@@ -16,8 +22,9 @@ static float lpf_32_1kHz_coeffs[33] = {
     0.02224117145, 0.0166987069, 0.01199117769, 0.008218253031, 0.005398186389,
     0.003472622717, 0.002317697275, 0.001760181854};
 
-static int hpf_32_1kHz_length = 33;
-static float hpf_1kHz_delays[33];
+static int hpf_length = 33;
+static float *hpf_left_delays;
+static float *hpf_right_delays;
 static float hpf_32_1kHz_coeffs[33] = {
     -0.001209530281, -0.00159263378, -0.002386254724, -0.003709428944, -0.005647272337,
     -0.008239882998, -0.01147471834, -0.0152832903, -0.01954264194, -0.02408165485,
@@ -39,13 +46,18 @@ void crossover_init()
     if (!PROCESSING)
         return;
 
+    lpf_left_delays = (float *)malloc(lpf_length * sizeof(float));
+    lpf_right_delays = (float *)malloc(lpf_length * sizeof(float));
+    hpf_left_delays = (float *)malloc(hpf_length * sizeof(float));
+    hpf_right_delays = (float *)malloc(hpf_length * sizeof(float));
+
     //* Init LPF
     fir_lpf_1kHz = (fir_f32_t *)pvPortMalloc(sizeof(fir_f32_t));
-    dsps_fir_init_f32(fir_lpf_1kHz, lpf_32_1kHz_coeffs, lpf_1kHz_delays, lpf_32_1kHz_length);
+    dsps_fir_init_f32(fir_lpf_1kHz, lpf_32_1kHz_coeffs, lpf_left_delays, lpf_length);
 
     //* Init HPF
     fir_hpf_1kHz = (fir_f32_t *)pvPortMalloc(sizeof(fir_f32_t));
-    dsps_fir_init_f32(fir_hpf_1kHz, hpf_32_1kHz_coeffs, hpf_1kHz_delays, hpf_32_1kHz_length);
+    dsps_fir_init_f32(fir_hpf_1kHz, hpf_32_1kHz_coeffs, hpf_left_delays, hpf_length);
 
     input_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     input_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
@@ -57,7 +69,9 @@ void crossover_init()
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len)
 {
-    //! Diracs every *len/8 samples
+    int64_t time;
+    if (DSP_DEBUG)
+        time = esp_timer_get_time();
 
     //* Convert to 2 bytes per sample (16 bit)
     //* (int16_t *) data -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
@@ -74,25 +88,32 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     }
 
     //* LPF
-    //dsps_fir_f32_ae32(fir_lpf_1kHz, input_left, output_low_left, channel_length_16);   //* Process left
-    //dsps_fir_f32_ae32(fir_lpf_1kHz, input_right, output_low_right, channel_length_16); //* Process right
+    fir_lpf_1kHz->delay = lpf_left_delays;
+    dsps_fir_f32_ae32(fir_lpf_1kHz, input_left, output_low_left, channel_length_16); //* Process left
+    fir_lpf_1kHz->delay = lpf_right_delays;
+    dsps_fir_f32_ae32(fir_lpf_1kHz, input_right, output_low_right, channel_length_16); //* Process right
+
+    //TODO Test swap lpf with hpf
 
     //* HPF
-    //dsps_fir_f32_ae32(fir_hpf_1kHz, input_left, output_high_left, channel_length_16);   //* Process left
-    //dsps_fir_f32_ae32(fir_hpf_1kHz, input_right, output_high_right, channel_length_16); //* Process right
+    fir_hpf_1kHz->delay = hpf_left_delays;
+    dsps_fir_f32_ae32(fir_hpf_1kHz, input_left, output_high_left, channel_length_16); //* Process left
+    fir_hpf_1kHz->delay = hpf_right_delays;
+    dsps_fir_f32_ae32(fir_hpf_1kHz, input_right, output_high_right, channel_length_16); //* Process right
 
     for (size_t i = 0; i < channel_length_16; i++)
     {
         //* Low
-        output_low_16[i * 2] = input_left[i] * pow(2, 15);      //* Denormalize left output_low_left
-        output_low_16[i * 2 + 1] = input_right[i] * pow(2, 15); //* Denormalize right output_low_right
+        output_low_16[i * 2] = output_low_left[i] * pow(2, 15);      //* Denormalize left
+        output_low_16[i * 2 + 1] = output_low_right[i] * pow(2, 15); //* Denormalize right
 
         //* High
-        //output_high_16[i * 2] = output_high_left[i] * pow(2, 15);      //* Denormalize left
-        //output_high_16[i * 2 + 1] = output_high_right[i] * pow(2, 15); //* Denormalize right
+        output_high_16[i * 2] = output_high_left[i] * pow(2, 15);      //* Denormalize left
+        output_high_16[i * 2 + 1] = output_high_right[i] * pow(2, 15); //* Denormalize right
     }
 
-    output_high_16 = input_16;
+    if (DSP_DEBUG)
+        ESP_LOGE(DSP_TAG, "Crossover delay: %lld us", esp_timer_get_time() - time);
 }
 
 void apply_volume(uint8_t *data, size_t *len)

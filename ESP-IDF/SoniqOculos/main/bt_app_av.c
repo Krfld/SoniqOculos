@@ -1,5 +1,9 @@
 #include "bt.h"
 
+#define BT_AV_TAG "BT_AV"
+#define BT_RC_TG_TAG "RCTG"
+#define BT_RC_CT_TAG "RCCT"
+
 // AVRCP used transaction label
 #define APP_RC_CT_TL_GET_CAPS (0)
 #define APP_RC_CT_TL_GET_META_DATA (1)
@@ -375,13 +379,14 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
 
 void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
 {
-    //* 3584 or 3072 samples
+    //* 3584 or 3072 or 2560 samples
     //* 2.5 ms - 50 ms intervals
     if (BT_DEBUG)
     {
         static int64_t last;
         int64_t now = esp_timer_get_time();
-        ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d Took: %lld ms", len, now - last);
+        if (last != 0)
+            ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d Took: %lld us", len, now - last);
         last = now;
     }
 

@@ -1,11 +1,9 @@
 #include "main.h"
 
-#define DSP_TAG "DSP"
-
 #define DATA_LENGTH 4 * 1024
 
-fir_f32_t *fir_lpf_1kHz;
-fir_f32_t *fir_hpf_1kHz;
+#define PROCESSING ON
+#define FIXED_DATA_LENGTH ON
 
 void crossover_init();
 

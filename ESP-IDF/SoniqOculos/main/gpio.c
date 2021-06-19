@@ -3,8 +3,10 @@
 #include "bt.h"
 #include "sd.h"
 
-const bool _true_ = true;
-const bool _false_ = false;
+#define GPIO_TAG "GPIO"
+
+static const bool _true_ = true;
+static const bool _false_ = false;
 
 RTC_DATA_ATTR static int mode = MUSIC; //* Keep value while in deep-sleep
 int get_mode()
@@ -171,14 +173,14 @@ static void gpio_task(void *arg)
             sd_det_state = !sd_det_state;
 
             if (sd_det_state)
-                ESP_LOGW(SD_CARD_TAG, "Card inserted");
+                ESP_LOGW(GPIO_TAG, "Card inserted");
             else // SD removed
             {
-                ESP_LOGW(SD_CARD_TAG, "Card removed");
+                ESP_LOGW(GPIO_TAG, "Card removed");
 
                 if (sd_card_state()) // Check if card was removed unexpectedly
                 {
-                    ESP_LOGE(SD_CARD_TAG, "SD fault");
+                    ESP_LOGE(GPIO_TAG, "SD fault");
                     nvs_write(nvs_read(FILE_NAME) - 1, FILE_NAME);
                 }
 

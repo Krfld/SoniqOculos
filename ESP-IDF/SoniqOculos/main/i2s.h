@@ -1,7 +1,5 @@
 #include "main.h"
 
-#define I2S_TAG "I2S"
-
 //* Devices
 #define NONE 0
 #define SPEAKERS 1

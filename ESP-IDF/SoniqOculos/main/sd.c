@@ -2,6 +2,8 @@
 
 #include "gpio.h"
 
+#define SD_CARD_TAG "SD_CARD"
+
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
@@ -64,7 +66,7 @@ void sd_card_init()
 
     sd_open_file(FILE_NAME, WRITE);
 
-    return;
+    ESP_LOGW(SD_CARD_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 void sd_card_deinit()
 {
@@ -77,7 +79,9 @@ void sd_card_deinit()
     card = NULL;
 
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");
-    ESP_LOGW(SD_CARD_TAG, "File created: %s", filename);
+    ESP_LOGW(SD_CARD_TAG, "Safe to remove card");
+
+    ESP_LOGW(SD_CARD_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 
 void sd_open_file(char *file, char *type)

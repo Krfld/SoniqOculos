@@ -42,7 +42,8 @@
 			"nvs_flash.h": "c",
 			"math.h": "c",
 			"typeinfo": "cpp",
-			"nvs_tools.h": "c"
+			"nvs_tools.h": "c",
+			"dsps_fir.h": "c"
 		},
 		"idf.flashType": "UART",
 		"idf.espIdfPathWin": "C:\\Users\\Kiko\\esp\\esp-idf",

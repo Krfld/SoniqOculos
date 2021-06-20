@@ -87,19 +87,21 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         input_right[i] = input_16[i * 2 + 1] / pow(2, 15); //* Normalize right
     }
 
+    //TODO Optimize
+
     //* LPF
     fir_lpf_1kHz->delay = lpf_left_delays;
-    dsps_fir_f32_ae32(fir_lpf_1kHz, input_left, output_low_left, channel_length_16); //* Process left
+    dsps_fir_f32(fir_lpf_1kHz, input_left, output_low_left, channel_length_16); //* Process left
     fir_lpf_1kHz->delay = lpf_right_delays;
-    dsps_fir_f32_ae32(fir_lpf_1kHz, input_right, output_low_right, channel_length_16); //* Process right
+    dsps_fir_f32(fir_lpf_1kHz, input_right, output_low_right, channel_length_16); //* Process right
 
-    //TODO Test swap lpf with hpf
+    //! Something wrong with hpf
 
     //* HPF
     fir_hpf_1kHz->delay = hpf_left_delays;
-    dsps_fir_f32_ae32(fir_hpf_1kHz, input_left, output_high_left, channel_length_16); //* Process left
+    dsps_fir_f32(fir_hpf_1kHz, input_left, output_high_left, channel_length_16); //* Process left
     fir_hpf_1kHz->delay = hpf_right_delays;
-    dsps_fir_f32_ae32(fir_hpf_1kHz, input_right, output_high_right, channel_length_16); //* Process right
+    dsps_fir_f32(fir_hpf_1kHz, input_right, output_high_right, channel_length_16); //* Process right
 
     for (size_t i = 0; i < channel_length_16; i++)
     {
@@ -111,6 +113,8 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         output_high_16[i * 2] = output_high_left[i] * pow(2, 15);      //* Denormalize left
         output_high_16[i * 2 + 1] = output_high_right[i] * pow(2, 15); //* Denormalize right
     }
+
+    //! Implementing
 
     if (DSP_DEBUG)
         ESP_LOGE(DSP_TAG, "Crossover delay: %lld us", esp_timer_get_time() - time);

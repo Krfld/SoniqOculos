@@ -5,7 +5,7 @@ close all
 Fs = 44100;
 bitsPerSample = 16;
 
-file = fopen('D:\ISEL\PFC\SoniqOculos\MATLAB\Tests\REC_7.TXT');
+file = fopen('D:\ISEL\PFC\SoniqOculos\MATLAB\Tests\REC_9.TXT');
 file_data = fread(file);
 
 if bitsPerSample == 16
@@ -45,7 +45,7 @@ out = out / 2^15; % Normalize
 
 plot(out);
 % xlim([20e3, 20e3 + 1024]);
-sound(out, Fs, 16);
+% sound(out, Fs, 16);
 
 %% Backup
 

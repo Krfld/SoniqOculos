@@ -277,7 +277,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
     {
         apply_crossover(data, bone_conductors_samples, speakers_samples, len);
 
-        sd_write_data(speakers_samples, len); //! Testing
+        sd_write_data(bone_conductors_samples, len); //! Testing
         return;
 
         i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speakers_samples, *len, &bytes_written, portMAX_DELAY);

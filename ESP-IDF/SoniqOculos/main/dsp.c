@@ -65,6 +65,7 @@ void crossover_init()
     fir_hpf_1kHz = (fir_f32_t *)pvPortMalloc(sizeof(fir_f32_t));
     dsps_fir_init_f32(fir_hpf_1kHz, hpf_32_1kHz_coeffs, hpf_left_delay, hpf_length);
 
+    //* Allocate float arrays for each channel
     input_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     input_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     output_low_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
@@ -119,7 +120,7 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     }
 
     if (DSP_DEBUG)
-        ESP_LOGE(DSP_TAG, "Crossover delay: %lldus", esp_timer_get_time() - time); // Takes about 10ms
+        ESP_LOGE(DSP_TAG, "Crossover delay: %lldus", esp_timer_get_time() - time);
 }
 
 void apply_volume(uint8_t *data, size_t *len)

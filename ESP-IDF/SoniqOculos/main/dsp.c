@@ -81,13 +81,13 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
 
     size_t channel_length_16 = *len / 4; //* Number of samples per channel
 
+    //! Optimizing
+
     for (size_t i = 0; i < channel_length_16; i++)
     {
         input_left[i] = input_16[i * 2] / pow(2, 15);      //* Normalize left
         input_right[i] = input_16[i * 2 + 1] / pow(2, 15); //* Normalize right
     }
-
-    //TODO Optimize
 
     //* LPF
     fir_lpf_1kHz->delay = lpf_left_delays;
@@ -113,8 +113,6 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         output_high_16[i * 2] = output_high_left[i] * pow(2, 15);      //* Denormalize left
         output_high_16[i * 2 + 1] = output_high_right[i] * pow(2, 15); //* Denormalize right
     }
-
-    //! Implementing
 
     if (DSP_DEBUG)
         ESP_LOGE(DSP_TAG, "Crossover delay: %lld us", esp_timer_get_time() - time);

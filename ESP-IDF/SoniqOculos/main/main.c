@@ -16,6 +16,7 @@
 
 /**
  * TODO
+ * write .wav
  * sincronize devices
  * shelf FIRs to equalize
  */

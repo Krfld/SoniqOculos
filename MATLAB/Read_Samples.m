@@ -5,7 +5,7 @@ close all
 Fs = 44100;
 bitsPerSample = 16;
 
-file = fopen('D:\ISEL\PFC\SoniqOculos\MATLAB\Tests\REC_9.TXT');
+file = fopen('D:\ISEL\PFC\SoniqOculos\MATLAB\Tests\REC_10.TXT');
 file_data = fread(file);
 
 if bitsPerSample == 16

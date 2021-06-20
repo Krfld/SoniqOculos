@@ -7,12 +7,23 @@
 
 #define DSP_TAG "DSP"
 
+/**
+ * *NOTES
+ * FIR "optimized"
+ *      Heap: ~90k
+ *      Delay: ~20ms
+ * 
+ * FIR using ae32
+ *      Heap: ~60k
+ *      Delay: ~10ms
+ */
+
 static fir_f32_t *fir_lpf_1kHz;
 static fir_f32_t *fir_hpf_1kHz;
 
 static int lpf_length = 33;
-static float *lpf_left_delays;
-static float *lpf_right_delays;
+static float lpf_left_delay[33];
+static float lpf_right_delay[33];
 static float lpf_32_1kHz_coeffs[33] = {
     0.001760181854, 0.002317697275, 0.003472622717, 0.005398186389, 0.008218253031,
     0.01199117769, 0.0166987069, 0.02224117145, 0.02843963914, 0.03504508361,
@@ -23,8 +34,8 @@ static float lpf_32_1kHz_coeffs[33] = {
     0.003472622717, 0.002317697275, 0.001760181854};
 
 static int hpf_length = 33;
-static float *hpf_left_delays;
-static float *hpf_right_delays;
+static float hpf_left_delay[33];
+static float hpf_right_delay[33];
 static float hpf_32_1kHz_coeffs[33] = {
     -0.001209530281, -0.00159263378, -0.002386254724, -0.003709428944, -0.005647272337,
     -0.008239882998, -0.01147471834, -0.0152832903, -0.01954264194, -0.02408165485,
@@ -46,18 +57,13 @@ void crossover_init()
     if (!PROCESSING)
         return;
 
-    lpf_left_delays = (float *)malloc(lpf_length * sizeof(float));
-    lpf_right_delays = (float *)malloc(lpf_length * sizeof(float));
-    hpf_left_delays = (float *)malloc(hpf_length * sizeof(float));
-    hpf_right_delays = (float *)malloc(hpf_length * sizeof(float));
-
     //* Init LPF
     fir_lpf_1kHz = (fir_f32_t *)pvPortMalloc(sizeof(fir_f32_t));
-    dsps_fir_init_f32(fir_lpf_1kHz, lpf_32_1kHz_coeffs, lpf_left_delays, lpf_length);
+    dsps_fir_init_f32(fir_lpf_1kHz, lpf_32_1kHz_coeffs, lpf_left_delay, lpf_length);
 
     //* Init HPF
     fir_hpf_1kHz = (fir_f32_t *)pvPortMalloc(sizeof(fir_f32_t));
-    dsps_fir_init_f32(fir_hpf_1kHz, hpf_32_1kHz_coeffs, hpf_left_delays, hpf_length);
+    dsps_fir_init_f32(fir_hpf_1kHz, hpf_32_1kHz_coeffs, hpf_left_delay, hpf_length);
 
     input_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     input_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
@@ -74,14 +80,12 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         time = esp_timer_get_time();
 
     //* Convert to 2 bytes per sample (16 bit)
-    //* (int16_t *) data -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
+    //* (int16_t *) samples -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
     int16_t *input_16 = (int16_t *)input;
     int16_t *output_low_16 = (int16_t *)output_low;
     int16_t *output_high_16 = (int16_t *)output_high;
 
     size_t channel_length_16 = *len / 4; //* Number of samples per channel
-
-    //! Optimizing
 
     for (size_t i = 0; i < channel_length_16; i++)
     {
@@ -90,17 +94,17 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     }
 
     //* LPF
-    fir_lpf_1kHz->delay = lpf_left_delays;
+    fir_lpf_1kHz->delay = lpf_left_delay;
     dsps_fir_f32(fir_lpf_1kHz, input_left, output_low_left, channel_length_16); //* Process left
-    fir_lpf_1kHz->delay = lpf_right_delays;
+    fir_lpf_1kHz->delay = lpf_right_delay;
     dsps_fir_f32(fir_lpf_1kHz, input_right, output_low_right, channel_length_16); //* Process right
 
     //! Something wrong with hpf
 
     //* HPF
-    fir_hpf_1kHz->delay = hpf_left_delays;
+    fir_hpf_1kHz->delay = hpf_left_delay;
     dsps_fir_f32(fir_hpf_1kHz, input_left, output_high_left, channel_length_16); //* Process left
-    fir_hpf_1kHz->delay = hpf_right_delays;
+    fir_hpf_1kHz->delay = hpf_right_delay;
     dsps_fir_f32(fir_hpf_1kHz, input_right, output_high_right, channel_length_16); //* Process right
 
     for (size_t i = 0; i < channel_length_16; i++)
@@ -115,7 +119,7 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     }
 
     if (DSP_DEBUG)
-        ESP_LOGE(DSP_TAG, "Crossover delay: %lld us", esp_timer_get_time() - time);
+        ESP_LOGE(DSP_TAG, "Crossover delay: %lldus", esp_timer_get_time() - time); // Takes about 10ms
 }
 
 void apply_volume(uint8_t *data, size_t *len)

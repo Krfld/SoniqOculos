@@ -2,11 +2,10 @@ clc
 clear
 close all
 
+Fs = 44100; % Sample Rate
 frequency = 500; % Hz
 duration = 5; % Seconds
 name = 'half_sin_impulse_switch'; %strcat('Left_Sine_', num2str(duration), 's_', num2str(frequency), 'Hz_', 'Right_Empty');
-
-Fs = 44100; % Sample Rate
 
 t = 0:1 / Fs:duration - 1 / Fs;
 w = 2 * pi * frequency;

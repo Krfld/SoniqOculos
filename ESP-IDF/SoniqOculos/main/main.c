@@ -31,7 +31,7 @@ void app_main(void)
     i2s_init();       //* Setup I2S interface
     gpio_task_init(); //* Start task to handle GPIOs
 
-    crossover_init(); //* Allocate variables for crossover
+    crossover_init();
 
     switch (get_mode())
     {
@@ -48,6 +48,17 @@ void app_main(void)
     }
 
     ESP_LOGW(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
+
+    if (GPIO_DEBUG)
+        ESP_LOGW(MAIN_TAG, "GPIO_DEBUG ON");
+    if (I2S_DEBUG)
+        ESP_LOGW(MAIN_TAG, "I2S_DEBUG ON");
+    if (SD_DEBUG)
+        ESP_LOGW(MAIN_TAG, "SD_DEBUG ON");
+    if (BT_DEBUG)
+        ESP_LOGW(MAIN_TAG, "BT_DEBUG ON");
+    if (DSP_DEBUG)
+        ESP_LOGW(MAIN_TAG, "DSP_DEBUG ON");
 }
 
 void delay(int millis)

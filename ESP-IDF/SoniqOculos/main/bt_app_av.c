@@ -380,13 +380,13 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
 void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
 {
     //* 3584 or 3072 or 2560 samples
-    //* 2.5 ms - 50 ms intervals
+    //* 2.5ms - 50ms intervals
     if (BT_DEBUG)
     {
         static int64_t last;
         int64_t now = esp_timer_get_time();
         if (last != 0)
-            ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d Took: %lld us", len, now - last);
+            ESP_LOGI(BT_AV_TAG, "BT incoming packet size: %d Took: %lldus", len, now - last);
         last = now;
     }
 

@@ -40,7 +40,7 @@
 #define I2S_DEBUG OFF
 #define SD_DEBUG OFF
 #define BT_DEBUG OFF
-#define DSP_DEBUG ON
+#define DSP_DEBUG OFF
 
 #define LOGIC 3.3
 

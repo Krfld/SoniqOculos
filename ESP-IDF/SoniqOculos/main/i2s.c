@@ -118,6 +118,7 @@ void i2s_set_device_state(int device, bool state)
 
 void i2s_change_devices_state()
 {
+    //* Clear i2s buffers to sincronize devices
     set_interrupt_i2s_state(true);
     delay(200);
     i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
@@ -179,6 +180,7 @@ void i2s_turn_devices_off()
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 
+    //* Clear i2s buffers
     set_interrupt_i2s_state(true);
     delay(200);
     i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);

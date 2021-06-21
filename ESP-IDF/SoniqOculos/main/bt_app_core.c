@@ -2,6 +2,12 @@
 
 #define BT_APP_CORE_TAG "BT_APP_CORE"
 
+static bool interrupt_i2s = false;
+void set_interrupt_i2s_state(bool state)
+{
+    interrupt_i2s = state;
+}
+
 static void bt_i2s_task_handler(void *arg);
 
 static void bt_app_task_handler(void *arg);
@@ -175,15 +181,25 @@ static void bt_i2s_task_handler(void *arg)
 
         data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &size, portMAX_DELAY, DATA_LENGTH); //* Get 4096 bytes
 
-        if (size != DATA_LENGTH)
-        {
-            if (FIXED_DATA_LENGTH)
+        if (FIXED_DATA_LENGTH)
+            if (size != DATA_LENGTH)
+            {
                 ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than %d: %d", DATA_LENGTH, size);
-            ////vRingbufferReturnItem(s_ringbuf_i2s, data);
-            ////continue;
-        }
+                vRingbufferReturnItem(s_ringbuf_i2s, data);
+                continue;
+            }
 
-        process_data(data, &size);
+        if (!interrupt_i2s)
+        {
+            int64_t start;
+            if (BT_DEBUG)
+                start = esp_timer_get_time();
+
+            process_data(data, &size);
+
+            if (BT_DEBUG)
+                ESP_LOGI(BT_APP_CORE_TAG, "Process data delay took %lldus", esp_timer_get_time() - start); //* ~19ms
+        }
 
         vRingbufferReturnItem(s_ringbuf_i2s, data);
     }
@@ -194,11 +210,25 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
     if (!s_ringbuf_i2s) // Check if buffer is created
         return 0;
 
-    BaseType_t done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, portMAX_DELAY); // Send data to buffer
+    BaseType_t done = pdFALSE;
+
+    if (!interrupt_i2s)
+        done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, portMAX_DELAY); // Send data to buffer
 
     if (FIXED_DATA_LENGTH)
         if (RINGBUFFER_SIZE - xRingbufferGetCurFreeSize(s_ringbuf_i2s) > DATA_LENGTH) // Checks if ringbuffer has at least 4096 bytes
+        {
+            if (BT_DEBUG)
+            {
+                static int64_t last;
+                int64_t now = esp_timer_get_time();
+                if (last != 0)
+                    ESP_LOGI(BT_APP_CORE_TAG, "RingBuffer has %d samples | %lldus", DATA_LENGTH, now - last);
+                last = now;
+            }
+
             xQueueOverwrite(bt_i2s_queue_handle, &size);
+        }
 
     if (done)
         return size;

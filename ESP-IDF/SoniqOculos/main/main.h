@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
-#include <time.h>
 
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -39,8 +38,8 @@
 #define GPIO_DEBUG OFF
 #define I2S_DEBUG OFF
 #define SD_DEBUG OFF
-#define BT_DEBUG OFF
-#define DSP_DEBUG ON
+#define BT_DEBUG ON
+#define DSP_DEBUG OFF
 
 #define LOGIC 3.3
 

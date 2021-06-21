@@ -17,7 +17,6 @@
 /**
  * TODO
  * write .wav
- * sincronize devices
  * shelf FIRs to equalize
  */
 
@@ -31,8 +30,6 @@ void app_main(void)
     bt_init();        //* Start BT SPP server
     i2s_init();       //* Setup I2S interface
     gpio_task_init(); //* Start task to handle GPIOs
-
-    crossover_init();
 
     switch (get_mode())
     {

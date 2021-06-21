@@ -1,5 +1,7 @@
 #include "main.h"
 
+#include "dsp.h"
+
 //* Devices
 #define NONE 0
 #define SPEAKERS 1
@@ -35,6 +37,7 @@
 bool i2s_get_device_state(int device);
 void i2s_set_device_state(int device, bool state);
 void i2s_change_devices_state();
+
 void i2s_turn_devices_on();
 void i2s_turn_devices_off();
 

@@ -3,7 +3,6 @@
 #include "gpio.h"
 #include "sd.h"
 #include "bt.h"
-#include "dsp.h"
 
 #define I2S_TAG "I2S"
 
@@ -119,10 +118,17 @@ void i2s_set_device_state(int device, bool state)
 
 void i2s_change_devices_state()
 {
+    set_interrupt_i2s_state(true);
+    delay(200);
+    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
+    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+    set_interrupt_i2s_state(false);
+
     switch (devices)
     {
     case BOTH_DEVICES:
         ESP_LOGI(I2S_TAG, "Change to only bone conductors");
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
         devices = ONLY_BONE_CONDUCTORS;
         break;
@@ -137,6 +143,8 @@ void i2s_change_devices_state()
     case ONLY_SPEAKERS:
         ESP_LOGI(I2S_TAG, "Change to both devices");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+
         devices = BOTH_DEVICES;
         break;
     }
@@ -147,9 +155,6 @@ void i2s_turn_devices_on()
     switch (devices)
     {
     case BOTH_DEVICES:
-        i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
-        i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
         break;
@@ -162,11 +167,23 @@ void i2s_turn_devices_on()
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
         break;
     }
+
+    /*set_interrupt_i2s_state(true);
+    delay(200);
+    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
+    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+    set_interrupt_i2s_state(false);*/
 }
 void i2s_turn_devices_off()
 {
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+
+    set_interrupt_i2s_state(true);
+    delay(200);
+    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
+    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+    set_interrupt_i2s_state(false);
 }
 
 void speakers_init()
@@ -271,7 +288,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
     size_t bytes_written = 0;
 
-    //apply_volume(data, len);
+    apply_volume(data, len);
 
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) //* Process only when both devices are playing
     {
@@ -308,7 +325,8 @@ static void i2s_read_task(void *arg)
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); //* Read from microphone
 
-        i2s_write_data(data, &bytes_read); //* Will only write to bone conductors
+        if (i2s1_state) //* Only write to bone conductors
+            i2s_write_data(data, &bytes_read);
 
         sd_write_data(data, &bytes_read); //* Write to SD card
     }

@@ -83,7 +83,9 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_SRV_OPEN_EVT: //* Connected to server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
         ESP_LOGW(BT_SPP_TAG, "Connected to server");
-        spp_send_msg("Bouas");
+        sending_spp = false;
+        receiving_spp = false;
+        //spp_send_msg("Bouas");
         break;
     case ESP_SPP_CLOSE_EVT: //* Disconnected from server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");

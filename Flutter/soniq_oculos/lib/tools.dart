@@ -121,7 +121,7 @@ class _VolumeSliderState extends State<VolumeSlider> {
             onChangeEnd: (value) {
               if (sliderValue != app.volume) {
                 app.volume = sliderValue;
-                bt.sendCmd(app.volume);
+                bt.sendCmd('v ${app.volume}');
               }
             },
           ),

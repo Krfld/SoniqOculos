@@ -20,6 +20,12 @@
  * shelf FIRs to equalize
  */
 
+RTC_DATA_ATTR static int mode = MUSIC; //* Keep value while in deep-sleep
+int get_mode()
+{
+    return mode;
+}
+
 void app_main(void)
 {
     ESP_LOGW(MAIN_TAG, "Wakeup cause: %d", esp_sleep_get_wakeup_cause()); // 2 - ESP_SLEEP_WAKEUP_EXT0
@@ -31,7 +37,7 @@ void app_main(void)
     i2s_init();       //* Setup I2S interface
     gpio_task_init(); //* Start task to handle GPIOs
 
-    switch (get_mode())
+    switch (mode)
     {
     case MUSIC:
         speakers_init();
@@ -94,7 +100,7 @@ void handleMsgs(char *msg)
     if (get_sending_spp_state())
     {
         if (strcmp(msg, SPP_OK) == 0)
-            set_sending_spp_state(false); //* Got OK back
+            set_sending_spp_state(false); //* Stop sending if got OK or FAIL
         else
             spp_send_msg(SPP_FAIL); //* Error if msg received while sending
         return;
@@ -137,9 +143,9 @@ void handleMsgs(char *msg)
     spp_send_msg(SPP_OK); // Send response
 }
 
-void change_to_mode(int mode)
+void change_to_mode(int m)
 {
-    switch (mode)
+    switch (m)
     {
     case MUSIC:
         i2s_turn_devices_off();
@@ -165,6 +171,8 @@ void change_to_mode(int mode)
     default:
         break;
     }
+
+    mode = m;
 
     spp_send_msg("m %d", mode);
 }

@@ -26,6 +26,10 @@ class _Bluetooth {
     ////await this._bluetoothConnection.output.allSent;
   }
 
+  void input(String data) {
+    app.msg(data, prefix: 'Input');
+  }
+
   void setup() {
     bluetoothStateStream.listen((state) {
       this._bluetoothState = state;
@@ -97,7 +101,7 @@ class _Bluetooth {
     }
 
     this._bluetoothInputStream = this._bluetoothConnection.input;
-    this._bluetoothInputStream.listen((data) => app.msg(ascii.decode(data), prefix: 'Input')).onDone(() {
+    this._bluetoothInputStream.listen((data) => input(ascii.decode(data))).onDone(() {
       app.msg('Disconnected', prefix: 'Input');
 
       app.pop();

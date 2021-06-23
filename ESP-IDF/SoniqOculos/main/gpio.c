@@ -8,12 +8,6 @@
 static const bool _true_ = true;
 static const bool _false_ = false;
 
-RTC_DATA_ATTR static int mode = MUSIC; //* Keep value while in deep-sleep
-int get_mode()
-{
-    return mode;
-}
-
 RTC_DATA_ATTR static int volume = DEFAULT_VOLUME; //* Keep value while in deep-sleep
 void set_volume(int vol)
 {
@@ -221,7 +215,7 @@ static void gpio_task(void *arg)
                     ESP_LOGI(GPIO_TAG, "Released B2");
             }
 
-            if ((buttons_map & B2_MASK) && buttons_map == B2_MASK && mode == MUSIC) // Pressed only button 2 and in music mode
+            if ((buttons_map & B2_MASK) && buttons_map == B2_MASK && get_mode() == MUSIC) // Pressed only button 2 and in music mode
                 xQueueOverwrite(volume_queue_handle, &_true_);
         }
 
@@ -237,7 +231,7 @@ static void gpio_task(void *arg)
                     ESP_LOGI(GPIO_TAG, "Released B3");
             }
 
-            if ((buttons_map & B3_MASK) && buttons_map == B3_MASK && mode == MUSIC) // Pressed only button 3 and in music mode
+            if ((buttons_map & B3_MASK) && buttons_map == B3_MASK && get_mode() == MUSIC) // Pressed only button 3 and in music mode
                 xQueueOverwrite(volume_queue_handle, &_true_);
         }
 
@@ -260,7 +254,7 @@ static void gpio_task(void *arg)
 
         if (buttons_map == 0 && buttons_map != buttons_command) // When no button is pressed
         {
-            switch (mode)
+            switch (get_mode())
             {
             case MUSIC:
                 switch (buttons_command)
@@ -312,8 +306,7 @@ static void gpio_task(void *arg)
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
                     ESP_LOGW(GPIO_TAG, "Change to RECORD_PLAYBACK mode");
-                    mode = !mode;
-                    change_to_mode(mode);
+                    change_to_mode(!get_mode());
                     delay(COMMAND_DELAY);
                     break;
 
@@ -339,8 +332,7 @@ static void gpio_task(void *arg)
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
                     ESP_LOGW(GPIO_TAG, "Change to MUSIC mode");
-                    mode = !mode;
-                    change_to_mode(mode);
+                    change_to_mode(!get_mode());
                     delay(COMMAND_DELAY);
                     break;
 

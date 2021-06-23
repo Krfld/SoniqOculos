@@ -72,21 +72,26 @@ void spp_send_msg(char *msg, ...)
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
-    ////ESP_LOGI(BT_SPP_TAG, "SPP event: %d", event);
     spp_handle = param->write.handle;
     switch (event)
     {
-    case ESP_SPP_INIT_EVT:
+    case ESP_SPP_INIT_EVT: //* Start server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_INIT_EVT");
         esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, DEVICE_NAME);
         break;
-    case ESP_SPP_CLOSE_EVT:
+
+    case ESP_SPP_SRV_OPEN_EVT: //* Connected to server
+        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
+        ESP_LOGW(BT_SPP_TAG, "Connected to server");
+        spp_send_msg("Bouas");
+        break;
+    case ESP_SPP_CLOSE_EVT: //* Disconnected from server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");
         ESP_LOGW(BT_SPP_TAG, "Disconnected from server");
         break;
-    case ESP_SPP_DATA_IND_EVT:
-        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%d",
-                 param->data_ind.len, param->data_ind.handle);
+
+    case ESP_SPP_DATA_IND_EVT: //* Receive message
+        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%d", param->data_ind.len, param->data_ind.handle);
         if (param->data_ind.len < MSG_BUFFER_SIZE)
         {
             receiving_spp = true;
@@ -96,11 +101,6 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         }
         else
             esp_log_buffer_hex("", param->data_ind.data, param->data_ind.len);
-        break;
-    case ESP_SPP_SRV_OPEN_EVT:
-        ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
-        ESP_LOGW(BT_SPP_TAG, "Connected to server");
-        spp_send_msg("Bouas");
         break;
     default:
         break;

@@ -139,8 +139,6 @@ void handleMsgs(char *msg)
 
 void change_to_mode(int mode)
 {
-    spp_send_msg("m %d", mode);
-
     switch (mode)
     {
     case MUSIC:
@@ -167,4 +165,6 @@ void change_to_mode(int mode)
     default:
         break;
     }
+
+    spp_send_msg("m %d", mode);
 }

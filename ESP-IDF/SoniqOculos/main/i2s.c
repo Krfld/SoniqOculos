@@ -35,6 +35,8 @@ static void i2s_read_task_deinit();
 static void speakers_deinit();
 static void microphones_deinit();
 
+static void i2s_clear_devices_dma();
+
 //* Speakers pin configuration
 static i2s_pin_config_t speakers_pin_config = {
     .ws_io_num = SPEAKERS_WS_PIN,
@@ -84,6 +86,15 @@ static i2s_config_t i2s_config_rx = {
     .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
     .fixed_mclk = 0};
 
+static void i2s_clear_devices_dma()
+{
+    set_interrupt_i2s_state(true);
+    delay(200); // Sincronize devices
+    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
+    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+    set_interrupt_i2s_state(false);
+}
+
 bool i2s_get_device_state(int device)
 {
     if (device == SPEAKERS_MICROPHONES_I2S_NUM)
@@ -116,39 +127,72 @@ void i2s_set_device_state(int device, bool state)
     }
 }
 
-void i2s_change_devices_state()
+void i2s_change_to_devices(int dev)
 {
-    //* Clear i2s buffers to sincronize devices
-    set_interrupt_i2s_state(true);
-    delay(200);
-    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
-    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-    set_interrupt_i2s_state(false);
+    i2s_clear_devices_dma();
 
-    switch (devices)
+    switch (dev)
     {
     case BOTH_DEVICES:
-        ESP_LOGI(I2S_TAG, "Change to only bone conductors");
-        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
-        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
-        devices = ONLY_BONE_CONDUCTORS;
-        break;
-
-    case ONLY_BONE_CONDUCTORS:
-        ESP_LOGI(I2S_TAG, "Change to only speakers");
-        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
-        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
-        devices = ONLY_SPEAKERS;
-        break;
-
-    case ONLY_SPEAKERS:
         ESP_LOGI(I2S_TAG, "Change to both devices");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+        break;
 
-        devices = BOTH_DEVICES;
+    case ONLY_BONE_CONDUCTORS:
+        ESP_LOGI(I2S_TAG, "Change to only bone conductors");
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+        break;
+
+    case ONLY_SPEAKERS:
+        ESP_LOGI(I2S_TAG, "Change to only speakers");
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+        i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+        break;
+
+    default:
+        dev = BOTH_DEVICES;
         break;
     }
+
+    devices = dev;
+
+    spp_send_msg("d %d", devices);
+}
+
+void i2s_toggle_devices()
+{
+    switch (devices)
+    {
+    case BOTH_DEVICES:
+        i2s_change_to_devices(ONLY_BONE_CONDUCTORS);
+        break;
+
+    case ONLY_BONE_CONDUCTORS:
+        i2s_change_to_devices(ONLY_SPEAKERS);
+        break;
+
+    case ONLY_SPEAKERS:
+        i2s_change_to_devices(BOTH_DEVICES);
+        break;
+    }
+}
+
+void i2s_toggle_bone_conductors()
+{
+    if (!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
+    {
+        ESP_LOGI(I2S_TAG, "Start playback");
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON); // Turning bone conductors on starts playback
+    }
+    else
+    {
+        ESP_LOGI(I2S_TAG, "Stop playback");
+        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF); // Turning bone conductors off stops playback
+    }
+
+    spp_send_msg("s %d", i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM));
 }
 
 void i2s_turn_devices_on()
@@ -168,24 +212,13 @@ void i2s_turn_devices_on()
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
         break;
     }
-
-    /*set_interrupt_i2s_state(true);
-    delay(200);
-    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
-    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-    set_interrupt_i2s_state(false);*/
 }
 void i2s_turn_devices_off()
 {
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 
-    //* Clear i2s buffers
-    set_interrupt_i2s_state(true);
-    delay(200);
-    i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
-    i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-    set_interrupt_i2s_state(false);
+    i2s_clear_devices_dma();
 }
 
 void speakers_init()

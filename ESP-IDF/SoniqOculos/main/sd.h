@@ -84,3 +84,5 @@ void sd_close_file();
  * @param len buffer length
  */
 void sd_write_data(uint8_t *data, size_t *len);
+
+void sd_card_toggle();

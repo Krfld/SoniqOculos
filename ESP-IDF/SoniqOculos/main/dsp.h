@@ -2,7 +2,7 @@
 
 #define DATA_LENGTH 4 * 1024
 
-#define PROCESSING ON
+#define PROCESSING OFF
 #define FIXED_DATA_LENGTH ON
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len);

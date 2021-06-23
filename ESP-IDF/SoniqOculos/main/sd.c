@@ -1,6 +1,7 @@
 #include "sd.h"
 
 #include "gpio.h"
+#include "bt.h"
 
 #define SD_CARD_TAG "SD_CARD"
 
@@ -125,4 +126,20 @@ void sd_write_data(uint8_t *data, size_t *len)
         return;
 
     fwrite(data, sizeof(*data), *len, f);
+}
+
+void sd_card_toggle()
+{
+    if (!sd_card_state())
+    {
+        ESP_LOGI(SD_CARD_TAG, "Start recording");
+        sd_card_init(); // Mount SD card and create file to write
+    }
+    else
+    {
+        ESP_LOGI(SD_CARD_TAG, "Stop recording");
+        sd_card_deinit(); // Close file and unmount SD card
+    }
+
+    spp_send_msg("s %d", sd_card_state());
 }

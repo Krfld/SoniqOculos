@@ -7,8 +7,6 @@ RTC_DATA_ATTR static uint8_t last_device[ESP_BD_ADDR_LEN];
 
 static bool bt_music_ready = false;
 
-static uint32_t spp_handle;
-
 // event for handler "bt_av_hdl_stack_up
 enum
 {
@@ -31,9 +29,45 @@ static bool has_last_device()
     return false; // If all 0's
 }
 
-void spp_send_msg(char *msg)
+static bool receiving_spp = false;
+
+static bool sending_spp = false;
+void set_sending_spp_state(bool state)
 {
-    esp_spp_write(spp_handle, strlen(msg), (uint8_t *)msg);
+    sending_spp = state;
+}
+bool get_sending_spp_state()
+{
+    return sending_spp;
+}
+
+static uint32_t spp_handle;
+void spp_send_msg(char *msg, ...)
+{
+    if (strcmp(msg, SPP_OK) != 0 && strcmp(msg, SPP_FAIL) != 0) //* Msg not OK nor FAIL
+    {
+        if (receiving_spp) //* Don't send msg if receiving
+            return;
+
+        if (sending_spp) //* Don't send msg if didn't get OK back
+        {
+            ESP_LOGE(BT_SPP_TAG, "Waiting for OK");
+            return;
+        }
+        sending_spp = true;
+    }
+    else
+        receiving_spp = false; //* Stop receiving if sending OK or FAIL
+
+    va_list vl;
+    va_start(vl, msg);
+    char str[MSG_BUFFER_SIZE];
+    vsnprintf(str, MSG_BUFFER_SIZE - sizeof("\n"), msg, vl);
+    va_end(vl);
+
+    strcat(str, "\n");
+
+    esp_spp_write(spp_handle, strlen(msg), (uint8_t *)str);
 }
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
@@ -55,6 +89,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
                  param->data_ind.len, param->data_ind.handle);
         if (param->data_ind.len < MSG_BUFFER_SIZE)
         {
+            receiving_spp = true;
             char msg[MSG_BUFFER_SIZE];
             snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data); // Filter received message contents
             handleMsgs(msg);                                                      // Handle message received and response
@@ -65,7 +100,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     case ESP_SPP_SRV_OPEN_EVT:
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
         ESP_LOGW(BT_SPP_TAG, "Connected to server");
-        spp_send_msg("Bouas\n");
+        spp_send_msg("Bouas");
         break;
     default:
         break;

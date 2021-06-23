@@ -38,7 +38,7 @@
 #define GPIO_DEBUG OFF
 #define I2S_DEBUG OFF
 #define SD_DEBUG OFF
-#define BT_DEBUG ON
+#define BT_DEBUG OFF
 #define DSP_DEBUG OFF
 
 #define LOGIC 3.3
@@ -68,13 +68,7 @@ void delay(int millis);
 void shutdown();
 
 //* SPP Server
-void server_setup_msg();
 void handleMsgs(char *msg);
 
 //* Modes
 void change_to_mode(int mode);
-
-void music_toggle_devices();
-
-void record_toggle_sd_card();
-void record_toggle_bone_conductors();

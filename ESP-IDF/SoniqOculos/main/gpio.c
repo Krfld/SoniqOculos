@@ -15,27 +15,32 @@ int get_mode()
 }
 
 RTC_DATA_ATTR static int volume = DEFAULT_VOLUME; //* Keep value while in deep-sleep
+void set_volume(int vol)
+{
+    volume = vol * MAX_VOLUME / 100;
+
+    spp_send_msg("v %d", volume);
+
+    ESP_LOGI(GPIO_TAG, "Volume: %d%%", volume * 100 / MAX_VOLUME);
+}
 int get_volume()
 {
     return volume;
 }
+
 void volume_up()
 {
     if (volume + VOLUME_INTERVAL > MAX_VOLUME)
-        volume = MAX_VOLUME;
+        set_volume(MAX_VOLUME);
     else
-        volume += VOLUME_INTERVAL;
-
-    ESP_LOGI(GPIO_TAG, "Volume: %d%%", volume * 100 / MAX_VOLUME);
+        set_volume(volume + VOLUME_INTERVAL);
 }
 void volume_down()
 {
     if (volume - VOLUME_INTERVAL < 0)
-        volume = 0;
+        set_volume(0);
     else
-        volume -= VOLUME_INTERVAL;
-
-    ESP_LOGI(GPIO_TAG, "Volume: %d%%", volume * 100 / MAX_VOLUME);
+        set_volume(volume - VOLUME_INTERVAL);
 }
 
 static bool sd_det_state = false;
@@ -279,7 +284,7 @@ static void gpio_task(void *arg)
                         ESP_LOGI(GPIO_TAG, "Volume up");
                         volume_up();
                         //! TESTING
-                        record_toggle_sd_card();
+                        sd_card_toggle();
                         delay(COMMAND_DELAY);
                     }
                     break;
@@ -301,7 +306,7 @@ static void gpio_task(void *arg)
                     break;
                 case B1_MASK | B3_MASK: // 101
                     ESP_LOGI(GPIO_TAG, "Change devices");
-                    i2s_change_devices_state();
+                    i2s_toggle_devices();
                     delay(COMMAND_DELAY);
                     break;
 
@@ -326,9 +331,9 @@ static void gpio_task(void *arg)
                 case B3_MASK | B2_MASK:
                 case B1_MASK | B3_MASK:            // 101
                     if (buttons_command & B1_MASK) // 001
-                        record_toggle_sd_card();
+                        sd_card_toggle();
                     if (buttons_command & B3_MASK) // 100
-                        record_toggle_bone_conductors();
+                        i2s_toggle_bone_conductors();
                     delay(COMMAND_DELAY);
                     break;
 

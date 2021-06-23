@@ -89,15 +89,60 @@ void shutdown()
 
 void handleMsgs(char *msg)
 {
+    ESP_LOGW(MAIN_TAG, "Message recevied: '%s'", msg); //TODO Check if "msg\n" or "msg"
+
+    if (get_sending_spp_state())
+    {
+        if (strcmp(msg, SPP_OK) == 0)
+            set_sending_spp_state(false); //* Got OK back
+        else
+            spp_send_msg(SPP_FAIL); //* Error if msg received while sending
+        return;
+    }
+
+    char *ptr;
+    switch (*msg++)
+    {
+    case 'm': //* Mode
+        change_to_mode(strtol(msg, &ptr, 0));
+        break;
+
+    case 'v': //* Volume
+        set_volume(strtol(msg, &ptr, 0));
+        break;
+
+    case 'd': //* Devices
+        i2s_change_to_devices(strtol(msg, &ptr, 0));
+        break;
+
+    case 'e':                 //* Equalizer
+        strtol(msg, &ptr, 0); //* Bass
+        strtol(msg, &ptr, 0); //* Mid
+        strtol(msg, &ptr, 0); //* Treble
+        break;
+
+    case 's': //* SD card
+        sd_card_toggle();
+        break;
+
+    case 'b': //* Bone Conductors
+        i2s_toggle_bone_conductors();
+        break;
+
+    default:
+        ESP_LOGE(MAIN_TAG, "Unknown message (%s)", msg);
+        break;
+    }
+
     //TODO Implement with flutter
 
-    ESP_LOGW(MAIN_TAG, "Message recevied %s", msg);
-
-    spp_send_msg("Message received\n"); // Send response
+    spp_send_msg(SPP_OK); // Send response
 }
 
 void change_to_mode(int mode)
 {
+    spp_send_msg("m %d", mode);
+
     switch (mode)
     {
     case MUSIC:
@@ -112,10 +157,6 @@ void change_to_mode(int mode)
         break;
 
     case RECORD_PLAYBACK:
-        //sd_card_deinit(); //! TESTING
-
-        //TODO Debug
-
         i2s_turn_devices_off();
         bt_music_deinit();
 
@@ -127,38 +168,5 @@ void change_to_mode(int mode)
 
     default:
         break;
-    }
-}
-
-void music_toggle_devices()
-{
-    //TODO Change to specific device
-}
-
-void record_toggle_sd_card()
-{
-    if (!sd_card_state())
-    {
-        ESP_LOGI(MAIN_TAG, "Start recording");
-        sd_card_init(); // Mount SD card and create file to write
-    }
-    else
-    {
-        ESP_LOGI(MAIN_TAG, "Stop recording");
-        sd_card_deinit(); // Close file and unmount SD card
-    }
-}
-
-void record_toggle_bone_conductors()
-{
-    if (!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
-    {
-        ESP_LOGI(MAIN_TAG, "Start playback");
-        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON); // Turning bone conductors on starts playback
-    }
-    else
-    {
-        ESP_LOGI(MAIN_TAG, "Stop playback");
-        i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF); // Turning bone conductors off stops playback
     }
 }

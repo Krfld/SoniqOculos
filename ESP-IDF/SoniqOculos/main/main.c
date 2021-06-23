@@ -134,8 +134,6 @@ void handleMsgs(char *msg)
         break;
     }
 
-    //TODO Implement with flutter
-
     spp_send_msg(SPP_OK); // Send response
 }
 

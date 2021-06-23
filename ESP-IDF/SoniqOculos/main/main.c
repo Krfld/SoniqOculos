@@ -97,10 +97,10 @@ void handleMsgs(char *msg)
 {
     ESP_LOGW(MAIN_TAG, "Message recevied: '%s'", msg); //TODO Check if "msg\n" or "msg"
 
-    if (get_sending_spp_state())
+    if (spp_get_sending_state())
     {
         if (strcmp(msg, SPP_OK) == 0)
-            set_sending_spp_state(false); //* Stop sending if got OK or FAIL
+            spp_set_sending_state(false); //* Stop sending if got OK or FAIL
         else
             spp_send_msg(SPP_FAIL); //* Error if msg received while sending
         return;

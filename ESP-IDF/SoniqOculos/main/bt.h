@@ -17,8 +17,8 @@
 
 void save_last_device(uint8_t *addr);
 
-void set_sending_spp_state(bool state);
-bool get_sending_spp_state();
+void spp_set_sending_state(bool state);
+bool spp_get_sending_state();
 
 void spp_send_msg(char *msg, ...);
 

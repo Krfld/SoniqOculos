@@ -15,7 +15,7 @@
 
 #define DEBOUNCE 50              // ms
 #define RELEASE_DELAY 250        // ms
-#define POWER_OFF_HOLD_TIME 2000 // ms
+#define POWER_OFF_HOLD_TIME 1000 // ms
 #define VOLUME_CHANGE_PERIOD 250 // ms
 #define COMMAND_DELAY 1000       // ms
 

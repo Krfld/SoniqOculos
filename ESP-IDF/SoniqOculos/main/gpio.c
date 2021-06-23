@@ -104,7 +104,7 @@ static void power_off_task(void *arg)
     bool powering_off;
     for (;;)
         if (xQueueReceive(power_off_queue_handle, &powering_off, portMAX_DELAY) && powering_off)           // Wait for true value
-            if (!xQueueReceive(power_off_queue_handle, &powering_off, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME))) // Timeout occurs (2 seconds)
+            if (!xQueueReceive(power_off_queue_handle, &powering_off, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME))) // Timeout occurs (1 seconds)
                 shutdown();
 }
 

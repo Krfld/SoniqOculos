@@ -113,8 +113,6 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         ESP_LOGI(DSP_TAG, "Crossover delay: %lldus", esp_timer_get_time() - start);
 }*/
 
-//TODO Change to diferent FIR
-
 #define FIR_LENGTH 26
 
 static int fir_pos;
@@ -160,8 +158,8 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
 
         int coeff_pos = FIR_LENGTH - 1;
 
-        left_delay[fir_pos] = input_16[i * 2] * pow(2, 15);      //? Normalize left
-        right_delay[fir_pos] = input_16[i * 2 + 1] * pow(2, 15); //? Normalize right
+        left_delay[fir_pos] = input_16[i * 2] * INT16;      //? Normalize left
+        right_delay[fir_pos] = input_16[i * 2 + 1] * INT16; //? Normalize right
         fir_pos++;
 
         if (fir_pos >= FIR_LENGTH)
@@ -193,12 +191,12 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         }
 
         //* LPF
-        output_low_16[i * 2] = lpf_left_acc / pow(2, 15);      //? Denormalize left
-        output_low_16[i * 2 + 1] = lpf_right_acc / pow(2, 15); //? Denormalize right
+        output_low_16[i * 2] = lpf_left_acc / INT16;      //? Denormalize left
+        output_low_16[i * 2 + 1] = lpf_right_acc / INT16; //? Denormalize right
 
         //* HPF
-        output_high_16[i * 2] = hpf_left_acc / pow(2, 15);      //? Denormalize left
-        output_high_16[i * 2 + 1] = hpf_right_acc / pow(2, 15); //? Denormalize right
+        output_high_16[i * 2] = hpf_left_acc / INT16;      //? Denormalize left
+        output_high_16[i * 2 + 1] = hpf_right_acc / INT16; //? Denormalize right
     }
 }
 

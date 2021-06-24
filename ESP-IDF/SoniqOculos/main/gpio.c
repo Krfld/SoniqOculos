@@ -200,7 +200,7 @@ static void gpio_task(void *arg)
             }
 
             if ((buttons_map & B1_MASK) && buttons_map == B1_MASK) // Pressed only button 1
-                xQueueOverwrite(power_off_queue_handle, &_true_);  // Start 2 second wait for power off
+                xQueueOverwrite(power_off_queue_handle, &_true_);  // Start 1 second wait for power off
         }
 
         if (gpio_get_level(B2) != ((buttons_map & B2_MASK) ? 1 : 0))

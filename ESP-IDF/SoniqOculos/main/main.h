@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
-#include <math.h>
 
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -42,6 +41,7 @@
 #define DSP_DEBUG OFF
 
 #define LOGIC 3.3
+#define INT16 0x8000 // 2^15
 
 #define HIGH 1
 #define LOW 0

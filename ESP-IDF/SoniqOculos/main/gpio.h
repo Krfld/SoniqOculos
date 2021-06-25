@@ -7,6 +7,9 @@
 #define B2_MASK 1 << 1 // 010 (2)
 #define B3_MASK 1 << 2 // 100 (4)
 
+#define VIBRATOR_PIN GPIO_NUM_25
+#define VIBRATION_DELAY 100
+
 #define GPIO_STACK_DEPTH 3 * 1024
 #define CHANGE_MODE_STACK_DEPTH 2 * 1024
 #define RELEASING_STACK_DEPTH 1 * 1024
@@ -15,7 +18,7 @@
 
 #define DEBOUNCE 50              // ms
 #define RELEASE_DELAY 250        // ms
-#define POWER_OFF_HOLD_TIME 1000 // ms
+#define POWER_OFF_HOLD_TIME 2000 // ms
 #define VOLUME_CHANGE_PERIOD 250 // ms
 #define COMMAND_DELAY 1000       // ms
 

@@ -74,7 +74,7 @@ static void power_off_task(void *arg)
     bool powering_off;
     for (;;)
         if (xQueueReceive(power_off_queue_handle, &powering_off, portMAX_DELAY) && powering_off)           // Wait for true value
-            if (!xQueueReceive(power_off_queue_handle, &powering_off, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME))) // Timeout occurs (1 seconds)
+            if (!xQueueReceive(power_off_queue_handle, &powering_off, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME))) // Timeout occurs (2 seconds)
                 shutdown();
 }
 
@@ -103,6 +103,13 @@ static void volume_task(void *arg)
     }
 }
 
+void vibrate(int millis)
+{
+    gpio_set_level(VIBRATOR_PIN, HIGH);
+    delay(millis);
+    gpio_set_level(VIBRATOR_PIN, LOW);
+}
+
 static void gpio_task(void *arg)
 {
     gpio_pad_select_gpio(SPEAKERS_SD_PIN);                 // Set GPIO
@@ -110,6 +117,9 @@ static void gpio_task(void *arg)
 
     gpio_pad_select_gpio(BONE_CONDUCTORS_SD_PIN);                 // Set GPIO
     gpio_set_direction(BONE_CONDUCTORS_SD_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
+
+    gpio_pad_select_gpio(VIBRATOR_PIN);                 // Set GPIO
+    gpio_set_direction(VIBRATOR_PIN, GPIO_MODE_OUTPUT); // Set OUTPUT
 
     gpio_pad_select_gpio(SD_DET_PIN);                // Set GPIO
     gpio_set_direction(SD_DET_PIN, GPIO_MODE_INPUT); // Set INPUT
@@ -171,7 +181,7 @@ static void gpio_task(void *arg)
             }
 
             if ((buttons_map & B1_MASK) && buttons_map == B1_MASK) // Pressed only button 1
-                xQueueOverwrite(power_off_queue_handle, &_true_);  // Start 1 second wait for power off
+                xQueueOverwrite(power_off_queue_handle, &_true_);  // Start 2 second wait for power off
         }
 
         if (gpio_get_level(B2) != ((buttons_map & B2_MASK) ? 1 : 0))
@@ -225,6 +235,8 @@ static void gpio_task(void *arg)
 
         if (buttons_map == 0 && buttons_map != buttons_command) // When no button is pressed
         {
+            vibrate(VIBRATION_DELAY);
+
             switch (get_mode())
             {
             case MUSIC:

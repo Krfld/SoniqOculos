@@ -259,12 +259,12 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     }
 
     //? LPF
-    dsps_biquad_f32_ae32(input_left, output_low_left, channel_length_16, lpf_coeffs, lpf_w_left);
-    dsps_biquad_f32_ae32(input_right, output_low_right, channel_length_16, lpf_coeffs, lpf_w_right);
+    dsps_biquad_f32(input_left, output_low_left, channel_length_16, lpf_coeffs, lpf_w_left);
+    dsps_biquad_f32(input_right, output_low_right, channel_length_16, lpf_coeffs, lpf_w_right);
 
     //? HPF
-    dsps_biquad_f32_ae32(input_left, output_high_left, channel_length_16, hpf_coeffs, hpf_w_left);
-    dsps_biquad_f32_ae32(input_right, output_high_right, channel_length_16, hpf_coeffs, hpf_w_right);
+    dsps_biquad_f32(input_left, output_high_left, channel_length_16, hpf_coeffs, hpf_w_left);
+    dsps_biquad_f32(input_right, output_high_right, channel_length_16, hpf_coeffs, hpf_w_right);
 
     for (size_t i = 0; i < channel_length_16; i++)
     {

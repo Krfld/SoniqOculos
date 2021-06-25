@@ -33,6 +33,7 @@
 
 #define DEVICE_DEINIT_DELAY 100  // ms
 #define READ_TASK_IDLE_DELAY 500 // ms
+#define SINCRONIZE_DELAY 300     // ms
 
 bool i2s_get_device_state(int device);
 void i2s_set_device_state(int device, bool state);

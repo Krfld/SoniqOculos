@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
+#include "math.h"
 
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -48,11 +49,6 @@
 
 #define ON true
 #define OFF false
-
-//* Volume
-#define DEFAULT_VOLUME 25
-#define MAX_VOLUME 50
-#define VOLUME_INTERVAL 5
 
 //* Modes
 #define MUSIC 0

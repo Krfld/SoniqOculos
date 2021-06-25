@@ -8,35 +8,6 @@
 static const bool _true_ = true;
 static const bool _false_ = false;
 
-RTC_DATA_ATTR static int volume = DEFAULT_VOLUME; //* Keep value while in deep-sleep
-void set_volume(int vol)
-{
-    volume = vol * MAX_VOLUME / 100;
-
-    spp_send_msg("v %d", volume);
-
-    ESP_LOGI(GPIO_TAG, "Volume: %d%%", volume * 100 / MAX_VOLUME);
-}
-int get_volume()
-{
-    return volume;
-}
-
-void volume_up()
-{
-    if (volume + VOLUME_INTERVAL > MAX_VOLUME)
-        set_volume(MAX_VOLUME);
-    else
-        set_volume(volume + VOLUME_INTERVAL);
-}
-void volume_down()
-{
-    if (volume - VOLUME_INTERVAL < 0)
-        set_volume(0);
-    else
-        set_volume(volume - VOLUME_INTERVAL);
-}
-
 static bool sd_det_state = false;
 bool get_sd_det_state()
 {

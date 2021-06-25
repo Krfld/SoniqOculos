@@ -45,7 +45,9 @@
 			"nvs_tools.h": "c",
 			"dsps_fir.h": "c",
 			"cmath": "c",
-			"complex": "c"
+			"complex": "c",
+			"dsps_biquad_gen.h": "c",
+			"random": "cpp"
 		},
 		"idf.flashType": "UART",
 		"idf.espIdfPathWin": "C:\\Users\\Kiko\\esp\\esp-idf",

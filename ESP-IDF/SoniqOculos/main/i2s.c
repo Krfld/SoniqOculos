@@ -35,7 +35,7 @@ static void i2s_read_task_deinit();
 static void speakers_deinit();
 static void microphones_deinit();
 
-static void i2s_clear_devices_dma();
+static void i2s_sincronize_devices();
 
 //* Speakers pin configuration
 static i2s_pin_config_t speakers_pin_config = {
@@ -86,10 +86,10 @@ static i2s_config_t i2s_config_rx = {
     .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
     .fixed_mclk = 0};
 
-static void i2s_clear_devices_dma()
+static void i2s_sincronize_devices()
 {
     set_interrupt_i2s_state(true);
-    delay(200); // Sincronize devices
+    delay(SINCRONIZE_DELAY); // Sincronize devices
     i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
     i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
     set_interrupt_i2s_state(false);
@@ -129,7 +129,7 @@ void i2s_set_device_state(int device, bool state)
 
 void i2s_change_to_devices(int dev)
 {
-    i2s_clear_devices_dma();
+    i2s_sincronize_devices();
 
     switch (dev)
     {
@@ -218,7 +218,7 @@ void i2s_turn_devices_off()
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 
-    i2s_clear_devices_dma();
+    i2s_sincronize_devices();
 }
 
 void speakers_init()

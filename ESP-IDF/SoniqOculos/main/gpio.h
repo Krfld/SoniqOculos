@@ -21,11 +21,6 @@
 
 int get_mode();
 
-int get_volume();
-void set_volume(int vol);
-void volume_up();
-void volume_down();
-
 bool get_sd_det_state();
 
 /**

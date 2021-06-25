@@ -7,6 +7,8 @@
 
 #define DSP_TAG "DSP"
 
+RTC_DATA_ATTR static int volume = DEFAULT_VOLUME; // % //* Keep value while in deep-sleep
+
 /*static fir_f32_t *fir_lpf_1kHz;
 static fir_f32_t *fir_hpf_1kHz;
 
@@ -113,7 +115,7 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
         ESP_LOGI(DSP_TAG, "Crossover delay: %lldus", esp_timer_get_time() - start);
 }*/
 
-#define FIR_LENGTH 26
+/*#define FIR_LENGTH 26
 
 static int fir_pos;
 static float left_delay[FIR_LENGTH];
@@ -190,14 +192,114 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
             coeff_pos--;
         }
 
-        //* LPF
+        //? LPF
         output_low_16[i * 2] = lpf_left_acc / INT16;      //? Denormalize left
         output_low_16[i * 2 + 1] = lpf_right_acc / INT16; //? Denormalize right
 
-        //* HPF
+        //? HPF
         output_high_16[i * 2] = hpf_left_acc / INT16;      //? Denormalize left
         output_high_16[i * 2 + 1] = hpf_right_acc / INT16; //? Denormalize right
     }
+}*/
+
+static float *input_left;
+static float *input_right;
+static float *output_low_left;
+static float *output_low_right;
+static float *output_high_left;
+static float *output_high_right;
+
+//? LPF
+float lpf_coeffs[5];
+float lpf_w_left[2];
+float lpf_w_right[2];
+
+//? HPF
+float hpf_coeffs[5];
+float hpf_w_left[2];
+float hpf_w_right[2];
+
+void dsp_init()
+{
+    if (!PROCESSING)
+        return;
+
+    //?
+    dsps_biquad_gen_lpf_f32(lpf_coeffs, CROSSOVER_FREQUENCY, Q);
+    dsps_biquad_gen_hpf_f32(hpf_coeffs, CROSSOVER_FREQUENCY, Q);
+
+    //? Allocate float arrays for each channel
+    input_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+    input_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+    output_low_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+    output_low_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+    output_high_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+    output_high_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+}
+
+void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len)
+{
+    //! Not working
+
+    if (!PROCESSING)
+        return;
+
+    //? Convert to 2 bytes per sample (16 bit)
+    //? (int16_t *) samples -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
+    int16_t *input_16 = (int16_t *)input;
+    int16_t *output_low_16 = (int16_t *)output_low;
+    int16_t *output_high_16 = (int16_t *)output_high;
+
+    int channel_length_16 = *len / 4;
+
+    for (size_t i = 0; i < channel_length_16; i++)
+    {
+        input_left[i] = input_16[i * 2] / INT16;      //? Normalize left
+        input_right[i] = input_16[i * 2 + 1] / INT16; //? Normalize right
+    }
+
+    //? LPF
+    dsps_biquad_f32_ae32(input_left, output_low_left, channel_length_16, lpf_coeffs, lpf_w_left);
+    dsps_biquad_f32_ae32(input_right, output_low_right, channel_length_16, lpf_coeffs, lpf_w_right);
+
+    //? HPF
+    dsps_biquad_f32_ae32(input_left, output_high_left, channel_length_16, hpf_coeffs, hpf_w_left);
+    dsps_biquad_f32_ae32(input_right, output_high_right, channel_length_16, hpf_coeffs, hpf_w_right);
+
+    for (size_t i = 0; i < channel_length_16; i++)
+    {
+        //? LPF
+        output_low_16[i * 2] = output_low_left[i] * INT16;      //? Denormalize left
+        output_low_16[i * 2 + 1] = output_low_right[i] * INT16; //? Denormalize right
+
+        //? HPF
+        output_high_16[i * 2] = output_high_left[i] * INT16;      //? Denormalize left
+        output_high_16[i * 2 + 1] = output_high_right[i] * INT16; //? Denormalize right
+    }
+}
+
+void set_volume(int vol)
+{
+    //* Limit volume
+    if (vol > 100)
+        volume = 100;
+    else if (vol < 0)
+        volume = 0;
+    else
+        volume = vol;
+
+    spp_send_msg("v %d", volume);
+
+    ESP_LOGI(DSP_TAG, "Volume: %d%%", volume);
+}
+
+void volume_up()
+{
+    set_volume(volume + VOLUME_INTERVAL);
+}
+void volume_down()
+{
+    set_volume(volume - VOLUME_INTERVAL);
 }
 
 void apply_volume(uint8_t *data, size_t *len)
@@ -205,10 +307,12 @@ void apply_volume(uint8_t *data, size_t *len)
     int16_t *data_16 = (int16_t *)data;
     int len_16 = *len / 2;
 
-    float volume = get_volume() / 100.0; //* Normalize volume
+    float normalized_volume = volume * MAX_VOLUME / 100.0; //? Normalize volume
+
+    //ESP_LOGI(DSP_TAG, "Volume: %d | Normalized volume: %f", volume, normalized_volume);
 
     for (size_t i = 0; i < len_16; i++)
-        data_16[i] *= volume;
+        data_16[i] *= normalized_volume;
 }
 
 void process_data(uint8_t *data, size_t *len)

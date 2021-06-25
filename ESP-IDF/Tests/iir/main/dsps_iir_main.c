@@ -54,7 +54,7 @@ void ShowIIRfilter(float freq, float qFactor)
     }
     // Process input signal
     unsigned int start_b = xthal_get_ccount();
-    ret = dsps_biquad_f32(d, y, N, coeffs_lpf, w_lpf);
+    ret = dsps_biquad_f32_ae32(d, y, N, coeffs_lpf, w_lpf);
     unsigned int end_b = xthal_get_ccount();
     if (ret != ESP_OK)
     {
@@ -64,7 +64,7 @@ void ShowIIRfilter(float freq, float qFactor)
 
     // Show result as a plot
     ESP_LOGI(TAG, "Impulse response of IIR filter with F=%f, qFactor=%f", freq, qFactor);
-    dsps_view(y, 128, 64, 10, -1, 1, '-');
+    dsps_view(y, 128, 64, 10, -1, 1, '.');
 
     // Show result as frequency responce on the plot
     for (int i = 0; i < N; i++)
@@ -83,7 +83,7 @@ void ShowIIRfilter(float freq, float qFactor)
         y_cf[i] = 10 * log10f((y_cf[i * 2 + 0] * y_cf[i * 2 + 0] + y_cf[i * 2 + 1] * y_cf[i * 2 + 1]) / N);
     }
     // Show power spectrum in 64x10 window from -100 to 0 dB from 0..N/2 samples
-    dsps_view(y_cf, N / 2, 64, 10, -100, 0, '-');
+    dsps_view(y_cf, N / 2, 64, 10, -100, 0, '.');
     ESP_LOGI(TAG, "IIR for %i samples take %i cycles", N, end_b - start_b);
 }
 
@@ -105,9 +105,9 @@ void app_main()
     dsps_d_gen_f32(d, N, 0);
 
     // Show filter with Q factor 1
-    ShowIIRfilter(0.1, 1);
+    ShowIIRfilter(1000 / 44100, 1);
     // Show filter with Q factor 10
-    ShowIIRfilter(0.1, 10);
+    ShowIIRfilter(1 / 44.1, 10);
 
     ESP_LOGI(TAG, "End Example.");
 }

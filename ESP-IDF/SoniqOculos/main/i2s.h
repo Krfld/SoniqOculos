@@ -56,13 +56,6 @@ void bone_conductors_init();
 void i2s_init();
 
 /**
- * @brief Set mode
- * 
- * @param mode mode to be set
- */
-//void set_mode(int mode);
-
-/**
  * @brief Write data to I2S interface
  * 
  * @param data buffer of samples to write

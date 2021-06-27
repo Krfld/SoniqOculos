@@ -10,7 +10,8 @@
 #define VOLUME_INTERVAL 10 // %
 #define MAX_VOLUME 0.25
 
-#define CROSSOVER_FREQUENCY 1000 // Hz
+#define SAMPLE_FREQUENCY 44.1 // kHz
+#define CROSSOVER_FREQUENCY 1 // kHz
 
 #define Q sqrt(2) / 2 // 0.7071067812
 

@@ -27,20 +27,17 @@ static QueueHandle_t releasing_queue_handle = NULL;
 static xTaskHandle releasing_task_handle = NULL;
 static void releasing_task(void *arg);
 static void releasing_task_init();
-////static void releasing_task_deinit();
 
 static QueueHandle_t power_off_queue_handle = NULL;
 static xTaskHandle power_off_task_handle = NULL;
 static void power_off_task(void *arg);
 static void power_off_task_init();
-////static void power_off_task_deinit();
 
 static bool changed_volume = false;
 static QueueHandle_t volume_queue_handle = NULL;
 static xTaskHandle volume_task_handle = NULL;
 static void volume_task(void *arg);
 static void volume_task_init();
-////static void volume_task_deinit();
 
 static int buttons_pressed(int buttons)
 {
@@ -105,6 +102,9 @@ static void volume_task(void *arg)
 
 void vibrate(int millis)
 {
+    if (!VIBRATE)
+        return;
+
     gpio_set_level(VIBRATOR_PIN, HIGH);
     delay(millis);
     gpio_set_level(VIBRATOR_PIN, LOW);
@@ -235,7 +235,7 @@ static void gpio_task(void *arg)
 
         if (buttons_map == 0 && buttons_map != buttons_command) // When no button is pressed
         {
-            vibrate(VIBRATION_DELAY);
+            //vibrate(VIBRATION_DELAY);
 
             switch (get_mode())
             {
@@ -288,7 +288,7 @@ static void gpio_task(void *arg)
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
-                    ESP_LOGW(GPIO_TAG, "Change to RECORD_PLAYBACK mode");
+                    ESP_LOGW(GPIO_TAG, "Change to RECORD mode");
                     change_to_mode(!get_mode());
                     delay(COMMAND_DELAY);
                     break;
@@ -298,7 +298,7 @@ static void gpio_task(void *arg)
                 }
                 break;
 
-            case RECORD_PLAYBACK:
+            case RECORD:
                 switch (buttons_command)
                 {
                 case B1_MASK:
@@ -355,20 +355,6 @@ static void releasing_task_init()
         if (!xTaskCreate(releasing_task, "releasing_task", RELEASING_STACK_DEPTH, NULL, 10, &releasing_task_handle))
             ESP_LOGE(GPIO_TAG, "Error creating RELEASING task");
 }
-/*static void releasing_task_deinit()
-{
-    if (releasing_task_handle)
-    {
-        vTaskDelete(releasing_task_handle);
-        releasing_task_handle = NULL;
-    }
-    delay(10); // Make sure task is deleted before deleting queue
-    if (releasing_queue_handle)
-    {
-        vQueueDelete(releasing_queue_handle);
-        releasing_queue_handle = NULL;
-    }
-}*/
 
 static void power_off_task_init()
 {
@@ -380,20 +366,6 @@ static void power_off_task_init()
         if (!xTaskCreate(power_off_task, "power_off_task", POWER_OFF_STACK_DEPTH, NULL, 10, &power_off_task_handle))
             ESP_LOGE(GPIO_TAG, "Error creating POWER OFF task");
 }
-/*static void power_off_task_deinit()
-{
-    if (power_off_task_handle)
-    {
-        vTaskDelete(power_off_task_handle);
-        power_off_task_handle = NULL;
-    }
-    delay(10); // Make sure task is deleted before deleting queue
-    if (power_off_queue_handle)
-    {
-        vQueueDelete(power_off_queue_handle);
-        power_off_queue_handle = NULL;
-    }
-}*/
 
 static void volume_task_init()
 {
@@ -404,17 +376,3 @@ static void volume_task_init()
     if (!volume_task_handle)
         xTaskCreate(volume_task, "volume_task", VOLUME_STACK_DEPTH, NULL, 10, &volume_task_handle);
 }
-/*static void volume_task_deinit()
-{
-    if (volume_task_handle)
-    {
-        vTaskDelete(volume_task_handle);
-        volume_task_handle = NULL;
-    }
-    delay(10); // Make sure task is deleted before deleting queue
-    if (volume_queue_handle)
-    {
-        vQueueDelete(volume_queue_handle);
-        volume_queue_handle = NULL;
-    }
-}*/

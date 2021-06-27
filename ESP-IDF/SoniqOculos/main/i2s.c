@@ -231,8 +231,6 @@ void speakers_init()
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config);
 
-    //i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
-
     i2s0_device = SPEAKERS;
 
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
@@ -244,8 +242,6 @@ static void speakers_deinit()
 
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s0_device = NONE;
-
-    //i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
 
     delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
@@ -287,19 +283,8 @@ void bone_conductors_init()
     i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config);
 
-    //i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 }
-/*void bone_conductors_deinit()
-{
-    if (i2s1_device != BONE_CONDUCTORS)
-        return;
-    i2s1_device = NONE;
-    //i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-    delay(DEVICE_DEINIT_DELAY);
-    i2s_driver_uninstall(BONE_CONDUCTORS_I2S_NUM);
-}*/
 
 void i2s_init()
 {

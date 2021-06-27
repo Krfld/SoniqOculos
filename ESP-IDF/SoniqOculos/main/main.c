@@ -46,9 +46,9 @@ void app_main(void)
         ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
         break;
 
-    case RECORD_PLAYBACK:
+    case RECORD:
         microphones_init();
-        ESP_LOGW(MAIN_TAG, "RECORD_PLAYBACK mode ready");
+        ESP_LOGW(MAIN_TAG, "RECORD mode ready");
         break;
     }
 
@@ -159,14 +159,14 @@ void change_to_mode(int m)
         ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
         break;
 
-    case RECORD_PLAYBACK:
+    case RECORD:
         i2s_turn_devices_off();
         bt_music_deinit();
 
         i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
         microphones_init();
 
-        ESP_LOGW(MAIN_TAG, "RECORD_PLAYBACK mode ready");
+        ESP_LOGW(MAIN_TAG, "RECORD mode ready");
         break;
 
     default:

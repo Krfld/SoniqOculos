@@ -210,14 +210,14 @@ static float *output_high_left;
 static float *output_high_right;
 
 //? LPF
-float lpf_coeffs[5];
-float lpf_w_left[2];
-float lpf_w_right[2];
+static float lpf_coeffs[5];
+static float lpf_w_left[2];
+static float lpf_w_right[2];
 
 //? HPF
-float hpf_coeffs[5];
-float hpf_w_left[2];
-float hpf_w_right[2];
+static float hpf_coeffs[5];
+static float hpf_w_left[2];
+static float hpf_w_right[2];
 
 void dsp_init()
 {
@@ -225,8 +225,8 @@ void dsp_init()
         return;
 
     //?
-    dsps_biquad_gen_lpf_f32(lpf_coeffs, CROSSOVER_FREQUENCY, Q);
-    dsps_biquad_gen_hpf_f32(hpf_coeffs, CROSSOVER_FREQUENCY, Q);
+    dsps_biquad_gen_lpf_f32(lpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q);
+    dsps_biquad_gen_hpf_f32(hpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q);
 
     //? Allocate float arrays for each channel
     input_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
@@ -239,8 +239,6 @@ void dsp_init()
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len)
 {
-    //! Not working
-
     if (!PROCESSING)
         return;
 

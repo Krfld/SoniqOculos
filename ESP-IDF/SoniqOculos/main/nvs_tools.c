@@ -14,10 +14,6 @@ void nvs_init()
     }
     ESP_ERROR_CHECK(err);
 }
-/*void nvs_deinit()
-{
-    nvs_flash_deinit();
-}*/
 
 void nvs_write(int32_t value, char *namespace)
 {

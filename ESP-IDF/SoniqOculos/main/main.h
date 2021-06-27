@@ -42,7 +42,7 @@
 #define DSP_DEBUG OFF
 
 #define LOGIC 3.3
-#define INT16 0x8000 // 2^15
+#define INT16 32768.0 // 2^15
 
 #define HIGH 1
 #define LOW 0
@@ -52,7 +52,7 @@
 
 //* Modes
 #define MUSIC 0
-#define RECORD_PLAYBACK 1
+#define RECORD 1
 
 /**
  * @brief Delay in milliseconds

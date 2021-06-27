@@ -267,10 +267,7 @@ static void gpio_task(void *arg)
                     break;
                 case B3_MASK: // 100
                     if (!changed_volume)
-                    {
-                        //ESP_LOGI(GPIO_TAG, "Volume down");
                         volume_down();
-                    }
                     break;
 
                 case B1_MASK | B2_MASK: // 011

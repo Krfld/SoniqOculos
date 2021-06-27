@@ -147,12 +147,12 @@ void handleMsgs(char *msg)
 void change_to_mode(int m)
 {
     i2s_turn_devices_off();
+
     switch (m)
     {
     case MUSIC:
         sd_card_deinit();
 
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
         speakers_init();
         bt_music_init();
 
@@ -162,7 +162,6 @@ void change_to_mode(int m)
     case RECORD:
         bt_music_deinit();
 
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
         microphones_init();
 
         ESP_LOGW(MAIN_TAG, "RECORD mode ready");
@@ -175,4 +174,6 @@ void change_to_mode(int m)
     mode = m;
 
     spp_send_msg("m %d", mode);
+
+    ESP_LOGW(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
 }

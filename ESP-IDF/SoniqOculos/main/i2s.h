@@ -1,7 +1,5 @@
 #include "main.h"
 
-#include "dsp.h"
-
 //* Devices
 #define NONE 0
 #define SPEAKERS 1
@@ -31,9 +29,9 @@
 
 #define I2S_READ_STACK_DEPTH 7 * 1024
 
-#define DEVICE_DEINIT_DELAY 100  // ms
 #define READ_TASK_IDLE_DELAY 500 // ms
-#define SINCRONIZE_DELAY 300    // ms
+#define SINCRONIZE_DELAY 300     // ms
+//#define DEVICE_DEINIT_DELAY 100  // ms
 
 bool i2s_get_device_state(int device);
 void i2s_set_device_state(int device, bool state);

@@ -283,8 +283,6 @@ void bt_music_deinit()
     if (!bt_music_ready)
         return;
 
-    bt_send_avrc_cmd(ESP_AVRC_PT_CMD_PAUSE);
-
     if (has_last_device())
         esp_a2d_sink_disconnect(last_device); // Disconnect from device
 

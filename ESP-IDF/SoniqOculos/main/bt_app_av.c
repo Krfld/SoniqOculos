@@ -415,5 +415,5 @@ void bt_reset()
 {
     connected = false;
     s_audio_state = ESP_A2D_AUDIO_STATE_STOPPED;
-    //bt_i2s_task_shut_down();
+    bt_i2s_task_shut_down();
 }

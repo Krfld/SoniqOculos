@@ -3,6 +3,7 @@
 #include "gpio.h"
 #include "sd.h"
 #include "bt.h"
+#include "dsp.h"
 
 #define I2S_TAG "I2S"
 
@@ -61,7 +62,7 @@ static i2s_pin_config_t bone_conductors_pin_config = {
 //* Output configuration
 static i2s_config_t i2s_config_tx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_TX,
-    .sample_rate = 44100,
+    .sample_rate = SAMPLE_FREQUENCY,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, // 32 bit when playing back from microphones
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
@@ -75,7 +76,7 @@ static i2s_config_t i2s_config_tx = {
 //* Input configuration
 static i2s_config_t i2s_config_rx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_RX,
-    .sample_rate = 44100,
+    .sample_rate = SAMPLE_FREQUENCY,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT, // Microphones only work with 32 bit
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
@@ -227,6 +228,7 @@ void speakers_init()
         return;
 
     microphones_deinit();
+    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config);
@@ -243,7 +245,7 @@ static void speakers_deinit()
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s0_device = NONE;
 
-    delay(DEVICE_DEINIT_DELAY);
+    //delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
 }
 
@@ -253,15 +255,15 @@ void microphones_init()
         return;
 
     speakers_deinit();
+    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
 
-    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
-
     i2s_read_task_init();
 
     i2s0_device = MICROPHONES;
+
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
 static void microphones_deinit()
@@ -274,7 +276,7 @@ static void microphones_deinit()
 
     i2s_read_task_deinit();
 
-    delay(DEVICE_DEINIT_DELAY);
+    //delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
 }
 

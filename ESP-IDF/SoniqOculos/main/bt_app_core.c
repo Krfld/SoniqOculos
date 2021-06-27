@@ -173,8 +173,6 @@ static void bt_i2s_task_handler(void *arg)
 
     for (;;)
     {
-        //TODO Fix | Not sending avrcp commands
-
         if (FIXED_DATA_LENGTH)
             if (!xQueueReceive(bt_i2s_queue_handle, &size, portMAX_DELAY)) //* Wait for ringbuffer to have at least 4096 bytes
                 continue;
@@ -211,7 +209,6 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
         return 0;
 
     BaseType_t done = pdFALSE;
-
     if (!interrupt_i2s)
         done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, portMAX_DELAY); // Send data to buffer
 
@@ -237,11 +234,18 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
 
 void bt_send_avrc_cmd(uint8_t cmd)
 {
+    if (!bt_is_connected())
+    {
+        ESP_LOGW(BT_APP_CORE_TAG, "Not connected");
+        return;
+    }
+
     static uint8_t tl = 0; // 'static' will keep value
 
     if (++tl > 15) // "consecutive commands should use different values"
         tl = 0;
 
+    set_interrupt_i2s_state(true);
     esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED);  // Send AVRCP command pressing
     esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_RELEASED); // Send AVRCP command releasing
 }

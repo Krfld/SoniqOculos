@@ -8,8 +8,6 @@
 static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
-static char filename[64];
-
 static FILE *f = NULL;
 
 bool sd_card_state()
@@ -96,6 +94,7 @@ void sd_open_file(char *file, char *type)
         return;
     }
 
+    char filename[64];
     int32_t file_number = nvs_read(FILE_NAME);
     sprintf(filename, MOUNT_POINT "/%s_%d.txt", file, file_number);
 

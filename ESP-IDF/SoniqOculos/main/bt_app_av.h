@@ -3,7 +3,10 @@
 
 #include "main.h"
 
+bool bt_is_connected();
 bool bt_is_music_playing();
+
+void bt_reset();
 
 /**
  * @brief     callback function for A2DP sink

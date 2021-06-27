@@ -204,6 +204,9 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
 
 static float *input_left;
 static float *input_right;
+static float *output_left;
+static float *output_right;
+
 static float *output_low_left;
 static float *output_low_right;
 static float *output_high_left;
@@ -224,13 +227,17 @@ void dsp_init()
     if (!PROCESSING)
         return;
 
-    //?
-    dsps_biquad_gen_lpf_f32(lpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q);
-    dsps_biquad_gen_hpf_f32(hpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q);
+    //? Crossover
+    dsps_biquad_gen_lpf_f32(lpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); //? LPF
+    dsps_biquad_gen_hpf_f32(hpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); //? HPF
 
     //? Allocate float arrays for each channel
     input_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     input_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+    output_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+    output_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
+
+    //? Crossover
     output_low_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     output_low_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     output_high_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
@@ -276,6 +283,25 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     }
 }
 
+void apply_equalizer(uint8_t *input, uint8_t *output, size_t *len)
+{
+    if (!PROCESSING)
+        return;
+
+    //? Convert to 2 bytes per sample (16 bit)
+    //? (int16_t *) samples -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
+    int16_t *input_16 = (int16_t *)input;
+    int16_t *output_16 = (int16_t *)output;
+
+    int channel_length_16 = *len / 4;
+
+    for (size_t i = 0; i < channel_length_16; i++)
+    {
+        input_left[i] = input_16[i * 2] / INT16;      //? Normalize left
+        input_right[i] = input_16[i * 2 + 1] / INT16; //? Normalize right
+    }
+}
+
 void set_volume(int vol)
 {
     //* Limit volume
@@ -306,8 +332,6 @@ void apply_volume(uint8_t *data, size_t *len)
     int len_16 = *len / 2;
 
     float normalized_volume = volume * MAX_VOLUME / 100.0; //? Normalize volume
-
-    //ESP_LOGI(DSP_TAG, "Volume: %d | Normalized volume: %f", volume, normalized_volume);
 
     for (size_t i = 0; i < len_16; i++)
         data_16[i] *= normalized_volume;

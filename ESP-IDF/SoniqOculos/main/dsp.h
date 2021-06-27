@@ -8,16 +8,19 @@
 //* Volume
 #define DEFAULT_VOLUME 50  // %
 #define VOLUME_INTERVAL 10 // %
-#define MAX_VOLUME 0.25
+#define MAX_VOLUME 0.3
 
 #define SAMPLE_FREQUENCY 44.1 // kHz
 #define CROSSOVER_FREQUENCY 1 // kHz
+//#define MINIMUM_BCD_FREQUENCY 0.3 //kHz
 
 #define Q sqrt(2) / 2 // 0.7071067812
 
 void dsp_init();
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len);
+
+void apply_equalizer(uint8_t *input, uint8_t *output, size_t *len);
 
 void set_volume(int vol);
 void volume_up();

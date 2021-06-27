@@ -30,6 +30,7 @@ static bool has_last_device()
 }
 
 static bool spp_connected = false;
+
 static bool spp_receiving = false;
 
 static bool spp_sending = false;
@@ -282,12 +283,16 @@ void bt_music_deinit()
     if (!bt_music_ready)
         return;
 
+    bt_send_avrc_cmd(ESP_AVRC_PT_CMD_PAUSE);
+
     if (has_last_device())
         esp_a2d_sink_disconnect(last_device); // Disconnect from device
 
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();
     esp_a2d_sink_deinit();
+
+    bt_reset();
 
     esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
     bt_music_ready = false;

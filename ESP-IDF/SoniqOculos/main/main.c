@@ -146,10 +146,10 @@ void handleMsgs(char *msg)
 
 void change_to_mode(int m)
 {
+    i2s_turn_devices_off();
     switch (m)
     {
     case MUSIC:
-        i2s_turn_devices_off();
         sd_card_deinit();
 
         i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
@@ -160,7 +160,6 @@ void change_to_mode(int m)
         break;
 
     case RECORD:
-        i2s_turn_devices_off();
         bt_music_deinit();
 
         i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S

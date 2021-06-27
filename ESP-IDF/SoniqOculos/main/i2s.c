@@ -89,9 +89,9 @@ static i2s_config_t i2s_config_rx = {
 static void i2s_sincronize_devices()
 {
     set_interrupt_i2s_state(true);
-    delay(SINCRONIZE_DELAY); // Sincronize devices
     i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
     i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
+    delay(SINCRONIZE_DELAY); //* Sincronize devices
     set_interrupt_i2s_state(false);
 }
 
@@ -140,13 +140,13 @@ void i2s_change_to_devices(int dev)
         break;
 
     case ONLY_BONE_CONDUCTORS:
-        ESP_LOGI(I2S_TAG, "Change to only bone conductors");
+        ESP_LOGI(I2S_TAG, "Change to bone conductors only");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON);
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
         break;
 
     case ONLY_SPEAKERS:
-        ESP_LOGI(I2S_TAG, "Change to only speakers");
+        ESP_LOGI(I2S_TAG, "Change to speakers only");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
         break;
@@ -308,20 +308,22 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
     size_t bytes_written = 0;
 
-    apply_volume(data, len);
-
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) //* Process only when both devices are playing
     {
         apply_crossover(data, bone_conductors_samples, speakers_samples, len);
 
-        //sd_write_data(bone_conductors_samples, len); //! Testing
+        //sd_write_data(speakers_samples, len); //! Testing
         //return;
 
+        apply_volume(bone_conductors_samples, len);
+        apply_volume(speakers_samples, len);
         i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speakers_samples, *len, &bytes_written, portMAX_DELAY);
         i2s_write(BONE_CONDUCTORS_I2S_NUM, bone_conductors_samples, *len, &bytes_written, portMAX_DELAY);
     }
     else
     {
+        apply_volume(data, len);
+
         if (i2s0_state && i2s0_device == SPEAKERS) //* If speakers are on
             i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
 

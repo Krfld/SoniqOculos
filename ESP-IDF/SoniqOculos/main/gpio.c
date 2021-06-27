@@ -258,7 +258,7 @@ static void gpio_task(void *arg)
                 case B2_MASK: // 010
                     if (!changed_volume)
                     {
-                        ESP_LOGI(GPIO_TAG, "Volume up");
+                        //ESP_LOGI(GPIO_TAG, "Volume up");
                         volume_up();
                         //! TESTING
                         sd_card_toggle();
@@ -268,7 +268,7 @@ static void gpio_task(void *arg)
                 case B3_MASK: // 100
                     if (!changed_volume)
                     {
-                        ESP_LOGI(GPIO_TAG, "Volume down");
+                        //ESP_LOGI(GPIO_TAG, "Volume down");
                         volume_down();
                     }
                     break;
@@ -282,7 +282,7 @@ static void gpio_task(void *arg)
                     bt_send_avrc_cmd(ESP_AVRC_PT_CMD_BACKWARD); // Send previous track command
                     break;
                 case B1_MASK | B3_MASK: // 101
-                    ESP_LOGI(GPIO_TAG, "Change devices");
+                    //ESP_LOGI(GPIO_TAG, "Change devices");
                     i2s_toggle_devices();
                     delay(COMMAND_DELAY);
                     break;

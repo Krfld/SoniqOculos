@@ -18,6 +18,8 @@ static void bt_av_hdl_avrc_ct_evt(uint16_t event, void *p_param);
 /* avrc TG event handler */
 static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param);
 
+static bool connected = false;
+
 static uint32_t s_pkt_cnt = 0;
 static esp_a2d_audio_state_t s_audio_state = ESP_A2D_AUDIO_STATE_STOPPED;
 static const char *s_a2d_conn_state_str[] = {"Disconnected", "Connecting", "Connected", "Disconnecting"};
@@ -169,9 +171,11 @@ static void bt_av_hdl_avrc_ct_evt(uint16_t event, void *p_param)
         }
         break;
     }
-    case ESP_AVRC_CT_PASSTHROUGH_RSP_EVT: //! CHECK IF CMD WAS SENT
+    case ESP_AVRC_CT_PASSTHROUGH_RSP_EVT: //* Receive AVRCP rsp
     {
         ESP_LOGI(BT_RC_CT_TAG, "AVRC passthrough rsp: key_code 0x%x, key_state %d", rc->psth_rsp.key_code, rc->psth_rsp.key_state);
+        set_interrupt_i2s_state(false);
+        i2s_turn_devices_on();
         break;
     }
     case ESP_AVRC_CT_METADATA_RSP_EVT:
@@ -317,6 +321,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
         {
             ESP_LOGW(BT_AV_TAG, "Connected to audio");
+            connected = true;
             save_last_device(bda);
             s_audio_state = ESP_A2D_AUDIO_STATE_STOPPED;
             esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
@@ -325,6 +330,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
         {
             ESP_LOGW(BT_AV_TAG, "Disconnected from audio");
+            connected = false;
             esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
             bt_i2s_task_shut_down();
         }
@@ -334,8 +340,9 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
     {
         a2d = (esp_a2d_cb_param_t *)(p_param);
         ESP_LOGW(BT_AV_TAG, "A2DP audio state: %s", s_a2d_audio_state_str[a2d->audio_stat.state]);
-        s_audio_state = a2d->audio_stat.state;
+
         s_pkt_cnt = 0;
+        s_audio_state = a2d->audio_stat.state;
 
         if (a2d->audio_stat.state == ESP_A2D_AUDIO_STATE_STARTED) //* Turn on devices when music playing
             i2s_turn_devices_on();
@@ -395,7 +402,18 @@ void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
         ESP_LOGI(BT_AV_TAG, "Audio packet count %u", s_pkt_cnt);
 }
 
+bool bt_is_connected()
+{
+    return connected;
+}
 bool bt_is_music_playing()
 {
     return s_audio_state == ESP_A2D_AUDIO_STATE_STARTED;
+}
+
+void bt_reset()
+{
+    connected = false;
+    s_audio_state = ESP_A2D_AUDIO_STATE_STOPPED;
+    //bt_i2s_task_shut_down();
 }

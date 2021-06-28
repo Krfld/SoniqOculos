@@ -129,6 +129,14 @@ void apply_equalizer(uint8_t *data, size_t *len)
     dsps_biquad_f32(data_left, data_left, channel_length_16, e_b_low_shelf_coeffs, e_b_low_shelf_w_left);
     dsps_biquad_f32(data_right, data_right, channel_length_16, e_b_low_shelf_coeffs, e_b_low_shelf_w_right);
 
+    for (size_t i = 0; i < channel_length_16; i++)
+    {
+        data_16[i * 2] = data_left[i] * INT16;      //? Denormalize left
+        data_16[i * 2 + 1] = data_right[i] * INT16; //? Denormalize right
+    }
+
+    return;
+
     //* MID
     dsps_biquad_f32(data_left, data_left, channel_length_16, e_m_notch_coeffs, e_m_notch_w_left);
     dsps_biquad_f32(data_right, data_right, channel_length_16, e_m_notch_coeffs, e_m_notch_w_right);
@@ -136,12 +144,6 @@ void apply_equalizer(uint8_t *data, size_t *len)
     //* TREBLE
     dsps_biquad_f32(data_left, data_left, channel_length_16, e_t_high_shelf_coeffs, e_t_high_w_left);
     dsps_biquad_f32(data_right, data_right, channel_length_16, e_t_high_shelf_coeffs, e_t_high_w_right);
-
-    for (size_t i = 0; i < channel_length_16; i++)
-    {
-        data_16[i * 2] = data_left[i] * INT16;      //? Denormalize left
-        data_16[i * 2 + 1] = data_right[i] * INT16; //? Denormalize right
-    }
 }
 
 void set_volume(int vol)

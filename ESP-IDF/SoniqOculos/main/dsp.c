@@ -13,36 +13,22 @@ RTC_DATA_ATTR static int eq_bass = 0;   //* -1,0,1 | Keep value while in deep-sl
 RTC_DATA_ATTR static int eq_mid = 0;    //* -1,0,1 | Keep value while in deep-sleep
 RTC_DATA_ATTR static int eq_treble = 0; //* -1,0,1 | Keep value while in deep-sleep
 
-static float *input_left;
-static float *input_right;
-static float *output_left;
-static float *output_right;
-
-static float *output_left_low;
-static float *output_right_low;
-static float *output_left_high;
-static float *output_right_high;
-
 //? Equalizer
 
-//? BASS
-static float e_b_lpf_coeffs[5];
-static float e_b_lpf_w_left[2];
-static float e_b_lpf_w_right[2];
+//? BASS - Low Shelf
+static float e_b_low_shelf_coeffs[5];
+static float e_b_low_shelf_w_left[2];
+static float e_b_low_shelf_w_right[2];
 
-//? MID
-static float e_m_lpf_coeffs[5];
-static float e_m_lpf_w_left[2];
-static float e_m_lpf_w_right[2];
+//? MIDD - Notch
+static float e_m_notch_coeffs[5];
+static float e_m_notch_w_left[2];
+static float e_m_notch_w_right[2];
 
-static float e_m_hpf_coeffs[5];
-static float e_m_hpf_w_left[2];
-static float e_m_hpf_w_right[2];
-
-//? TREBLE
-static float e_t_hpf_coeffs[5];
-static float e_t_hpf_w_left[2];
-static float e_t_hpf_w_right[2];
+//? TREBLE - High Shelf
+static float e_t_high_shelf_coeffs[5];
+static float e_t_high_w_left[2];
+static float e_t_high_w_right[2];
 
 //? Crossover
 
@@ -64,28 +50,13 @@ void dsp_init()
     //TODO Test negative stopband gain
 
     //? Equalizer
-    dsps_biquad_gen_lowShelf_f32(e_b_lpf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, eq_bass, Q); //? BASS
-
-    //TODO dsps_biquad_gen_lpf_f32(e_m_lpf_coeffs, EQUALIZER_HIGH_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, Q); //? MID - LPF
-    //TODO dsps_biquad_gen_hpf_f32(e_m_hpf_coeffs, EQUALIZER_LOW_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, Q);  //? MID - HPF
-
-    dsps_biquad_gen_highShelf_f32(e_t_hpf_coeffs, EQUALIZER_HIGH_SHELF_FREQUENCY / SAMPLE_FREQUENCY, eq_treble, Q); //? TREBLE
+    dsps_biquad_gen_lowShelf_f32(e_b_low_shelf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, eq_bass, Q);      //? BASS
+    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, eq_mid, Q);                  //? MI
+    dsps_biquad_gen_highShelf_f32(e_t_high_shelf_coeffs, EQUALIZER_HIGH_SHELF_FREQUENCY / SAMPLE_FREQUENCY, eq_treble, Q); //? TREBLE
 
     //? Crossover
     dsps_biquad_gen_lpf_f32(c_lpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); //? LPF
     dsps_biquad_gen_hpf_f32(c_hpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); //? HPF
-
-    //? Allocate float arrays for each channel
-    input_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
-    input_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
-    output_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
-    output_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
-
-    //? Crossover
-    output_left_low = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
-    output_right_low = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
-    output_left_high = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
-    output_right_high = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
 }
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len)
@@ -100,6 +71,13 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     int16_t *output_high_16 = (int16_t *)output_high;
 
     int channel_length_16 = *len / 4;
+
+    float input_left[channel_length_16];
+    float input_right[channel_length_16];
+    float output_left_low[channel_length_16];
+    float output_right_low[channel_length_16];
+    float output_left_high[channel_length_16];
+    float output_right_high[channel_length_16];
 
     for (size_t i = 0; i < channel_length_16; i++)
     {
@@ -127,22 +105,42 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
     }
 }
 
-void apply_equalizer(uint8_t *input, uint8_t *output, size_t *len)
+void apply_equalizer(uint8_t *data, size_t *len)
 {
     if (!PROCESSING)
         return;
 
     //? Convert to 2 bytes per sample (16 bit)
     //? (int16_t *) samples -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
-    int16_t *input_16 = (int16_t *)input;
-    int16_t *output_16 = (int16_t *)output;
+    int16_t *data_16 = (int16_t *)data;
 
     int channel_length_16 = *len / 4;
 
+    float data_left[channel_length_16];
+    float data_right[channel_length_16];
+
     for (size_t i = 0; i < channel_length_16; i++)
     {
-        input_left[i] = input_16[i * 2] / INT16;      //? Normalize left
-        input_right[i] = input_16[i * 2 + 1] / INT16; //? Normalize right
+        data_left[i] = data_16[i * 2] / INT16;      //? Normalize left
+        data_right[i] = data_16[i * 2 + 1] / INT16; //? Normalize right
+    }
+
+    //* BASS
+    dsps_biquad_f32(data_left, data_left, channel_length_16, e_b_low_shelf_coeffs, e_b_low_shelf_w_left);
+    dsps_biquad_f32(data_right, data_right, channel_length_16, e_b_low_shelf_coeffs, e_b_low_shelf_w_right);
+
+    //* MID
+    dsps_biquad_f32(data_left, data_left, channel_length_16, e_m_notch_coeffs, e_m_notch_w_left);
+    dsps_biquad_f32(data_right, data_right, channel_length_16, e_m_notch_coeffs, e_m_notch_w_right);
+
+    //* TREBLE
+    dsps_biquad_f32(data_left, data_left, channel_length_16, e_t_high_shelf_coeffs, e_t_high_w_left);
+    dsps_biquad_f32(data_right, data_right, channel_length_16, e_t_high_shelf_coeffs, e_t_high_w_right);
+
+    for (size_t i = 0; i < channel_length_16; i++)
+    {
+        data_16[i * 2] = data_left[i] * INT16;      //? Denormalize left
+        data_16[i * 2 + 1] = data_right[i] * INT16; //? Denormalize right
     }
 }
 

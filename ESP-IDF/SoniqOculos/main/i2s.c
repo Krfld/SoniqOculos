@@ -25,6 +25,9 @@ static int i2s0_device = NONE;
 static bool i2s0_state = OFF;
 static bool i2s1_state = OFF;
 
+static size_t bytes_written;
+static size_t bytes_read;
+
 static uint8_t *bone_conductors_samples;
 static uint8_t *speakers_samples;
 
@@ -308,8 +311,6 @@ void i2s_write_data(uint8_t *data, size_t *len)
         data[i + 1] = temp;
     }*/
 
-    size_t bytes_written = 0;
-
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) //* Process only when both devices are playing
     {
         apply_crossover(data, bone_conductors_samples, speakers_samples, len);
@@ -336,7 +337,6 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
 static void i2s_read_task(void *arg)
 {
-    size_t bytes_read = 0;
     uint8_t data[DATA_LENGTH] = {0};
 
     for (;;)

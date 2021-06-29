@@ -10,6 +10,8 @@ static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
 static FILE *f = NULL;
 
+static SemaphoreHandle_t sd_semaphore_handle;
+
 bool sd_card_state()
 {
     return card != NULL && f != NULL;
@@ -27,11 +29,9 @@ void spi_init()
     };
 
     spi_bus_initialize(host.slot, &bus_cfg, 1);
+
+    sd_semaphore_handle = xSemaphoreCreateMutex();
 }
-/*void spi_deinit()
-{
-    spi_bus_free(host.slot);
-}*/
 
 void sd_card_init()
 {
@@ -69,6 +69,8 @@ void sd_card_init()
 }
 void sd_card_deinit()
 {
+    xSemaphoreAltTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
+
     sd_close_file();
 
     if (card == NULL)
@@ -76,6 +78,8 @@ void sd_card_deinit()
 
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
     card = NULL;
+
+    xSemaphoreAltGive(sd_semaphore_handle);
 
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");
     ESP_LOGW(SD_CARD_TAG, "Safe to remove card");
@@ -124,7 +128,11 @@ void sd_write_data(uint8_t *data, size_t *len)
     if (f == NULL || !get_sd_det_state())
         return;
 
+    xSemaphoreAltTake(sd_semaphore_handle, portMAX_DELAY);
+
     fwrite(data, sizeof(*data), *len, f);
+
+    xSemaphoreAltGive(sd_semaphore_handle);
 }
 
 void sd_card_toggle()

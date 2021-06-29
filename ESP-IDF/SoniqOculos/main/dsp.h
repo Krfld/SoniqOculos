@@ -15,6 +15,7 @@
 #define EQUALIZER_LOW_SHELF_FREQUENCY 250   // Hz
 #define EQUALIZER_NOTCH_FREQUENCY 2500      // Hz
 #define EQUALIZER_HIGH_SHELF_FREQUENCY 4000 // Hz
+#define EQUALIZER_GAIN 3                    // dB
 
 #define CROSSOVER_FREQUENCY 1000 // Hz
 
@@ -29,6 +30,10 @@ void apply_equalizer(uint8_t *data, size_t *len);
 void set_volume(int vol);
 void volume_up();
 void volume_down();
+
+void set_bass(int value);
+void set_mid(int value);
+void set_treble(int value);
 
 void apply_volume(uint8_t *data, size_t *len);
 

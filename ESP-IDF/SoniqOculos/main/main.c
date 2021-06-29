@@ -16,6 +16,8 @@
 
 /**
  * TODO
+ * task to write to SD card
+ * change GPIO to semaphore or mutex
  * write .wav
  * shelf FIRs to equalize
  */

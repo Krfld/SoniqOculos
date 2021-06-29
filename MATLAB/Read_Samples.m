@@ -1,13 +1,13 @@
 clc
 clear
-close all
+% close all
 
 [n, Fs] = audioread('D:\ISEL\PFC\SoniqOculos\MATLAB\Audio Samples\noise.wav');
 
 Fs = 44100;
 bitsPerSample = 16;
 
-file = fopen('D:\ISEL\PFC\SoniqOculos\MATLAB\Tests\lpf_wn.TXT');
+file = fopen('D:\ISEL\PFC\SoniqOculos\MATLAB\Tests\notch_-12dB_0.7Q.TXT');
 file_data = fread(file);
 
 if bitsPerSample == 16
@@ -45,8 +45,8 @@ fclose(file);
 
 out = out / 2^15; % Normalize
 
-% plot(out);
-plot(abs(fft(out))), xlim([0, Fs/2]);
+figure, plot(out); % Time
+figure, plot(abs(fft(out))), xlim([0, Fs/2]); % Frequency
 % sound(out, Fs, 16);
 
 %% Backup

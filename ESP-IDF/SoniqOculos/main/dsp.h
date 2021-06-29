@@ -8,7 +8,7 @@
 //* Volume
 #define DEFAULT_VOLUME 50  // %
 #define VOLUME_INTERVAL 10 // %
-#define MAX_VOLUME 0.3
+#define MAX_VOLUME 0.3     //TODO Check increasing with EQ
 
 #define SAMPLE_FREQUENCY 44100.0 // Hz
 

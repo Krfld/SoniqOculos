@@ -318,7 +318,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
-        apply_crossover(data, bone_conductors_samples, speakers_samples, len);
+        apply_crossover(data, bone_conductors_samples, speakers_samples, len); // Apply crossover
 
         apply_volume(bone_conductors_samples, len);
         apply_volume(speakers_samples, len);

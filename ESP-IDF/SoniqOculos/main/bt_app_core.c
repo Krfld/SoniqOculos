@@ -138,7 +138,7 @@ void bt_i2s_task_start_up(void)
     if (!xTaskCreate(bt_i2s_task_handler, "BtI2ST", BT_I2S_STACK_DEPTH, NULL, configMAX_PRIORITIES, &s_bt_i2s_task_handle))
         ESP_LOGE(BT_APP_CORE_TAG, "Error creating BtI2ST task");
 
-    ESP_LOGW(BT_APP_CORE_TAG, "Free heap: %d", esp_get_free_heap_size());
+    //ESP_LOGW(BT_APP_CORE_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 
 void bt_i2s_task_shut_down(void)
@@ -149,7 +149,7 @@ void bt_i2s_task_shut_down(void)
         s_bt_i2s_task_handle = NULL;
     }
 
-    delay(10); // Make sure task is deleted before deleting ringbuffer
+    //delay(10); // Make sure task is deleted before deleting ringbuffer
 
     if (s_ringbuf_i2s)
     {
@@ -163,7 +163,7 @@ void bt_i2s_task_shut_down(void)
             bt_i2s_queue_handle = NULL;
         }
 
-    ESP_LOGW(BT_APP_CORE_TAG, "Free heap: %d", esp_get_free_heap_size());
+    //ESP_LOGW(BT_APP_CORE_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 
 static void bt_i2s_task_handler(void *arg)
@@ -183,7 +183,7 @@ static void bt_i2s_task_handler(void *arg)
             if (size != DATA_LENGTH)
             {
                 ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than %d: %d", DATA_LENGTH, size);
-                vRingbufferReturnItem(s_ringbuf_i2s, data);
+                vRingbufferReturnItem(s_ringbuf_i2s, data); //* Remove from ringbuffer
                 continue;
             }
 
@@ -199,7 +199,7 @@ static void bt_i2s_task_handler(void *arg)
                 ESP_LOGI(BT_APP_CORE_TAG, "Process data delay took %lldus", esp_timer_get_time() - start); //* ~19ms
         }
 
-        vRingbufferReturnItem(s_ringbuf_i2s, data);
+        vRingbufferReturnItem(s_ringbuf_i2s, data); //* Remove from ringbuffer
     }
 }
 

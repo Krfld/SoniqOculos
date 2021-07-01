@@ -16,11 +16,13 @@
 
 /**
  * TODO
+ * task to write to SD card
+ * change GPIO to semaphore or mutex
  * write .wav
  * shelf FIRs to equalize
  */
 
-RTC_DATA_ATTR static int mode = MUSIC; //* Keep value while in deep-sleep
+RTC_DATA_ATTR static int mode = MUSIC; // Keep value while in deep-sleep
 int get_mode()
 {
     return mode;
@@ -30,13 +32,13 @@ void app_main(void)
 {
     ESP_LOGW(MAIN_TAG, "Wakeup cause: %d", esp_sleep_get_wakeup_cause()); // 2 - ESP_SLEEP_WAKEUP_EXT0
 
-    nvs_init(); //* Flash to store non-volatile data
-    spi_init(); //* SPI to comunicate with SD card
+    nvs_init(); // Flash to store non-volatile data
+    spi_init(); // SPI to comunicate with SD card
 
-    bt_init();        //* Start BT SPP server
-    dsp_init();       //* Alocate DSP variables
-    i2s_init();       //* Setup I2S interface
-    gpio_task_init(); //* Start task to handle GPIOs
+    bt_init();        // Start BT SPP server
+    dsp_init();       // Alocate DSP variables
+    i2s_init();       // Setup I2S interface
+    gpio_task_init(); // Start task to handle GPIOs
 
     switch (mode)
     {
@@ -98,41 +100,41 @@ void handleMsgs(char *msg)
 {
     ESP_LOGW(MAIN_TAG, "Message recevied: '%s'", msg); //TODO Check if "msg\n" or "msg"
 
-    if (spp_get_sending_state())
+    /*if (spp_get_sending_state())
     {
         if (strcmp(msg, SPP_OK) == 0)
-            spp_set_sending_state(false); //* Stop sending if got OK or FAIL
+            spp_set_sending_state(false); // Stop sending if got OK or FAIL
         else
-            spp_send_msg(SPP_FAIL); //* Error if msg received while sending
+            spp_send_msg(SPP_FAIL); // Error if msg received while sending
         return;
-    }
+    }*/
 
     char *ptr;
     switch (*msg++)
     {
-    case 'm': //* Mode
+    case 'm': // Mode
         change_to_mode(strtol(msg, &ptr, 0));
         break;
 
-    case 'v': //* Volume
+    case 'v': // Volume
         set_volume(strtol(msg, &ptr, 0));
         break;
 
-    case 'd': //* Devices
+    case 'd': // Devices
         i2s_change_to_devices(strtol(msg, &ptr, 0));
         break;
 
-    case 'e':                 //* Equalizer
-        strtol(msg, &ptr, 0); //* Bass
-        strtol(msg, &ptr, 0); //* Mid
-        strtol(msg, &ptr, 0); //* Treble
+    case 'e':                             // Equalizer
+        set_bass(strtol(msg, &ptr, 0));   // Bass
+        set_mid(strtol(msg, &ptr, 0));    // Mid
+        set_treble(strtol(msg, &ptr, 0)); // Treble
         break;
 
-    case 's': //* SD card
+    case 's': // SD card
         sd_card_toggle();
         break;
 
-    case 'b': //* Bone Conductors
+    case 'b': // Bone Conductors
         i2s_toggle_bone_conductors();
         break;
 
@@ -147,12 +149,12 @@ void handleMsgs(char *msg)
 void change_to_mode(int m)
 {
     i2s_turn_devices_off();
+
     switch (m)
     {
     case MUSIC:
         sd_card_deinit();
 
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
         speakers_init();
         bt_music_init();
 
@@ -162,7 +164,6 @@ void change_to_mode(int m)
     case RECORD:
         bt_music_deinit();
 
-        i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set 32 bit I2S
         microphones_init();
 
         ESP_LOGW(MAIN_TAG, "RECORD mode ready");
@@ -175,4 +176,6 @@ void change_to_mode(int m)
     mode = m;
 
     spp_send_msg("m %d", mode);
+
+    ESP_LOGW(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
 }

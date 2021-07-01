@@ -19,23 +19,23 @@ static int buttons_command = 0;
 
 static int buttons_pressed(int buttons);
 
-static xTaskHandle gpio_task_handle = NULL;
+static xTaskHandle gpio_task_handle;
 static void gpio_task(void *arg);
 
 static bool releasing = false;
-static QueueHandle_t releasing_queue_handle = NULL;
-static xTaskHandle releasing_task_handle = NULL;
+static QueueHandle_t releasing_queue_handle;
+static xTaskHandle releasing_task_handle;
 static void releasing_task(void *arg);
 static void releasing_task_init();
 
-static QueueHandle_t power_off_queue_handle = NULL;
-static xTaskHandle power_off_task_handle = NULL;
+static QueueHandle_t power_off_queue_handle;
+static xTaskHandle power_off_task_handle;
 static void power_off_task(void *arg);
 static void power_off_task_init();
 
 static bool changed_volume = false;
-static QueueHandle_t volume_queue_handle = NULL;
-static xTaskHandle volume_task_handle = NULL;
+static QueueHandle_t volume_queue_handle;
+static xTaskHandle volume_task_handle;
 static void volume_task(void *arg);
 static void volume_task_init();
 
@@ -267,10 +267,7 @@ static void gpio_task(void *arg)
                     break;
                 case B3_MASK: // 100
                     if (!changed_volume)
-                    {
-                        //ESP_LOGI(GPIO_TAG, "Volume down");
                         volume_down();
-                    }
                     break;
 
                 case B1_MASK | B2_MASK: // 011

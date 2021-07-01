@@ -46,7 +46,7 @@ void ShowIIRfilter(float freq, float qFactor)
     float coeffs_lpf[5];
     float w_lpf[5] = {0, 0};
     // Calculate iir filter coefficients
-    ret = dsps_biquad_gen_lpf_f32(coeffs_lpf, freq, qFactor);
+    ret = dsps_biquad_gen_lowShelf_f32(coeffs_lpf, freq, 12, qFactor);
     if (ret != ESP_OK)
     {
         ESP_LOGE(TAG, "Operation error = %i", ret);
@@ -105,9 +105,9 @@ void app_main()
     dsps_d_gen_f32(d, N, 0);
 
     // Show filter with Q factor 1
-    ShowIIRfilter(1000 / 44100, 1);
+    ShowIIRfilter(10 / 44.1, 1);
     // Show filter with Q factor 10
-    ShowIIRfilter(1 / 44.1, 10);
+    ShowIIRfilter(10 / 44.1, 10);
 
     ESP_LOGI(TAG, "End Example.");
 }

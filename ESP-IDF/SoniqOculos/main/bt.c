@@ -49,12 +49,12 @@ void spp_send_msg(char *msg, ...)
     if (!spp_connected)
         return;
 
-    if (strcmp(msg, SPP_OK) != 0 && strcmp(msg, SPP_FAIL) != 0) //* Msg not OK nor FAIL
+    /*if (strcmp(msg, SPP_OK) != 0 && strcmp(msg, SPP_FAIL) != 0) // Msg not OK nor FAIL
     {
-        if (spp_receiving) //* Don't send msg if receiving
+        if (spp_receiving) // Don't send msg if receiving
             return;
 
-        if (spp_sending) //* Don't send msg if didn't get OK back
+        if (spp_sending) // Don't send msg if didn't get OK back
         {
             ESP_LOGE(BT_SPP_TAG, "Waiting for OK");
             return;
@@ -62,7 +62,7 @@ void spp_send_msg(char *msg, ...)
         spp_sending = true;
     }
     else
-        spp_receiving = false; //* Stop receiving if sending OK or FAIL
+        spp_receiving = false; // Stop receiving if sending OK or FAIL*/
 
     va_list vl;
     va_start(vl, msg);
@@ -80,12 +80,12 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     spp_handle = param->write.handle;
     switch (event)
     {
-    case ESP_SPP_INIT_EVT: //* Start server
+    case ESP_SPP_INIT_EVT: // Start server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_INIT_EVT");
         esp_spp_start_srv(ESP_SPP_SEC_NONE, ESP_SPP_ROLE_SLAVE, 0, DEVICE_NAME);
         break;
 
-    case ESP_SPP_SRV_OPEN_EVT: //* Connected to server
+    case ESP_SPP_SRV_OPEN_EVT: // Connected to server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_SRV_OPEN_EVT");
         ESP_LOGW(BT_SPP_TAG, "Connected to server");
 
@@ -94,7 +94,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         spp_receiving = false;
         //spp_send_msg("Bouas");
         break;
-    case ESP_SPP_CLOSE_EVT: //* Disconnected from server
+    case ESP_SPP_CLOSE_EVT: // Disconnected from server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");
         ESP_LOGW(BT_SPP_TAG, "Disconnected from server");
 
@@ -103,7 +103,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         spp_receiving = false;
         break;
 
-    case ESP_SPP_DATA_IND_EVT: //* Receive message
+    case ESP_SPP_DATA_IND_EVT: // Receive message
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%d", param->data_ind.len, param->data_ind.handle);
         if (param->data_ind.len < MSG_BUFFER_SIZE)
         {
@@ -246,7 +246,7 @@ void bt_init()
     pin_code[3] = '4';
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
-    //* Print bluetooth address
+    // Print bluetooth address
     const uint8_t *esp_address = esp_bt_dev_get_address();
     ESP_LOGW(BT_TAG, "ESP BT Address [%02X:%02X:%02X:%02X:%02X:%02X]", esp_address[0], esp_address[1], esp_address[2], esp_address[3], esp_address[4], esp_address[5]);
 }
@@ -282,8 +282,6 @@ void bt_music_deinit()
 {
     if (!bt_music_ready)
         return;
-
-    bt_send_avrc_cmd(ESP_AVRC_PT_CMD_PAUSE);
 
     if (has_last_device())
         esp_a2d_sink_disconnect(last_device); // Disconnect from device

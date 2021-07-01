@@ -100,7 +100,6 @@ void sd_card_init();
 void sd_card_deinit();
 
 void spi_init();
-//void spi_deinit();
 
 void sd_open_file(char *file, char *type);
 /**

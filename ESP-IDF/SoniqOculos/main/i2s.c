@@ -3,6 +3,7 @@
 #include "gpio.h"
 #include "sd.h"
 #include "bt.h"
+#include "dsp.h"
 
 #define I2S_TAG "I2S"
 
@@ -23,6 +24,9 @@ static int i2s0_device = NONE;
 
 static bool i2s0_state = OFF;
 static bool i2s1_state = OFF;
+
+static size_t bytes_written;
+static size_t bytes_read;
 
 static uint8_t *bone_conductors_samples;
 static uint8_t *speakers_samples;
@@ -61,7 +65,7 @@ static i2s_pin_config_t bone_conductors_pin_config = {
 //* Output configuration
 static i2s_config_t i2s_config_tx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_TX,
-    .sample_rate = 44100,
+    .sample_rate = SAMPLE_FREQUENCY,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, // 32 bit when playing back from microphones
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
@@ -75,7 +79,7 @@ static i2s_config_t i2s_config_tx = {
 //* Input configuration
 static i2s_config_t i2s_config_rx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_RX,
-    .sample_rate = 44100,
+    .sample_rate = SAMPLE_FREQUENCY,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT, // Microphones only work with 32 bit
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
@@ -227,6 +231,7 @@ void speakers_init()
         return;
 
     microphones_deinit();
+    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config);
@@ -243,7 +248,7 @@ static void speakers_deinit()
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s0_device = NONE;
 
-    delay(DEVICE_DEINIT_DELAY);
+    //delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
 }
 
@@ -253,15 +258,15 @@ void microphones_init()
         return;
 
     speakers_deinit();
+    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
 
-    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, 44100, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
-
     i2s_read_task_init();
 
     i2s0_device = MICROPHONES;
+
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
 }
 static void microphones_deinit()
@@ -274,7 +279,7 @@ static void microphones_deinit()
 
     i2s_read_task_deinit();
 
-    delay(DEVICE_DEINIT_DELAY);
+    //delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
 }
 
@@ -306,14 +311,14 @@ void i2s_write_data(uint8_t *data, size_t *len)
         data[i + 1] = temp;
     }*/
 
-    size_t bytes_written = 0;
+    apply_equalizer(data, len);
 
-    if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) //* Process only when both devices are playing
+    //sd_write_data(data, len); //! Testing
+    //return;
+
+    if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
-        apply_crossover(data, bone_conductors_samples, speakers_samples, len);
-
-        //sd_write_data(speakers_samples, len); //! Testing
-        //return;
+        apply_crossover(data, bone_conductors_samples, speakers_samples, len); // Apply crossover
 
         apply_volume(bone_conductors_samples, len);
         apply_volume(speakers_samples, len);
@@ -324,33 +329,32 @@ void i2s_write_data(uint8_t *data, size_t *len)
     {
         apply_volume(data, len);
 
-        if (i2s0_state && i2s0_device == SPEAKERS) //* If speakers are on
+        if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
             i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
 
-        if (i2s1_state) //* If bone conductors are on
+        if (i2s1_state) // If bone conductors are on
             i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
     }
 }
 
 static void i2s_read_task(void *arg)
 {
-    size_t bytes_read = 0;
     uint8_t data[DATA_LENGTH] = {0};
 
     for (;;)
     {
         if (i2s0_device != MICROPHONES || (!i2s1_state && !sd_card_state()))
         {
-            delay(READ_TASK_IDLE_DELAY); //* Idle task
+            delay(READ_TASK_IDLE_DELAY); // Idle task
             continue;
         }
 
-        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); //* Read from microphone
+        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphone
 
-        if (i2s1_state) //* Only write to bone conductors
+        if (i2s1_state) // Only write to bone conductors
             i2s_write_data(data, &bytes_read);
 
-        sd_write_data(data, &bytes_read); //* Write to SD card
+        sd_write_data(data, &bytes_read); // Write to SD card
     }
 }
 static void i2s_read_task_init()

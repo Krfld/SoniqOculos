@@ -69,7 +69,7 @@ void sd_card_init()
 }
 void sd_card_deinit()
 {
-    xSemaphoreAltTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
+    xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
 
     sd_close_file();
 
@@ -79,7 +79,7 @@ void sd_card_deinit()
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
     card = NULL;
 
-    xSemaphoreAltGive(sd_semaphore_handle);
+    xSemaphoreGive(sd_semaphore_handle);
 
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");
     ESP_LOGW(SD_CARD_TAG, "Safe to remove card");

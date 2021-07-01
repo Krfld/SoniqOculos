@@ -313,10 +313,10 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
     apply_equalizer(data, len);
 
-    sd_write_data(data, len); //! Testing
-    return;
+    //sd_write_data(data, len); //! Testing
+    //return;
 
-    if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) //* Process only when both devices are playing
+    if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
         apply_crossover(data, bone_conductors_samples, speakers_samples, len);
 
@@ -329,10 +329,10 @@ void i2s_write_data(uint8_t *data, size_t *len)
     {
         apply_volume(data, len);
 
-        if (i2s0_state && i2s0_device == SPEAKERS) //* If speakers are on
+        if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
             i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
 
-        if (i2s1_state) //* If bone conductors are on
+        if (i2s1_state) // If bone conductors are on
             i2s_write(BONE_CONDUCTORS_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
     }
 }
@@ -345,16 +345,16 @@ static void i2s_read_task(void *arg)
     {
         if (i2s0_device != MICROPHONES || (!i2s1_state && !sd_card_state()))
         {
-            delay(READ_TASK_IDLE_DELAY); //* Idle task
+            delay(READ_TASK_IDLE_DELAY); // Idle task
             continue;
         }
 
-        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); //* Read from microphone
+        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphone
 
-        if (i2s1_state) //* Only write to bone conductors
+        if (i2s1_state) // Only write to bone conductors
             i2s_write_data(data, &bytes_read);
 
-        sd_write_data(data, &bytes_read); //* Write to SD card
+        sd_write_data(data, &bytes_read); // Write to SD card
     }
 }
 static void i2s_read_task_init()

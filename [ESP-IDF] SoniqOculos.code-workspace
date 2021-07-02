@@ -48,7 +48,8 @@
 			"complex": "c",
 			"dsps_biquad_gen.h": "c",
 			"random": "cpp",
-			"dac.h": "c"
+			"dac.h": "c",
+			"stdio.h": "c"
 		},
 		"idf.flashType": "UART",
 		"idf.espIdfPathWin": "C:\\Users\\Kiko\\esp\\esp-idf",

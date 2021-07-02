@@ -92,11 +92,15 @@ static i2s_config_t i2s_config_rx = {
 
 static void i2s_sincronize_devices()
 {
-    set_interrupt_i2s_state(true);
+    set_interrupt_i2s_state(true); // Start ignoring samples coming from BT
+
+    // Clear I2S buffers
     i2s_zero_dma_buffer(SPEAKERS_MICROPHONES_I2S_NUM);
     i2s_zero_dma_buffer(BONE_CONDUCTORS_I2S_NUM);
-    delay(SINCRONIZE_DELAY); //* Sincronize devices
-    set_interrupt_i2s_state(false);
+
+    delay(SINCRONIZE_DELAY); // Wait to sincronize devices
+
+    set_interrupt_i2s_state(false); // Stop ignoring samples coming from BT
 }
 
 bool i2s_get_device_state(int device)
@@ -133,7 +137,7 @@ void i2s_set_device_state(int device, bool state)
 
 void i2s_change_to_devices(int dev)
 {
-    i2s_sincronize_devices();
+    i2s_sincronize_devices(); // Sincronize before changing
 
     switch (dev)
     {
@@ -162,7 +166,7 @@ void i2s_change_to_devices(int dev)
 
     devices = dev;
 
-    spp_send_msg("d %d", devices);
+    spp_send_msg("d %d", devices); // Update devices in app if connected
 }
 
 void i2s_toggle_devices()
@@ -222,7 +226,7 @@ void i2s_turn_devices_off()
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 
-    i2s_sincronize_devices();
+    i2s_sincronize_devices(); // Sincronize after turning off devices
 }
 
 void speakers_init()

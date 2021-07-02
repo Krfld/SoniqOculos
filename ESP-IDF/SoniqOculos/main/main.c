@@ -16,8 +16,7 @@
 
 /**
  * TODO
- * task to write to SD card
- * change GPIO to semaphore or mutex
+ * measure power consumption
  * write .wav
  * shelf FIRs to equalize
  */
@@ -43,13 +42,13 @@ void app_main(void)
     switch (mode)
     {
     case MUSIC:
-        speakers_init();
-        bt_music_init();
+        speakers_init(); // Setup speakers
+        bt_music_init(); // Start A2DP for BT audio transmission
         ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
         break;
 
     case RECORD:
-        microphones_init();
+        microphones_init(); // Setup microphones and task to read them
         ESP_LOGW(MAIN_TAG, "RECORD mode ready");
         break;
     }
@@ -77,12 +76,15 @@ void shutdown()
 {
     ESP_LOGE(MAIN_TAG, "Powering off...");
 
-    gpio_task_deinit();
+    gpio_task_deinit(); // Stop button handling
 
-    i2s_turn_devices_off();
-    sd_card_deinit();
-    bt_music_deinit();
+    i2s_turn_devices_off(); // Stop devices
+    sd_card_deinit();       // Close SD file
+    bt_music_deinit();      // Disconnect from device if connected
 
+    spp_send_msg(SPP_OFF);
+
+    // Disable BT components
     esp_bluedroid_disable();
     esp_bt_controller_disable();
 
@@ -91,6 +93,7 @@ void shutdown()
 
     delay(COMMAND_DELAY);
 
+    // Setup deep-sleep and start it
     esp_sleep_enable_ext0_wakeup(B1, HIGH);
     rtc_gpio_pulldown_en(B1);
     esp_deep_sleep_start();
@@ -98,7 +101,7 @@ void shutdown()
 
 void handleMsgs(char *msg)
 {
-    ESP_LOGW(MAIN_TAG, "Message recevied: '%s'", msg); //TODO Check if "msg\n" or "msg"
+    ESP_LOGW(MAIN_TAG, "Message recevied: '%s'", msg);
 
     /*if (spp_get_sending_state())
     {
@@ -108,6 +111,8 @@ void handleMsgs(char *msg)
             spp_send_msg(SPP_FAIL); // Error if msg received while sending
         return;
     }*/
+
+    // Message received (examples) | 'm 0' | 'v 100' | 'e -2 -2 -2' |
 
     char *ptr;
     switch (*msg++)
@@ -153,18 +158,18 @@ void change_to_mode(int m)
     switch (m)
     {
     case MUSIC:
-        sd_card_deinit();
+        sd_card_deinit(); // Close SD file if opened
 
-        speakers_init();
-        bt_music_init();
+        speakers_init(); // Start speakers and stop microphones
+        bt_music_init(); // Start BT audio transmission
 
         ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
         break;
 
     case RECORD:
-        bt_music_deinit();
+        bt_music_deinit(); // Stop BT audio transmission and disconnect from devices
 
-        microphones_init();
+        microphones_init(); // Start microphones and stop speakers
 
         ESP_LOGW(MAIN_TAG, "RECORD mode ready");
         break;
@@ -175,7 +180,7 @@ void change_to_mode(int m)
 
     mode = m;
 
-    spp_send_msg("m %d", mode);
+    spp_send_msg("m %d", mode); // Update mode in the app if connected
 
     ESP_LOGW(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
 }

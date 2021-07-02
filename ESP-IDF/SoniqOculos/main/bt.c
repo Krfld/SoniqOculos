@@ -92,7 +92,10 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         spp_connected = true;
         spp_sending = false;
         spp_receiving = false;
-        //spp_send_msg("Bouas");
+
+        // Send setup message
+        spp_send_msg("Bouas");
+        spp_send_msg(SPP_ON);
         break;
     case ESP_SPP_CLOSE_EVT: // Disconnected from server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");

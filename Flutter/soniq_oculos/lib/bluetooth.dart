@@ -8,7 +8,7 @@ class _Bluetooth {
   FlutterBluetoothSerial bluetooth = FlutterBluetoothSerial.instance;
 
   Stream bluetoothStateStream = FlutterBluetoothSerial.instance.onStateChanged();
-  Stream _bluetoothInputStream;
+  //Stream _bluetoothInputStream;
 
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
   bool get isBluetoothOn => this._bluetoothState.isEnabled;
@@ -19,15 +19,42 @@ class _Bluetooth {
   BluetoothConnection _bluetoothConnection;
   bool get isDeviceConnected => this._bluetoothConnection?.isConnected ?? false;
 
+  bool _ready = false;
+
   Future sendCmd(var cmd) async {
     if (!isDeviceConnected) return;
 
-    this._bluetoothConnection.output.add(ascii.encode(cmd.toString()));
-    ////await this._bluetoothConnection.output.allSent;
+    this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString())));
   }
 
   void input(String data) {
     app.msg(data, prefix: 'Input');
+
+    List characters = app.msg(data.split(' '));
+
+    switch (characters[0]) {
+      case 'm': // Mode
+        int.parse(characters[1]);
+        break;
+
+      case 'v': // Volume
+        break;
+
+      case 'd': // Devices
+        break;
+
+      case 'e': // Equalizer
+        break;
+
+      case 's': // SD card
+        break;
+
+      case 'b': // Bone Conductors
+        break;
+
+      default:
+        break;
+    }
   }
 
   void setup() {
@@ -100,12 +127,16 @@ class _Bluetooth {
       return false;
     }
 
-    this._bluetoothInputStream = this._bluetoothConnection.input;
-    this._bluetoothInputStream.listen((data) => input(ascii.decode(data))).onDone(() {
-      app.msg('Disconnected', prefix: 'Input');
+    ///
+    /// Setup input
+    ///
 
+    this._bluetoothConnection.input.listen((data) => input(ascii.decode(data))).onDone(() {
+      app.msg('Disconnected', prefix: 'Input');
       app.pop();
     });
+
+    await Future.doWhile(() => !this._ready); // Wait for setup message
 
     return true;
   }

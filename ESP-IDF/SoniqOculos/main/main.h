@@ -51,7 +51,6 @@
 #define ON true
 #define OFF false
 
-//* Modes
 #define MUSIC 0
 #define RECORD 1
 
@@ -62,10 +61,29 @@
  */
 void delay(int millis);
 
+/**
+ * @brief Get mode
+ * 
+ * @return MUSIC if in music mode, RECORD if in record mode
+ */
+int get_mode();
+
+/**
+ * @brief Enter deep-sleep mode
+ * 
+ */
 void shutdown();
 
-//* SPP Server
+/**
+ * @brief Handle messages received from the app
+ * 
+ * @param msg message received
+ */
 void handleMsgs(char *msg);
 
-//* Modes
+/**
+ * @brief Change to a specific mode
+ * 
+ * @param mode MUSIC to change to music mode, RECORD to change to record mode
+ */
 void change_to_mode(int mode);

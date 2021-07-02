@@ -94,13 +94,28 @@ typedef struct wavfile_header_s
     }
 } wav_header_t;*/
 
+/**
+ * @brief See if card is mounted and file opened
+ * 
+ * @return true if file is ready, false otherwise
+ */
 bool sd_card_state();
 
 void sd_card_init();
 void sd_card_deinit();
 
+/**
+ * @brief Setup SPI interface
+ * 
+ */
 void spi_init();
 
+/**
+ * @brief Open a file
+ * 
+ * @param file name of the file
+ * @param type type of operation
+ */
 void sd_open_file(char *file, char *type);
 /**
  * @brief Close the file
@@ -116,4 +131,8 @@ void sd_close_file();
  */
 void sd_write_data(uint8_t *data, size_t *len);
 
+/**
+ * @brief Open file if closed or close file if opened
+ * 
+ */
 void sd_card_toggle();

@@ -29,11 +29,39 @@ class _RecordState extends State<Record> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('Record'),
-                VolumeSlider(),
-                FloatingActionButton.extended(
-                  label: Text('Switch to Music'),
-                  onPressed: () => Navigator.pushReplacementNamed(context, 'Music'),
+                Expanded(
+                  flex: 3,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Button(
+                          text: 'Start Recording',
+                          borderColor: Colors.red,
+                          padding: 32,
+                          margin: 16,
+                          function: () => null,
+                        ),
+                        Button(
+                          text: 'Start Playback',
+                          borderColor: Colors.red,
+                          padding: 32,
+                          margin: 16,
+                          function: () => null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(flex: 1, child: Center(child: VolumeSlider())),
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: FloatingActionButton.extended(
+                      label: Text('Switch to Music'),
+                      onPressed: () => Navigator.pushReplacementNamed(context, 'Music'),
+                    ),
+                  ),
                 ),
               ],
             ),

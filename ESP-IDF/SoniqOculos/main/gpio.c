@@ -17,6 +17,12 @@ bool get_sd_det_state()
 static int buttons_map = 0;
 static int buttons_command = 0;
 
+/**
+ * @brief How many buttons are pressed
+ * 
+ * @param buttons map of the buttons
+ * @return int number of buttons pressed
+ */
 static int buttons_pressed(int buttons);
 
 static xTaskHandle gpio_task_handle;
@@ -62,7 +68,7 @@ static void releasing_task(void *arg)
         if (xQueueReceive(releasing_queue_handle, &releasing, portMAX_DELAY) && releasing)                       // Wait for true value
             while (xQueueReceive(releasing_queue_handle, &releasing, pdMS_TO_TICKS(RELEASE_DELAY)) && releasing) // Leave while loop after release delay or if false received
                 ;
-        buttons_command = buttons_map;
+        buttons_command = buttons_map; // Update buttons command
     }
 }
 
@@ -72,7 +78,7 @@ static void power_off_task(void *arg)
     for (;;)
         if (xQueueReceive(power_off_queue_handle, &powering_off, portMAX_DELAY) && powering_off)           // Wait for true value
             if (!xQueueReceive(power_off_queue_handle, &powering_off, pdMS_TO_TICKS(POWER_OFF_HOLD_TIME))) // Timeout occurs (2 seconds)
-                shutdown();
+                shutdown();                                                                                // Power off
 }
 
 static void volume_task(void *arg)
@@ -80,7 +86,7 @@ static void volume_task(void *arg)
     bool changing_volume;
     for (;;)
     {
-        if (xQueueReceive(volume_queue_handle, &changing_volume, portMAX_DELAY) && changing_volume)
+        if (xQueueReceive(volume_queue_handle, &changing_volume, portMAX_DELAY) && changing_volume) // Wait for true value
         {
             while (!xQueuePeek(volume_queue_handle, &changing_volume, pdMS_TO_TICKS(VOLUME_CHANGE_PERIOD)))
             {

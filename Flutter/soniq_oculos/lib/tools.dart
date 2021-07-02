@@ -64,6 +64,8 @@ class Button extends StatelessWidget {
   final double margin;
   final double border;
 
+  final Color borderColor;
+
   Button({
     @required this.text,
     @required this.function,
@@ -72,6 +74,7 @@ class Button extends StatelessWidget {
     this.padding = 16,
     this.margin = 0,
     this.border = 32,
+    @required this.borderColor,
   });
 
   @override
@@ -83,6 +86,7 @@ class Button extends StatelessWidget {
         padding: EdgeInsets.all(this.margin),
         child: OutlineButton(
           //splashColor: Colors.teal,
+          borderSide: BorderSide(color: this.borderColor),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(this.border)),
           padding: EdgeInsets.all(this.padding),
           onPressed: this.enable ? this.function : null,
@@ -107,6 +111,7 @@ class _VolumeSliderState extends State<VolumeSlider> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Volume'),
         Padding(

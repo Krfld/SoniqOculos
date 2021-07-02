@@ -23,18 +23,21 @@
 #define VOLUME_CHANGE_PERIOD 250 // ms
 #define COMMAND_DELAY 500        // ms
 
-int get_mode();
-
+/**
+ * @brief See if SD card is inserted
+ * 
+ * @return true if inserted, false otherwise
+ */
 bool get_sd_det_state();
 
 /**
- * @brief Create gpio task
+ * @brief Create task to handle buttons
  * 
  */
 void gpio_task_init();
 
 /**
- * @brief Delete gpio task
+ * @brief Delete task to handle buttons
  * 
  */
 void gpio_task_deinit();

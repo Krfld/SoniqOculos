@@ -17,7 +17,7 @@ class SoniqOculos extends StatelessWidget {
         'Music': (context) => Music(),
         'Record': (context) => Record(),
       },
-      home: Home(),
+      home: Record(),
     );
   }
 }

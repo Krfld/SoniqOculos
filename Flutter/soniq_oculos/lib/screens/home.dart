@@ -20,7 +20,8 @@ class _HomeState extends State<Home> {
   Future _connect() async {
     setState(() => this._connecting = true);
 
-    if (await bt.connect()) await Navigator.pushNamed(context, 'Music'); //TODO Handle welcome response logic
+    if (await bt.connect())
+      await Navigator.pushNamed(context, data.mode == 0 ? 'Music' : 'Record'); //TODO Handle welcome response logic
 
     setState(() => this._connecting = false);
   }

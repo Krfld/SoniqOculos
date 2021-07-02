@@ -1,8 +1,10 @@
 export 'package:flutter/material.dart';
 export 'package:flutter/services.dart';
 export 'dart:convert';
+export 'dart:async';
 
 export './main.dart';
+export './data.dart';
 export './bluetooth.dart';
 export './tools.dart';
 

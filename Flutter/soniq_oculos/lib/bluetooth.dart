@@ -21,20 +21,26 @@ class _Bluetooth {
 
   bool _ready = false;
 
-  Future sendCmd(var cmd) async {
+  void sendCmd(var cmd) {
     if (!isDeviceConnected) return;
 
     this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString())));
   }
 
-  void input(String data) {
-    app.msg(data, prefix: 'Input');
+  void getCmd(String msg) {
+    app.msg(msg, prefix: 'Input');
 
-    List characters = app.msg(data.split(' '));
+    if (msg.compareTo('ON') == 0) this._ready = true;
 
+    if (msg.compareTo('OK') == 0) {
+      data.gotOK();
+      return;
+    }
+
+    List characters = app.msg(msg.split(' '));
     switch (characters[0]) {
       case 'm': // Mode
-        int.parse(characters[1]);
+        app.msg(int.parse(characters[1]));
         break;
 
       case 'v': // Volume
@@ -131,12 +137,19 @@ class _Bluetooth {
     /// Setup input
     ///
 
-    this._bluetoothConnection.input.listen((data) => input(ascii.decode(data))).onDone(() {
+    StreamSubscription input = this._bluetoothConnection.input.listen((msg) => getCmd(ascii.decode(msg)));
+
+    input.onDone(() {
       app.msg('Disconnected', prefix: 'Input');
       app.pop();
     });
 
-    await Future.doWhile(() => !this._ready); // Wait for setup message
+    await Future.doWhile(() => !this._ready).timeout(Duration(seconds: 5)); // Wait for setup message
+
+    if (!this._ready) {
+      input.cancel(); // Cancel if ready not received
+      return false;
+    }
 
     return true;
   }

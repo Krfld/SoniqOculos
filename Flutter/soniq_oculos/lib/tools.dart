@@ -6,6 +6,7 @@ class _App {
   ///
   /// Volume
   ///
+
   int _volume = 50;
   int get volume => this._volume;
   set volume(int volume) => this._volume = volume;
@@ -13,6 +14,7 @@ class _App {
   ///
   /// Context
   ///
+
   BuildContext _context;
   BuildContext get context => this._context;
   set context(BuildContext context) => this._context = context;
@@ -20,6 +22,7 @@ class _App {
   ///
   /// Navigation
   ///
+
   void pop() {
     if (this._context != null) {
       Navigator.pop(context);
@@ -30,6 +33,7 @@ class _App {
   ///
   /// Debug
   ///
+
   final String tag = '+';
   int _debugID = 1; // if 0, debug won't work
   dynamic msg(var msg, {BuildContext context, String prefix = 'DEBUG'}) {
@@ -43,6 +47,7 @@ class _App {
 ///
 /// Loading
 ///
+
 class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -53,6 +58,7 @@ class Loading extends StatelessWidget {
 ///
 /// Button
 ///
+
 class Button extends StatelessWidget {
   final String text;
   final Function function;
@@ -74,7 +80,7 @@ class Button extends StatelessWidget {
     this.padding = 16,
     this.margin = 0,
     this.border = 32,
-    @required this.borderColor,
+    this.borderColor,
   });
 
   @override
@@ -86,7 +92,7 @@ class Button extends StatelessWidget {
         padding: EdgeInsets.all(this.margin),
         child: OutlineButton(
           //splashColor: Colors.teal,
-          borderSide: BorderSide(color: this.borderColor),
+          borderSide: BorderSide(color: this.borderColor == null ? Colors.grey : this.borderColor),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(this.border)),
           padding: EdgeInsets.all(this.padding),
           onPressed: this.enable ? this.function : null,
@@ -100,7 +106,12 @@ class Button extends StatelessWidget {
 ///
 /// Volume Slider
 ///
+
 class VolumeSlider extends StatefulWidget {
+  final bool enable;
+
+  VolumeSlider({this.enable = true});
+
   @override
   _VolumeSliderState createState() => _VolumeSliderState();
 }
@@ -122,7 +133,7 @@ class _VolumeSliderState extends State<VolumeSlider> {
             divisions: 10,
             value: sliderValue.toDouble(),
             label: '$sliderValue', //* Label doesn't work without divisions
-            onChanged: (value) => setState(() => sliderValue = value.toInt()),
+            onChanged: this.widget.enable ? (value) => setState(() => sliderValue = value.toInt()) : null,
             onChangeEnd: (value) {
               if (sliderValue != app.volume) {
                 app.volume = sliderValue;

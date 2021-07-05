@@ -15,9 +15,9 @@ void nvs_init()
     ESP_ERROR_CHECK(err);
 }
 
-void nvs_write(int32_t value, char *namespace)
+void nvs_write(char *namespace, int32_t value)
 {
-    if (nvs_open(namespace, NVS_READWRITE, &s_nvs_handle) != ESP_OK)
+    if (nvs_open(namespace, NVS_READWRITE, &s_nvs_handle) != ESP_OK) // Open namespace
     {
         ESP_LOGE(NVS_TAG, "NVS open failed");
         return;
@@ -28,12 +28,12 @@ void nvs_write(int32_t value, char *namespace)
     if (nvs_commit(s_nvs_handle) != ESP_OK) // Commit value
         ESP_LOGE(NVS_TAG, "NVS commit failed");
 
-    nvs_close(s_nvs_handle);
+    nvs_close(s_nvs_handle); // Close namespace
 }
 
 int32_t nvs_read(char *namespace)
 {
-    if (nvs_open(namespace, NVS_READWRITE, &s_nvs_handle) != ESP_OK)
+    if (nvs_open(namespace, NVS_READWRITE, &s_nvs_handle) != ESP_OK) // Open namespace
     {
         ESP_LOGE(NVS_TAG, "NVS open failed");
         return DEFAULT_READ_VALUE;
@@ -44,7 +44,7 @@ int32_t nvs_read(char *namespace)
     if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
         ESP_LOGE(NVS_TAG, "NVS get failed");
 
-    nvs_close(s_nvs_handle);
+    nvs_close(s_nvs_handle); // Close namespace
 
     return value;
 }

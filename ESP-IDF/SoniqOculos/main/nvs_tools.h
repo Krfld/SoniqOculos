@@ -11,10 +11,10 @@ void nvs_init();
 /**
  * @brief Write int value to flash
  * 
- * @param value int to write
  * @param namespace ID of the value
+ * @param value int to write
  */
-void nvs_write(int32_t value, char *namespace);
+void nvs_write(char *namespace, int32_t value);
 /**
  * @brief Read int value from flash
  * 

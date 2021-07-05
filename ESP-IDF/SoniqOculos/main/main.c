@@ -18,7 +18,7 @@
  * TODO
  * measure power consumption
  * write .wav
- * shelf FIRs to equalize
+ * test white noise
  */
 
 RTC_DATA_ATTR static int mode = MUSIC; // Keep value while in deep-sleep
@@ -129,10 +129,8 @@ void handleMsgs(char *msg)
         i2s_change_to_devices(strtol(msg, &ptr, 0));
         break;
 
-    case 'e':                             // Equalizer
-        set_bass(strtol(msg, &ptr, 0));   // Bass
-        set_mid(strtol(msg, &ptr, 0));    // Mid
-        set_treble(strtol(msg, &ptr, 0)); // Treble
+    case 'e': // Equalizer
+        set_equalizer(strtol(msg, &ptr, 0), strtol(ptr, &ptr, 0), strtol(ptr, &ptr, 0));
         break;
 
     case 's': // SD card

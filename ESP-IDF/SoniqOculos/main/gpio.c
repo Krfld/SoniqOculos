@@ -88,7 +88,7 @@ static void volume_task(void *arg)
     {
         if (xQueueReceive(volume_queue_handle, &changing_volume, portMAX_DELAY) && changing_volume) // Wait for true value
         {
-            while (!xQueuePeek(volume_queue_handle, &changing_volume, pdMS_TO_TICKS(VOLUME_CHANGE_PERIOD)))
+            while (!xQueuePeek(volume_queue_handle, &changing_volume, pdMS_TO_TICKS(VOLUME_CHANGE_PERIOD))) // Keep changing volume if timeout
             {
                 changed_volume = true;
                 if (buttons_map == B2_MASK)
@@ -158,20 +158,16 @@ static void gpio_task(void *arg)
         {
             sd_det_state = !sd_det_state;
 
-            if (sd_det_state)
-                ESP_LOGW(GPIO_TAG, "Card inserted");
-            else // SD removed
+            if (GPIO_DEBUG)
             {
-                ESP_LOGW(GPIO_TAG, "Card removed");
-
-                if (sd_card_state()) // Check if card was removed unexpectedly
-                {
-                    ESP_LOGE(GPIO_TAG, "SD fault");
-                    nvs_write(nvs_read(FILE_NAME) - 1, FILE_NAME);
-                }
-
-                sd_card_deinit();
+                if (sd_det_state)
+                    ESP_LOGW(GPIO_TAG, "Card inserted");
+                else
+                    ESP_LOGW(GPIO_TAG, "Card removed");
             }
+
+            if (!sd_det_state) // SD removed
+                sd_card_deinit();
         }
 
         if (gpio_get_level(B1) != ((buttons_map & B1_MASK) ? 1 : 0))
@@ -202,7 +198,7 @@ static void gpio_task(void *arg)
                     ESP_LOGI(GPIO_TAG, "Released B2");
             }
 
-            if ((buttons_map & B2_MASK) && buttons_map == B2_MASK && get_mode() == MUSIC) // Pressed only button 2 and in music mode
+            if ((buttons_map & B2_MASK) && buttons_map == B2_MASK && get_mode() == MUSIC) // Pressed only button 2 and in music mode to increase volume
                 xQueueOverwrite(volume_queue_handle, &_true_);
         }
 
@@ -218,7 +214,7 @@ static void gpio_task(void *arg)
                     ESP_LOGI(GPIO_TAG, "Released B3");
             }
 
-            if ((buttons_map & B3_MASK) && buttons_map == B3_MASK && get_mode() == MUSIC) // Pressed only button 3 and in music mode
+            if ((buttons_map & B3_MASK) && buttons_map == B3_MASK && get_mode() == MUSIC) // Pressed only button 3 and in music mode to decrease volume
                 xQueueOverwrite(volume_queue_handle, &_true_);
         }
 

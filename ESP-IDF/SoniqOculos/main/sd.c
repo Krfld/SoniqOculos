@@ -9,6 +9,7 @@ static sdmmc_card_t *card;
 static sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 
 static FILE *f = NULL;
+static bool empty = true;
 
 static SemaphoreHandle_t sd_semaphore_handle;
 
@@ -67,9 +68,16 @@ void sd_card_init()
 
     ESP_LOGW(SD_CARD_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
+
 void sd_card_deinit()
 {
     xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
+
+    if (sd_card_state()) // Check if card was removed unexpectedly
+    {
+        ESP_LOGE(SD_CARD_TAG, "SD fault");
+        empty = true;
+    }
 
     sd_close_file();
 
@@ -109,7 +117,7 @@ void sd_open_file(char *file, char *type)
         return;
     }
 
-    nvs_write(++file_number, FILE_NAME);
+    empty = true;
     ESP_LOGI(SD_CARD_TAG, "File opened");
 }
 
@@ -117,6 +125,9 @@ void sd_close_file()
 {
     if (f == NULL)
         return;
+
+    if (!empty)
+        nvs_write(FILE_NAME, nvs_read(FILE_NAME) + 1);
 
     fclose(f);
     f = NULL;
@@ -128,11 +139,14 @@ void sd_write_data(uint8_t *data, size_t *len)
     if (f == NULL || !get_sd_det_state())
         return;
 
-    xSemaphoreAltTake(sd_semaphore_handle, portMAX_DELAY);
+    if (empty)
+        empty = false;
+
+    xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY);
 
     fwrite(data, sizeof(*data), *len, f);
 
-    xSemaphoreAltGive(sd_semaphore_handle);
+    xSemaphoreGive(sd_semaphore_handle);
 }
 
 void sd_card_toggle()

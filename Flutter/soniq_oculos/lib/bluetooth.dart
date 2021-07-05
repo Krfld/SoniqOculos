@@ -32,6 +32,8 @@ class _Bluetooth {
 
     if (msg.compareTo('ON') == 0) this._ready = true;
 
+    if (msg.compareTo('OFF') == 0) app.pop();
+
     if (msg.compareTo('OK') == 0) {
       data.gotOK();
       return;

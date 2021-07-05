@@ -1,5 +1,7 @@
 #include "bt.h"
 
+//* Some portion of this file was reused from Espressif example code
+
 #define BT_TAG "BT"
 #define BT_SPP_TAG "BT_SPP"
 
@@ -93,7 +95,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         spp_sending = false;
         spp_receiving = false;
 
-        // Send setup message
+        //! Send setup message
         spp_send_msg("Bouas");
         spp_send_msg(SPP_ON);
         break;

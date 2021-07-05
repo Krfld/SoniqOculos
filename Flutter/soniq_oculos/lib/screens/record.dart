@@ -44,7 +44,6 @@ class _RecordState extends State<Record> {
                                     : data.record == 1
                                         ? 'Stop Recording'
                                         : 'Sending...',
-                                borderColor: Colors.red,
                                 padding: 24,
                                 margin: 16,
                                 function: !data.processing ? data.toggleRecording : null,
@@ -55,7 +54,6 @@ class _RecordState extends State<Record> {
                                     : data.playback == 1
                                         ? 'Stop Playback'
                                         : 'Sending...',
-                                borderColor: Colors.red,
                                 padding: 24,
                                 margin: 16,
                                 function: !data.processing ? data.togglePlayback : null,

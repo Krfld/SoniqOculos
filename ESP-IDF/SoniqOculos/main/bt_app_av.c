@@ -1,5 +1,7 @@
 #include "bt.h"
 
+//* Some portion of this file was reused from Espressif example code
+
 #define BT_AV_TAG "BT_AV"
 #define BT_RC_TG_TAG "RCTG"
 #define BT_RC_CT_TAG "RCCT"
@@ -171,11 +173,10 @@ static void bt_av_hdl_avrc_ct_evt(uint16_t event, void *p_param)
         }
         break;
     }
-    case ESP_AVRC_CT_PASSTHROUGH_RSP_EVT: //* Receive AVRCP rsp
+    case ESP_AVRC_CT_PASSTHROUGH_RSP_EVT: // Receive AVRCP rsp
     {
         ESP_LOGI(BT_RC_CT_TAG, "AVRC passthrough rsp: key_code 0x%x, key_state %d", rc->psth_rsp.key_code, rc->psth_rsp.key_state);
-        set_interrupt_i2s_state(false);
-        i2s_turn_devices_on();
+        set_interrupt_i2s_state(false); // Uninterrupt i2s
         break;
     }
     case ESP_AVRC_CT_METADATA_RSP_EVT:
@@ -344,9 +345,9 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         s_pkt_cnt = 0;
         s_audio_state = a2d->audio_stat.state;
 
-        if (a2d->audio_stat.state == ESP_A2D_AUDIO_STATE_STARTED) //* Turn on devices when music playing
+        if (a2d->audio_stat.state == ESP_A2D_AUDIO_STATE_STARTED) // Turn on devices when music playing
             i2s_turn_devices_on();
-        else //* Turn off devices when no music playing
+        else // Turn off devices when no music playing
             i2s_turn_devices_off();
         break;
     }
@@ -386,8 +387,8 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
 
 void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
 {
-    //* 3584 or 3072 or 2560 samples
-    //* 2.5ms - 50ms intervals
+    // 3584 or 3072 or 2560 samples
+    // 2.5ms - 50ms intervals
     /*if (BT_DEBUG)
     {
         static int64_t last;

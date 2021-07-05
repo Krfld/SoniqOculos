@@ -49,7 +49,12 @@
 			"dsps_biquad_gen.h": "c",
 			"random": "cpp",
 			"dac.h": "c",
-			"stdio.h": "c"
+			"stdio.h": "c",
+			"optional": "c",
+			"istream": "c",
+			"ostream": "c",
+			"system_error": "c",
+			"functional": "c"
 		},
 		"idf.flashType": "UART",
 		"idf.espIdfPathWin": "C:\\Users\\Kiko\\esp\\esp-idf",

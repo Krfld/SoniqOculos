@@ -1,5 +1,7 @@
 #include "bt.h"
 
+//* Some portion of this file was reused from Espressif example code
+
 #define BT_APP_CORE_TAG "BT_APP_CORE"
 
 static bool interrupt_i2s = false;
@@ -174,32 +176,32 @@ static void bt_i2s_task_handler(void *arg)
     for (;;)
     {
         if (FIXED_DATA_LENGTH)
-            if (!xQueueReceive(bt_i2s_queue_handle, &size, portMAX_DELAY)) //* Wait for ringbuffer to have at least 4096 bytes
+            if (!xQueueReceive(bt_i2s_queue_handle, &size, portMAX_DELAY)) // Wait for ringbuffer to have at least 4096 bytes
                 continue;
 
-        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &size, portMAX_DELAY, DATA_LENGTH); //* Get 4096 bytes
+        data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &size, portMAX_DELAY, DATA_LENGTH); // Get 4096 bytes
 
         if (FIXED_DATA_LENGTH)
             if (size != DATA_LENGTH)
             {
                 ESP_LOGE(BT_APP_CORE_TAG, "Packet size different than %d: %d", DATA_LENGTH, size);
-                vRingbufferReturnItem(s_ringbuf_i2s, data); //* Remove from ringbuffer
+                vRingbufferReturnItem(s_ringbuf_i2s, data); // Remove from ringbuffer
                 continue;
             }
 
-        if (!interrupt_i2s)
+        if (!interrupt_i2s) // Don't send data if i2s interrupted
         {
             int64_t start;
             if (BT_DEBUG)
                 start = esp_timer_get_time();
 
-            process_data(data, &size);
+            i2s_write_data(data, &size);
 
             if (BT_DEBUG)
-                ESP_LOGI(BT_APP_CORE_TAG, "Process data delay took %lldus", esp_timer_get_time() - start); //* ~19ms
+                ESP_LOGI(BT_APP_CORE_TAG, "Process data delay took %lldus", esp_timer_get_time() - start); // ~19ms
         }
 
-        vRingbufferReturnItem(s_ringbuf_i2s, data); //* Remove from ringbuffer
+        vRingbufferReturnItem(s_ringbuf_i2s, data); // Remove from ringbuffer
     }
 }
 
@@ -209,7 +211,7 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
         return 0;
 
     BaseType_t done = pdFALSE;
-    if (!interrupt_i2s)
+    if (!interrupt_i2s)                                                           // Check if i2s interrupted to send some cmd or to sincronize devices
         done = xRingbufferSend(s_ringbuf_i2s, (void *)data, size, portMAX_DELAY); // Send data to buffer
 
     if (FIXED_DATA_LENGTH)
@@ -224,12 +226,10 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
                 last = now;
             }
 
-            xQueueOverwrite(bt_i2s_queue_handle, &size);
+            xQueueOverwrite(bt_i2s_queue_handle, &size); // Signal buffer has at least 4096 bytes
         }
 
-    if (done)
-        return size;
-    return 0;
+    return done ? size : 0;
 }
 
 void bt_send_avrc_cmd(uint8_t cmd)
@@ -245,7 +245,7 @@ void bt_send_avrc_cmd(uint8_t cmd)
     if (++tl > 15) // "consecutive commands should use different values"
         tl = 0;
 
-    set_interrupt_i2s_state(true);
+    set_interrupt_i2s_state(true);                                             // Interrupt i2s to send command
     esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_PRESSED);  // Send AVRCP command pressing
     esp_avrc_ct_send_passthrough_cmd(tl, cmd, ESP_AVRC_PT_CMD_STATE_RELEASED); // Send AVRCP command releasing
 }

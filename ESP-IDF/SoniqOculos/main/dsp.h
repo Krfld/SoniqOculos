@@ -31,16 +31,6 @@ void set_volume(int vol);
 void volume_up();
 void volume_down();
 
-void set_bass(int value);
-void set_mid(int value);
-void set_treble(int value);
+void set_equalizer(int bass, int mid, int treble);
 
 void apply_volume(uint8_t *data, size_t *len);
-
-/**
- * @brief Process data
- * 
- * @param data buffer of samples to process
- * @param len buffer length
- */
-void process_data(uint8_t *data, size_t *len);

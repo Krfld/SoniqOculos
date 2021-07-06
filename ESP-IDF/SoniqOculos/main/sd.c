@@ -36,7 +36,7 @@ void spi_init()
 
 void sd_card_init()
 {
-    if (card != NULL)
+    if (sd_card_state())
         return;
 
     if (!get_sd_det_state())
@@ -44,6 +44,8 @@ void sd_card_init()
         ESP_LOGW(SD_CARD_TAG, "Insert card");
         return;
     }
+
+    ESP_LOGI(SD_CARD_TAG, "Start recording");
 
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
@@ -71,9 +73,14 @@ void sd_card_init()
 
 void sd_card_deinit()
 {
+    if (!sd_card_state())
+        return;
+
+    ESP_LOGI(SD_CARD_TAG, "Stop recording");
+
     xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
 
-    if (sd_card_state()) // Check if card was removed unexpectedly
+    if (!get_sd_det_state()) // Check if card was removed unexpectedly
     {
         ESP_LOGE(SD_CARD_TAG, "SD fault");
         empty = true;
@@ -149,18 +156,12 @@ void sd_write_data(uint8_t *data, size_t *len)
     xSemaphoreGive(sd_semaphore_handle);
 }
 
-void sd_card_toggle()
+void sd_card_toggle(bool state)
 {
-    if (!sd_card_state())
-    {
-        ESP_LOGI(SD_CARD_TAG, "Start recording");
+    if (state)
         sd_card_init(); // Mount SD card and create file to write
-    }
     else
-    {
-        ESP_LOGI(SD_CARD_TAG, "Stop recording");
         sd_card_deinit(); // Close file and unmount SD card
-    }
 
     spp_send_msg("s %d", sd_card_state());
 }

@@ -13,9 +13,6 @@
 #define RINGBUFFER_SIZE 3 * DATA_LENGTH
 
 #define SPP_OK "OK"
-#define SPP_ON "ON"
-#define SPP_OFF "OFF"
-//#define SPP_FAIL "FAIL"
 
 void save_last_device(uint8_t *addr);
 

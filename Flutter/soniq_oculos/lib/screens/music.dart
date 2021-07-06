@@ -26,7 +26,7 @@ class _MusicState extends State<Music> {
       child: SafeArea(
         child: Scaffold(
           body: StreamBuilder(
-              stream: data.stream,
+              stream: app.stream,
               builder: (context, snapshot) {
                 return Center(
                   child: Column(
@@ -39,13 +39,13 @@ class _MusicState extends State<Music> {
                             text: 'Loading...',
                             padding: 24,
                             margin: 8,
-                            function: !data.processing ? () => null : null,
+                            function: !app.processing ? () => null : null,
                           ),
                           Button(
                             text: 'Loading...',
                             padding: 24,
                             margin: 8,
-                            function: !data.processing ? () => null : null,
+                            function: !app.processing ? () => null : null,
                           ),
                         ],
                       ),
@@ -53,8 +53,8 @@ class _MusicState extends State<Music> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          EqualizerSliders(enable: !data.processing),
-                          VolumeSlider(enable: !data.processing),
+                          EqualizerSliders(enable: !app.processing),
+                          VolumeSlider(enable: !app.processing),
                         ],
                       ),
                       Separator(),
@@ -62,7 +62,7 @@ class _MusicState extends State<Music> {
                         text: data.mode != -1 ? 'Switch to Record' : 'Switching...',
                         padding: 24,
                         border: 8,
-                        function: !data.processing ? () => Navigator.pushReplacementNamed(context, 'Record') : null,
+                        function: !app.processing ? () => Navigator.pushReplacementNamed(context, 'Record') : null,
                       ),
                     ],
                   ),

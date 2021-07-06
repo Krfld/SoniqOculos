@@ -24,40 +24,43 @@ class _Bluetooth {
   void sendCmd(var cmd) {
     if (!isDeviceConnected) return;
 
-    this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString())));
+    this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString(), prefix: 'Output')));
   }
 
   void getCmd(String msg) {
     app.msg(msg, prefix: 'Input');
 
-    if (msg.compareTo('ON') == 0) this._ready = true;
-
-    if (msg.compareTo('OFF') == 0) app.pop();
-
     if (msg.compareTo('OK') == 0) {
-      data.gotOK();
+      if (!this._ready) this._ready = true;
+      app.done();
       return;
     }
 
-    List characters = app.msg(msg.split(' '));
+    List characters = msg.split(' ');
     switch (characters[0]) {
       case 'm': // Mode
-        app.msg(int.parse(characters[1]));
+        data.mode = int.parse(characters[1]);
         break;
 
       case 'v': // Volume
+        data.volume = int.parse(characters[1]);
         break;
 
       case 'd': // Devices
         break;
 
       case 'e': // Equalizer
+        data.bass = int.parse(characters[1]);
+        data.mid = int.parse(characters[2]);
+        data.treble = int.parse(characters[3]);
         break;
 
-      case 's': // SD card
+      case 'r': // SD card
+        data.record = int.parse(characters[1]);
         break;
 
-      case 'b': // Bone Conductors
+      case 'p': // Bone Conductors
+        data.playback = int.parse(characters[1]);
         break;
 
       default:
@@ -139,19 +142,17 @@ class _Bluetooth {
     /// Setup input
     ///
 
-    StreamSubscription input = this._bluetoothConnection.input.listen((msg) => getCmd(ascii.decode(msg)));
-
-    input.onDone(() {
-      app.msg('Disconnected', prefix: 'Input');
+    this._bluetoothConnection.input.listen((msg) => getCmd(ascii.decode(msg))).onDone(() {
+      app.msg('Disconnected', prefix: 'Connection');
       app.pop();
     });
 
-    await Future.doWhile(() => !this._ready).timeout(Duration(seconds: 5)); // Wait for setup message
+    //await Future.doWhile(() => !this._ready).timeout(Duration(seconds: 5)); // Wait for setup message
 
-    if (!this._ready) {
+    /*if (!this._ready) {
       input.cancel(); // Cancel if ready not received
       return false;
-    }
+    }*/
 
     return true;
   }

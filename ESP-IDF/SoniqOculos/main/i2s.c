@@ -187,9 +187,9 @@ void i2s_toggle_devices()
     }
 }
 
-void i2s_toggle_bone_conductors()
+void i2s_toggle_bone_conductors(bool state)
 {
-    if (!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM))
+    if (state)
     {
         ESP_LOGI(I2S_TAG, "Start playback");
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, ON); // Turning bone conductors on starts playback

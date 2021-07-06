@@ -26,7 +26,7 @@ class _RecordState extends State<Record> {
       child: SafeArea(
         child: Scaffold(
           body: StreamBuilder(
-              stream: data.stream,
+              stream: app.stream,
               builder: (context, snapshot) {
                 return Center(
                   child: Column(
@@ -36,24 +36,16 @@ class _RecordState extends State<Record> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Button(
-                            text: data.record == 0
-                                ? 'Start Recording'
-                                : data.record == 1
-                                    ? 'Stop Recording'
-                                    : 'Loading...',
+                            text: data.record == 0 ? 'Start Recording' : 'Stop Recording',
                             padding: 24,
                             margin: 8,
-                            function: !data.processing ? data.toggleRecording : null,
+                            function: !app.processing ? data.toggleRecording : null,
                           ),
                           Button(
-                            text: data.playback == 0
-                                ? 'Start Playback'
-                                : data.playback == 1
-                                    ? 'Stop Playback'
-                                    : 'Loading...',
+                            text: data.playback == 0 ? 'Start Playback' : 'Stop Playback',
                             padding: 24,
                             margin: 8,
-                            function: !data.processing ? data.togglePlayback : null,
+                            function: !app.processing ? data.togglePlayback : null,
                           ),
                         ],
                       ),
@@ -61,8 +53,8 @@ class _RecordState extends State<Record> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          EqualizerSliders(enable: !data.processing),
-                          VolumeSlider(enable: !data.processing),
+                          EqualizerSliders(enable: !app.processing),
+                          VolumeSlider(enable: !app.processing),
                         ],
                       ),
                       Separator(),
@@ -70,7 +62,7 @@ class _RecordState extends State<Record> {
                         text: data.mode != -1 ? 'Switch to Music' : 'Switching...',
                         padding: 24,
                         border: 8,
-                        function: !data.processing ? () => Navigator.pushReplacementNamed(context, 'Music') : null,
+                        function: !app.processing ? () => Navigator.pushReplacementNamed(context, 'Music') : null,
                       ),
                     ],
                   ),

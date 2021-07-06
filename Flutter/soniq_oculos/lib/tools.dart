@@ -12,6 +12,30 @@ class _App {
   set context(BuildContext context) => this._context = context;
 
   ///
+  /// Processing
+  ///
+
+  // ignore: close_sinks
+  final StreamController streamController = StreamController.broadcast();
+  Stream get stream => this.streamController.stream;
+
+  bool _processing = false;
+  bool get processing => this._processing;
+
+  Future process(Function function) async {
+    if (this._processing) return;
+    this._processing = true;
+    this.streamController.sink.add(null); // Update screens
+    await Future.delayed(Duration(milliseconds: 250));
+    function();
+  }
+
+  void done() {
+    this._processing = false;
+    this.streamController.sink.add(null); // Update screens
+  }
+
+  ///
   /// Navigation
   ///
 
@@ -19,6 +43,7 @@ class _App {
     if (this._context != null) {
       Navigator.pop(context);
       this._context = null;
+      this._processing = false;
     }
   }
 
@@ -125,7 +150,7 @@ class VolumeSlider extends StatefulWidget {
 }
 
 class _VolumeSliderState extends State<VolumeSlider> {
-  int sliderValue = data.volume;
+  int sliderVolumeValue = data.volume;
 
   @override
   Widget build(BuildContext context) {
@@ -139,12 +164,12 @@ class _VolumeSliderState extends State<VolumeSlider> {
             min: 0,
             max: 100,
             divisions: 10,
-            value: sliderValue.toDouble(),
-            label: '$sliderValue', //* Label doesn't work without divisions
-            onChanged: this.widget.enable ? (value) => setState(() => sliderValue = value.toInt()) : null,
+            value: sliderVolumeValue.toDouble(),
+            label: '$sliderVolumeValue', //* Label doesn't work without divisions
+            onChanged: this.widget.enable ? (value) => setState(() => sliderVolumeValue = value.toInt()) : null,
             onChangeEnd: (value) {
-              if (sliderValue != data.volume) {
-                data.volume = sliderValue;
+              if (sliderVolumeValue != data.volume) {
+                data.volume = sliderVolumeValue;
                 bt.sendCmd('v ${data.volume}');
               }
             },
@@ -180,6 +205,25 @@ class _EqualizerSlidersState extends State<EqualizerSliders> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text('(dB)'),
+                Divider(),
+                Text('+${2 * data.equalizerGain}'),
+                Divider(),
+                Text('+${1 * data.equalizerGain}'),
+                Divider(),
+                Text('0'),
+                Divider(),
+                Text('-${1 * data.equalizerGain}'),
+                Divider(),
+                Text('-${2 * data.equalizerGain}'),
+              ],
+            ),
+          ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -187,19 +231,13 @@ class _EqualizerSlidersState extends State<EqualizerSliders> {
               RotatedBox(
                 quarterTurns: -1,
                 child: Slider.adaptive(
-                  min: -4,
-                  max: 0,
-                  divisions: 4,
-                  value: sliderBassValue.toDouble(),
-                  label: '${sliderBassValue + 2}', //* Label doesn't work without divisions
-                  onChanged: this.widget.enable ? (value) => setState(() => sliderBassValue = value.toInt()) : null,
-                  onChangeEnd: (value) {
-                    if (sliderBassValue != data.bass) {
-                      data.bass = sliderBassValue;
-                      bt.sendCmd('e ${data.bass} ${data.mid} ${data.treble}');
-                    }
-                  },
-                ),
+                    min: -4,
+                    max: 0,
+                    divisions: 4,
+                    value: sliderBassValue.toDouble(),
+                    //label: '${sliderBassValue + 2}', //* Label doesn't work without divisions
+                    onChanged: this.widget.enable ? (value) => setState(() => sliderBassValue = value.toInt()) : null,
+                    onChangeEnd: (value) => data.updateEqualizer(bass: sliderBassValue)),
               ),
             ],
           ),
@@ -210,19 +248,13 @@ class _EqualizerSlidersState extends State<EqualizerSliders> {
               RotatedBox(
                 quarterTurns: -1,
                 child: Slider.adaptive(
-                  min: -4,
-                  max: 0,
-                  divisions: 4,
-                  value: sliderMidValue.toDouble(),
-                  label: '${sliderMidValue + 2}', //* Label doesn't work without divisions
-                  onChanged: this.widget.enable ? (value) => setState(() => sliderMidValue = value.toInt()) : null,
-                  onChangeEnd: (value) {
-                    if (sliderMidValue != data.mid) {
-                      data.mid = sliderMidValue;
-                      bt.sendCmd('e ${data.bass} ${data.mid} ${data.treble}');
-                    }
-                  },
-                ),
+                    min: -4,
+                    max: 0,
+                    divisions: 4,
+                    value: sliderMidValue.toDouble(),
+                    //label: '${sliderMidValue + 2}', //* Label doesn't work without divisions
+                    onChanged: this.widget.enable ? (value) => setState(() => sliderMidValue = value.toInt()) : null,
+                    onChangeEnd: (value) => data.updateEqualizer(mid: sliderMidValue)),
               ),
             ],
           ),
@@ -233,19 +265,13 @@ class _EqualizerSlidersState extends State<EqualizerSliders> {
               RotatedBox(
                 quarterTurns: -1,
                 child: Slider.adaptive(
-                  min: -4,
-                  max: 0,
-                  divisions: 4,
-                  value: sliderTrebleValue.toDouble(),
-                  label: '${sliderTrebleValue + 2}', //* Label doesn't work without divisions
-                  onChanged: this.widget.enable ? (value) => setState(() => sliderTrebleValue = value.toInt()) : null,
-                  onChangeEnd: (value) {
-                    if (sliderTrebleValue != data.treble) {
-                      data.treble = sliderTrebleValue;
-                      bt.sendCmd('e ${data.bass} ${data.mid} ${data.treble}');
-                    }
-                  },
-                ),
+                    min: -4,
+                    max: 0,
+                    divisions: 4,
+                    value: sliderTrebleValue.toDouble(),
+                    //label: '${sliderTrebleValue + 2}', //* Label doesn't work without divisions
+                    onChanged: this.widget.enable ? (value) => setState(() => sliderTrebleValue = value.toInt()) : null,
+                    onChangeEnd: (value) => data.updateEqualizer(treble: sliderTrebleValue)),
               ),
             ],
           ),

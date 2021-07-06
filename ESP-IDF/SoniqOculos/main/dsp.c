@@ -9,9 +9,9 @@
 
 RTC_DATA_ATTR static int volume = DEFAULT_VOLUME; //* % | Keep value while in deep-sleep
 
-RTC_DATA_ATTR static int eq_bass = -2;   //* 0..-4 | Keep value while in deep-sleep
-RTC_DATA_ATTR static int eq_mid = -2;    //* 0..-4 | Keep value while in deep-sleep
-RTC_DATA_ATTR static int eq_treble = -2; //* 0..-4 | Keep value while in deep-sleep
+RTC_DATA_ATTR static int eq_bass = 0;   //* -2..2 | Keep value while in deep-sleep
+RTC_DATA_ATTR static int eq_mid = 0;    //* -2..2 | Keep value while in deep-sleep
+RTC_DATA_ATTR static int eq_treble = 0; //* -2..2 | Keep value while in deep-sleep
 
 static SemaphoreHandle_t equalizer_semaphore_handle;
 
@@ -61,9 +61,9 @@ void dsp_init()
         ESP_LOGE(DSP_TAG, "Error creating semaphore");
 
     // Equalizer
-    dsps_biquad_gen_lowShelf_f32(e_b_low_shelf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, eq_bass, Q);      // Generate coeffs for BASS
-    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, eq_mid, Q);                  // Generate coeffs for MID
-    dsps_biquad_gen_highShelf_f32(e_t_high_shelf_coeffs, EQUALIZER_HIGH_SHELF_FREQUENCY / SAMPLE_FREQUENCY, eq_treble, Q); // Generate coeffs for TREBLE
+    dsps_biquad_gen_lowShelf_f32(e_b_low_shelf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_bass - 2) * EQUALIZER_GAIN, Q);      // Generate coeffs for BASS
+    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, (eq_mid - 2) * EQUALIZER_GAIN, Q);                  // Generate coeffs for MID
+    dsps_biquad_gen_highShelf_f32(e_t_high_shelf_coeffs, EQUALIZER_HIGH_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_treble - 2) * EQUALIZER_GAIN, Q); // Generate coeffs for TREBLE
 
     // Crossover
     dsps_biquad_gen_lpf_f32(c_lpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for LPF
@@ -118,15 +118,15 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
 
 void set_equalizer(int bass, int mid, int treble)
 {
-    eq_bass = bass * EQUALIZER_GAIN;
-    eq_mid = mid * EQUALIZER_GAIN;
-    eq_treble = treble * EQUALIZER_GAIN;
+    eq_bass = bass;
+    eq_mid = mid;
+    eq_treble = treble;
 
     xSemaphoreTake(equalizer_semaphore_handle, portMAX_DELAY); // Wait to update equalizer
 
-    dsps_biquad_gen_lowShelf_f32(e_b_low_shelf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, eq_bass, Q);      // Generate coeffs for BASS
-    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, eq_mid, Q);                  // Generate coeffs for MID
-    dsps_biquad_gen_highShelf_f32(e_t_high_shelf_coeffs, EQUALIZER_HIGH_SHELF_FREQUENCY / SAMPLE_FREQUENCY, eq_treble, Q); // Generate coeffs for TREBLE
+    dsps_biquad_gen_lowShelf_f32(e_b_low_shelf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_bass - 2) * EQUALIZER_GAIN, Q);      // Generate coeffs for BASS
+    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, (eq_mid - 2) * EQUALIZER_GAIN, Q);                  // Generate coeffs for MID
+    dsps_biquad_gen_highShelf_f32(e_t_high_shelf_coeffs, EQUALIZER_HIGH_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_treble - 2) * EQUALIZER_GAIN, Q); // Generate coeffs for TREBLE
 
     xSemaphoreGive(equalizer_semaphore_handle);
 

@@ -39,7 +39,7 @@ void i2s_set_device_state(int device, bool state);
 void i2s_change_to_devices(int dev);
 void i2s_toggle_devices();
 
-void i2s_toggle_bone_conductors();
+void i2s_toggle_bone_conductors(bool state);
 
 void i2s_turn_devices_on();
 void i2s_turn_devices_off();

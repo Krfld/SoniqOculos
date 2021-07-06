@@ -97,7 +97,8 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 
         //! Send setup message
         spp_send_msg("Bouas");
-        spp_send_msg(SPP_ON);
+        delay(1000); //TODO Check delay
+        spp_send_msg(SPP_OK);
         break;
     case ESP_SPP_CLOSE_EVT: // Disconnected from server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");

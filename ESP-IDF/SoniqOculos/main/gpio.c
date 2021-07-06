@@ -263,7 +263,7 @@ static void gpio_task(void *arg)
                         //ESP_LOGI(GPIO_TAG, "Volume up");
                         volume_up();
                         //! TESTING
-                        sd_card_toggle();
+                        sd_card_toggle(!sd_card_state());
                         delay(COMMAND_DELAY);
                     }
                     break;
@@ -306,9 +306,9 @@ static void gpio_task(void *arg)
                 case B3_MASK | B2_MASK:
                 case B1_MASK | B3_MASK:            // 101
                     if (buttons_command & B1_MASK) // 001
-                        sd_card_toggle();
+                        sd_card_toggle(!sd_card_state());
                     if (buttons_command & B3_MASK) // 100
-                        i2s_toggle_bone_conductors();
+                        i2s_toggle_bone_conductors(!i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM));
                     delay(COMMAND_DELAY);
                     break;
 

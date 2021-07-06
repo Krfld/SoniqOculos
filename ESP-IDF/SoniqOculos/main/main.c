@@ -82,8 +82,6 @@ void shutdown()
     sd_card_deinit();       // Close SD file
     bt_music_deinit();      // Disconnect from device if connected
 
-    spp_send_msg(SPP_OFF);
-
     // Disable BT components
     esp_bluedroid_disable();
     esp_bt_controller_disable();
@@ -112,7 +110,7 @@ void handleMsgs(char *msg)
         return;
     }*/
 
-    // Message received (examples) | 'm 0' | 'v 100' | 'e -2 -2 -2' |
+    // Message received (examples) | 'm 0' | 'v 100' | 'e 0 0 0' |
 
     char *ptr;
     switch (*msg++)
@@ -134,11 +132,11 @@ void handleMsgs(char *msg)
         break;
 
     case 's': // SD card
-        sd_card_toggle();
+        sd_card_toggle(strtol(msg, &ptr, 0));
         break;
 
     case 'b': // Bone Conductors
-        i2s_toggle_bone_conductors();
+        i2s_toggle_bone_conductors(strtol(msg, &ptr, 0));
         break;
 
     default:

@@ -97,7 +97,7 @@ typedef struct wavfile_header_s
 /**
  * @brief See if card is mounted and file opened
  * 
- * @return true if file is ready, false otherwise
+ * @return true if SD is ready, false otherwise
  */
 bool sd_card_state();
 
@@ -135,4 +135,4 @@ void sd_write_data(uint8_t *data, size_t *len);
  * @brief Open file if closed or close file if opened
  * 
  */
-void sd_card_toggle();
+void sd_card_toggle(bool state);

@@ -32,51 +32,45 @@ class _RecordState extends State<Record> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Expanded(
-                        flex: 3,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Button(
-                                text: data.record == 0
-                                    ? 'Start Recording'
-                                    : data.record == 1
-                                        ? 'Stop Recording'
-                                        : 'Sending...',
-                                padding: 24,
-                                margin: 16,
-                                function: !data.processing ? data.toggleRecording : null,
-                              ),
-                              Button(
-                                text: data.playback == 0
-                                    ? 'Start Playback'
-                                    : data.playback == 1
-                                        ? 'Stop Playback'
-                                        : 'Sending...',
-                                padding: 24,
-                                margin: 16,
-                                function: !data.processing ? data.togglePlayback : null,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(flex: 1, child: Center(child: VolumeSlider(enable: !data.processing))),
-                      Expanded(
-                        flex: 2,
-                        child: Center(
-                          child: Button(
-                            text: 'Switch to Music',
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Button(
+                            text: data.record == 0
+                                ? 'Start Recording'
+                                : data.record == 1
+                                    ? 'Stop Recording'
+                                    : 'Loading...',
                             padding: 24,
-                            border: 8,
-                            function: !data.processing ? () => Navigator.pushReplacementNamed(context, 'Music') : null,
+                            margin: 8,
+                            function: !data.processing ? data.toggleRecording : null,
                           ),
-                          /*child: FloatingActionButton.extended(
-                          label: Text('Switch to Music'),
-                          onPressed: () => Navigator.pushReplacementNamed(context, 'Music'),
-                        ),*/
-                        ),
+                          Button(
+                            text: data.playback == 0
+                                ? 'Start Playback'
+                                : data.playback == 1
+                                    ? 'Stop Playback'
+                                    : 'Loading...',
+                            padding: 24,
+                            margin: 8,
+                            function: !data.processing ? data.togglePlayback : null,
+                          ),
+                        ],
+                      ),
+                      Separator(),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          EqualizerSliders(enable: !data.processing),
+                          VolumeSlider(enable: !data.processing),
+                        ],
+                      ),
+                      Separator(),
+                      Button(
+                        text: data.mode != -1 ? 'Switch to Music' : 'Switching...',
+                        padding: 24,
+                        border: 8,
+                        function: !data.processing ? () => Navigator.pushReplacementNamed(context, 'Music') : null,
                       ),
                     ],
                   ),

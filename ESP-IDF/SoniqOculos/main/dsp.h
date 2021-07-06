@@ -15,7 +15,8 @@
 #define EQUALIZER_LOW_SHELF_FREQUENCY 250   // Hz
 #define EQUALIZER_NOTCH_FREQUENCY 2500      // Hz
 #define EQUALIZER_HIGH_SHELF_FREQUENCY 4000 // Hz
-#define EQUALIZER_GAIN 3                    // dB
+
+#define EQUALIZER_GAIN 3 // dB
 
 #define CROSSOVER_FREQUENCY 1000 // Hz
 

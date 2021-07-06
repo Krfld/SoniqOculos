@@ -74,7 +74,7 @@ void spp_send_msg(char *msg, ...)
 
     strcat(str, "\n");
 
-    esp_spp_write(spp_handle, strlen(msg), (uint8_t *)str);
+    esp_spp_write(spp_handle, strlen(msg), (uint8_t *)str); // Send spp message
 }
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)

@@ -4,14 +4,6 @@ final _App app = _App();
 
 class _App {
   ///
-  /// Volume
-  ///
-
-  int _volume = 50;
-  int get volume => this._volume;
-  set volume(int volume) => this._volume = volume;
-
-  ///
   /// Context
   ///
 
@@ -52,6 +44,22 @@ class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: Center(child: SpinKitChasingDots(color: Colors.teal)));
+  }
+}
+
+///
+/// Separator
+///
+
+class Separator extends StatelessWidget {
+  final double _indent = 50;
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      indent: this._indent,
+      endIndent: this._indent,
+    );
   }
 }
 
@@ -117,7 +125,7 @@ class VolumeSlider extends StatefulWidget {
 }
 
 class _VolumeSliderState extends State<VolumeSlider> {
-  int sliderValue = app.volume;
+  int sliderValue = data.volume;
 
   @override
   Widget build(BuildContext context) {
@@ -135,14 +143,114 @@ class _VolumeSliderState extends State<VolumeSlider> {
             label: '$sliderValue', //* Label doesn't work without divisions
             onChanged: this.widget.enable ? (value) => setState(() => sliderValue = value.toInt()) : null,
             onChangeEnd: (value) {
-              if (sliderValue != app.volume) {
-                app.volume = sliderValue;
-                bt.sendCmd('v ${app.volume}');
+              if (sliderValue != data.volume) {
+                data.volume = sliderValue;
+                bt.sendCmd('v ${data.volume}');
               }
             },
           ),
         ),
       ],
+    );
+  }
+}
+
+///
+/// Equalizer Sliders
+///
+
+class EqualizerSliders extends StatefulWidget {
+  final bool enable;
+
+  EqualizerSliders({this.enable = true});
+
+  @override
+  _EqualizerSlidersState createState() => _EqualizerSlidersState();
+}
+
+class _EqualizerSlidersState extends State<EqualizerSliders> {
+  int sliderBassValue = data.bass;
+  int sliderMidValue = data.mid;
+  int sliderTrebleValue = data.treble;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 32),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Bass'),
+              RotatedBox(
+                quarterTurns: -1,
+                child: Slider.adaptive(
+                  min: -4,
+                  max: 0,
+                  divisions: 4,
+                  value: sliderBassValue.toDouble(),
+                  label: '${sliderBassValue + 2}', //* Label doesn't work without divisions
+                  onChanged: this.widget.enable ? (value) => setState(() => sliderBassValue = value.toInt()) : null,
+                  onChangeEnd: (value) {
+                    if (sliderBassValue != data.bass) {
+                      data.bass = sliderBassValue;
+                      bt.sendCmd('e ${data.bass} ${data.mid} ${data.treble}');
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Mid'),
+              RotatedBox(
+                quarterTurns: -1,
+                child: Slider.adaptive(
+                  min: -4,
+                  max: 0,
+                  divisions: 4,
+                  value: sliderMidValue.toDouble(),
+                  label: '${sliderMidValue + 2}', //* Label doesn't work without divisions
+                  onChanged: this.widget.enable ? (value) => setState(() => sliderMidValue = value.toInt()) : null,
+                  onChangeEnd: (value) {
+                    if (sliderMidValue != data.mid) {
+                      data.mid = sliderMidValue;
+                      bt.sendCmd('e ${data.bass} ${data.mid} ${data.treble}');
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Treble'),
+              RotatedBox(
+                quarterTurns: -1,
+                child: Slider.adaptive(
+                  min: -4,
+                  max: 0,
+                  divisions: 4,
+                  value: sliderTrebleValue.toDouble(),
+                  label: '${sliderTrebleValue + 2}', //* Label doesn't work without divisions
+                  onChanged: this.widget.enable ? (value) => setState(() => sliderTrebleValue = value.toInt()) : null,
+                  onChangeEnd: (value) {
+                    if (sliderTrebleValue != data.treble) {
+                      data.treble = sliderTrebleValue;
+                      bt.sendCmd('e ${data.bass} ${data.mid} ${data.treble}');
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

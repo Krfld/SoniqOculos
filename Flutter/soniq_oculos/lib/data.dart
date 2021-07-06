@@ -31,7 +31,9 @@ class Data {
   /// Volume
   ///
 
-  int volume = 50; // -1 when waiting for OK
+  int _volume = 50; // -1 when waiting for OK
+  int get volume => this._volume;
+  set volume(int volume) => this._volume = volume;
 
   ///
   /// Devices
@@ -43,7 +45,16 @@ class Data {
   /// Equalizer
   ///
 
-  List<int> equalizer = [-2, -2, -2]; // 1 when waiting for OK
+  List<int> _equalizer = [-2, -2, -2]; // 1 when waiting for OK
+
+  int get bass => this._equalizer[0];
+  set bass(int value) => this._equalizer[0] = value;
+
+  int get mid => this._equalizer[1];
+  set mid(int value) => this._equalizer[1] = value;
+
+  int get treble => this._equalizer[2];
+  set treble(int value) => this._equalizer[2] = value;
 
   ///
   /// Record
@@ -51,10 +62,7 @@ class Data {
 
   int _record = 0; // -1 when waiting for OK
   int get record => this._record;
-
-  void updateRecord(int value) {
-    this._record = value;
-  }
+  set record(int value) => this._record = value;
 
   void toggleRecording() {
     if (this._processing || _record == -1) return;
@@ -72,10 +80,7 @@ class Data {
 
   int _playback = 0; // -1 when waiting for OK
   int get playback => this._playback;
-
-  void updatePlayback(int value) {
-    this._playback = value;
-  }
+  set playback(int value) => this._playback = value;
 
   void togglePlayback() {
     if (this._processing || _playback == -1) return;

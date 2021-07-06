@@ -32,22 +32,37 @@ class _MusicState extends State<Music> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text('Music'),
-                      Expanded(flex: 1, child: Center(child: VolumeSlider(enable: !data.processing))),
-                      Expanded(
-                        flex: 2,
-                        child: Center(
-                          child: Button(
-                            text: 'Switch to Record',
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Button(
+                            text: 'Loading...',
                             padding: 24,
-                            border: 8,
-                            function: !data.processing ? () => Navigator.pushReplacementNamed(context, 'Record') : null,
+                            margin: 8,
+                            function: !data.processing ? () => null : null,
                           ),
-                          /*child: FloatingActionButton.extended(
-                          label: Text('Switch to Music'),
-                          onPressed: () => Navigator.pushReplacementNamed(context, 'Music'),
-                        ),*/
-                        ),
+                          Button(
+                            text: 'Loading...',
+                            padding: 24,
+                            margin: 8,
+                            function: !data.processing ? () => null : null,
+                          ),
+                        ],
+                      ),
+                      Separator(),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          EqualizerSliders(enable: !data.processing),
+                          VolumeSlider(enable: !data.processing),
+                        ],
+                      ),
+                      Separator(),
+                      Button(
+                        text: data.mode != -1 ? 'Switch to Record' : 'Switching...',
+                        padding: 24,
+                        border: 8,
+                        function: !data.processing ? () => Navigator.pushReplacementNamed(context, 'Record') : null,
                       ),
                     ],
                   ),

@@ -7,21 +7,21 @@
 
 typedef struct
 {
-    unsigned char riff[4]; // 'RIFF' string
-    unsigned int size;     // size of file in bytes
-    unsigned char wave[4]; // 'WAVE' string
+    uint8_t riff[4]; // 'RIFF' string
+    uint32_t size;   // size of file in bytes
+    uint8_t wave[4]; // 'WAVE' string
 
-    unsigned char fmt[4];         // 'fmt ' string with trailing null char
-    unsigned int fmt_size;        // length of the format data
-    unsigned int fmt_type;        // format type. 1-PCM, 3- IEEE float, 6 - 8bit A law, 7 - 8bit mu law
-    unsigned int channels;        // no.of channels
-    unsigned int sample_rate;     // sampling rate (blocks per second)
-    unsigned int byte_rate;       // SampleRate * NumChannels * BitsPerSample/8
-    unsigned int block_align;     // NumChannels * BitsPerSample/8
-    unsigned int bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
+    uint8_t fmt[4];           // 'fmt ' string with trailing null char
+    uint32_t fmt_size;        // length of the format data
+    uint16_t fmt_type;        // format type. 1-PCM, 3- IEEE float, 6 - 8bit A law, 7 - 8bit mu law
+    uint16_t channels;        // no.of channels
+    uint32_t sample_rate;     // sampling rate (blocks per second)
+    uint32_t byte_rate;       // SampleRate * NumChannels * BitsPerSample/8
+    uint16_t block_align;     // NumChannels * BitsPerSample/8
+    uint16_t bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
 
-    unsigned char data[4];  // 'data' string
-    unsigned int data_size; // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
+    uint8_t data[4];    // 'data' string
+    uint32_t data_size; // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
 } wav_header_t;
 
 static sdmmc_card_t *card;
@@ -32,7 +32,8 @@ static wav_header_t wav_header;
 
 static SemaphoreHandle_t sd_semaphore_handle;
 
-static void wav_header_init();
+static void
+wav_header_init();
 
 bool sd_card_state()
 {
@@ -99,14 +100,15 @@ void sd_card_deinit()
 
     ESP_LOGI(SD_CARD_TAG, "Stop recording");
 
-    xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
-
     if (!get_sd_det_state()) // Check if card was removed unexpectedly
     {
         ESP_LOGE(SD_CARD_TAG, "SD fault");
         wav_header.data_size = 0;
     }
 
+    xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
+
+    delay(100);
     sd_close_file();
 
     if (card == NULL)
@@ -161,8 +163,8 @@ void sd_close_file()
         nvs_write(FILE_NAME, nvs_read(FILE_NAME) + 1); // Increment file ID if not empty
 
         // Rewrite wav header
-        fseek(f, 0, SEEK_SET);
-        fwrite(&wav_header, sizeof(wav_header_t), 1, f);
+        //!fseek(f, 0, SEEK_SET);
+        //!fwrite(&wav_header, sizeof(wav_header_t), 1, f);
     }
 
     fclose(f);
@@ -175,13 +177,14 @@ void sd_write_data(uint8_t *data, size_t *len)
     if (f == NULL || !get_sd_det_state())
         return;
 
-    xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY);
+    if (xSemaphoreTake(sd_semaphore_handle, 0)) //! Not working
+    {
+        fwrite(data, sizeof(*data), *len, f); // Write samples
+        wav_header.size += *len;              // Increment size
+        wav_header.data_size += *len;         // Increment data size
 
-    fwrite(data, sizeof(*data), *len, f); // Write samples
-    wav_header.size += *len;              // Increment size
-    wav_header.data_size += *len;         // Increment data size
-
-    xSemaphoreGive(sd_semaphore_handle);
+        xSemaphoreGive(sd_semaphore_handle);
+    }
 }
 
 void sd_card_toggle(bool state)

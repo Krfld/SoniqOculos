@@ -2,8 +2,9 @@ clc
 clear
 % close all
 
-[n, Fs] = audioread('D:\ISEL\PFC\SoniqOculos\MATLAB\Audio Samples\noise.wav');
+[n, Fs] = audioread('E:\REC_1.wav');
 
+%%
 Fs = 44100;
 bitsPerSample = 16;
 

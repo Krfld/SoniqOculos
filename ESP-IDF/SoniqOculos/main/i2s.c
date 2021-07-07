@@ -315,7 +315,8 @@ void i2s_write_data(uint8_t *data, size_t *len)
         data[i + 1] = temp;
     }*/
 
-    apply_equalizer(data, len);
+    if (get_mode() == MUSIC)
+        apply_equalizer(data, len);
 
     //sd_write_data(data, len); //! Testing
     //return;
@@ -331,7 +332,8 @@ void i2s_write_data(uint8_t *data, size_t *len)
     }
     else
     {
-        apply_volume(data, len);
+        if (get_mode() == MUSIC)
+            apply_volume(data, len);
 
         if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
             i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);

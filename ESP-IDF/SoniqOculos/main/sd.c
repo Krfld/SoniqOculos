@@ -194,7 +194,7 @@ void sd_card_toggle(bool state)
     else
         sd_card_deinit(); // Close file and unmount SD card
 
-    spp_send_msg("s %d", sd_card_state());
+    spp_send_msg("r %d", sd_card_state());
 }
 
 static void wav_header_init()

@@ -7,14 +7,7 @@
 
 #define I2S_TAG "I2S"
 
-enum DEVICES
-{
-    BOTH_DEVICES,
-    ONLY_BONE_CONDUCTORS,
-    ONLY_SPEAKERS
-};
-
-RTC_DATA_ATTR static enum DEVICES devices = BOTH_DEVICES; //* Keep value while in deep-sleep
+RTC_DATA_ATTR static int devices = BOTH_DEVICES; //* Keep value while in deep-sleep
 int get_devices()
 {
     return devices;
@@ -200,7 +193,7 @@ void i2s_toggle_bone_conductors(bool state)
         i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF); // Turning bone conductors off stops playback
     }
 
-    spp_send_msg("s %d", i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM));
+    spp_send_msg("p %d", i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM));
 }
 
 void i2s_turn_devices_on()

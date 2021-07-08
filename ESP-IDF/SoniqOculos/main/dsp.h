@@ -22,6 +22,12 @@
 
 #define Q sqrt(2) / 2 // 0.7071067812
 
+int get_volume();
+
+int get_bass();
+int get_mid();
+int get_treble();
+
 void dsp_init();
 
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len);

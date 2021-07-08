@@ -32,29 +32,21 @@ class _RecordState extends State<Record> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Row(
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Button(
                             text: data.record == 0 ? 'Start Recording' : 'Stop Recording',
                             padding: 24,
-                            margin: 8,
+                            margin: 32,
                             function: !app.processing ? data.toggleRecording : null,
                           ),
                           Button(
                             text: data.playback == 0 ? 'Start Playback' : 'Stop Playback',
                             padding: 24,
-                            margin: 8,
+                            margin: 32,
                             function: !app.processing ? data.togglePlayback : null,
                           ),
-                        ],
-                      ),
-                      Separator(),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          EqualizerSliders(enable: !app.processing),
-                          VolumeSlider(enable: !app.processing),
                         ],
                       ),
                       Separator(),
@@ -62,7 +54,7 @@ class _RecordState extends State<Record> {
                         text: data.mode != -1 ? 'Switch to Music' : 'Switching...',
                         padding: 24,
                         border: 8,
-                        function: !app.processing ? () => Navigator.pushReplacementNamed(context, 'Music') : null,
+                        function: !app.processing ? () => data.changeMode() : null,
                       ),
                     ],
                   ),

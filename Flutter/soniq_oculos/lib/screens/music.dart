@@ -62,7 +62,7 @@ class _MusicState extends State<Music> {
                         text: data.mode != -1 ? 'Switch to Record' : 'Switching...',
                         padding: 24,
                         border: 8,
-                        function: !app.processing ? () => Navigator.pushReplacementNamed(context, 'Record') : null,
+                        function: !app.processing ? () => data.changeMode() : null,
                       ),
                     ],
                   ),

@@ -12,6 +12,9 @@ char *volume = "v [0..100]";
 char *devices = "d [0,1,2]";
 
 char *equalizer = "e [-2..2] [-2..2] [-2..2]";
+char *equalizer_bass = "eb [-2..2]";
+char *equalizer_mid = "em [-2..2]";
+char *equalizer_treble = "et [-2..2]";
 
 char *record = "r [0,1]";
 

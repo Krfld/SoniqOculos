@@ -12,8 +12,6 @@
 #define BT_I2S_STACK_DEPTH 3 * 1024
 #define RINGBUFFER_SIZE 3 * DATA_LENGTH
 
-#define SPP_OK "OK"
-
 void save_last_device(uint8_t *addr);
 
 void spp_set_sending_state(bool state);

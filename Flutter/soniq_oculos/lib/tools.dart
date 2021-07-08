@@ -39,6 +39,10 @@ class _App {
   /// Navigation
   ///
 
+  void push(String route) {
+    if (this._context != null) Navigator.pushReplacementNamed(context, route);
+  }
+
   void pop() {
     if (this._context != null) {
       Navigator.pop(context);
@@ -150,8 +154,6 @@ class VolumeSlider extends StatefulWidget {
 }
 
 class _VolumeSliderState extends State<VolumeSlider> {
-  int sliderVolumeValue = data.volume;
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -164,15 +166,10 @@ class _VolumeSliderState extends State<VolumeSlider> {
             min: 0,
             max: 100,
             divisions: 10,
-            value: sliderVolumeValue.toDouble(),
-            label: '$sliderVolumeValue', //* Label doesn't work without divisions
-            onChanged: this.widget.enable ? (value) => setState(() => sliderVolumeValue = value.toInt()) : null,
-            onChangeEnd: (value) {
-              if (sliderVolumeValue != data.volume) {
-                data.volume = sliderVolumeValue;
-                bt.sendCmd('v ${data.volume}');
-              }
-            },
+            value: data.volume.toDouble(),
+            label: '${data.volume}', //* Label doesn't work without divisions
+            onChanged: this.widget.enable ? (value) => setState(() => data.volume = value.toInt()) : null,
+            onChangeEnd: (value) => data.changeVolume(value.toInt()),
           ),
         ),
       ],
@@ -231,11 +228,11 @@ class _EqualizerSlidersState extends State<EqualizerSliders> {
               RotatedBox(
                 quarterTurns: -1,
                 child: Slider.adaptive(
-                    min: -4,
-                    max: 0,
+                    min: -2,
+                    max: 2,
                     divisions: 4,
                     value: sliderBassValue.toDouble(),
-                    //label: '${sliderBassValue + 2}', //* Label doesn't work without divisions
+                    //label: '${sliderBassValue * data.equalizerGain}', //* Label doesn't work without divisions
                     onChanged: this.widget.enable ? (value) => setState(() => sliderBassValue = value.toInt()) : null,
                     onChangeEnd: (value) => data.updateEqualizer(bass: sliderBassValue)),
               ),
@@ -248,11 +245,11 @@ class _EqualizerSlidersState extends State<EqualizerSliders> {
               RotatedBox(
                 quarterTurns: -1,
                 child: Slider.adaptive(
-                    min: -4,
-                    max: 0,
+                    min: -2,
+                    max: 2,
                     divisions: 4,
                     value: sliderMidValue.toDouble(),
-                    //label: '${sliderMidValue + 2}', //* Label doesn't work without divisions
+                    //label: '${sliderMidValue * data.equalizerGain}', //* Label doesn't work without divisions
                     onChanged: this.widget.enable ? (value) => setState(() => sliderMidValue = value.toInt()) : null,
                     onChangeEnd: (value) => data.updateEqualizer(mid: sliderMidValue)),
               ),
@@ -265,11 +262,11 @@ class _EqualizerSlidersState extends State<EqualizerSliders> {
               RotatedBox(
                 quarterTurns: -1,
                 child: Slider.adaptive(
-                    min: -4,
-                    max: 0,
+                    min: -2,
+                    max: 2,
                     divisions: 4,
                     value: sliderTrebleValue.toDouble(),
-                    //label: '${sliderTrebleValue + 2}', //* Label doesn't work without divisions
+                    //label: '${sliderTrebleValue * data.equalizerGain}', //* Label doesn't work without divisions
                     onChanged: this.widget.enable ? (value) => setState(() => sliderTrebleValue = value.toInt()) : null,
                     onChangeEnd: (value) => data.updateEqualizer(treble: sliderTrebleValue)),
               ),

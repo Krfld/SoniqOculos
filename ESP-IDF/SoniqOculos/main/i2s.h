@@ -1,10 +1,13 @@
 #include "main.h"
 
-//* Devices
 #define NONE 0
 #define SPEAKERS 1
 #define MICROPHONES 2
 //#define BONE_CONDUCTORS 3
+
+#define BOTH_DEVICES 0
+#define ONLY_BONE_CONDUCTORS 1
+#define ONLY_SPEAKERS 2
 
 #define SPEAKERS_MICROPHONES_I2S_NUM I2S_NUM_0
 #define BONE_CONDUCTORS_I2S_NUM I2S_NUM_1
@@ -32,6 +35,8 @@
 #define READ_TASK_IDLE_DELAY 500 // ms
 #define SINCRONIZE_DELAY 300     // ms
 //#define DEVICE_DEINIT_DELAY 100  // ms
+
+int get_devices();
 
 bool i2s_get_device_state(int device);
 void i2s_set_device_state(int device, bool state);

@@ -6,7 +6,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  ////bool _connecting = false;
+  bool _connecting = false;
 
   @override
   void initState() {
@@ -18,15 +18,14 @@ class _HomeState extends State<Home> {
   }
 
   Future _connect() async {
-    ////setState(() => this._connecting = true);
-    app.process(() => null);
+    setState(() => this._connecting = true);
+    //app.process(() => null);
 
-    if (await bt.connect())
-      await Navigator.pushNamed(context, data.mode == 0 ? 'Music' : 'Record'); //TODO Handle welcome response logic
+    if (await bt.connect()) await Navigator.pushNamed(context, data.mode == 0 ? 'Music' : 'Record');
 
-    app.done();
+    //app.done();
 
-    ////setState(() => this._connecting = false);
+    setState(() => this._connecting = false);
   }
 
   @override
@@ -35,7 +34,7 @@ class _HomeState extends State<Home> {
 
     return SafeArea(
       child: StreamBuilder(
-        stream: app.stream,
+        stream: bt.bluetoothStateStream,
         builder: (context, state) {
           return Scaffold(
             body: Column(
@@ -43,7 +42,7 @@ class _HomeState extends State<Home> {
                 Expanded(child: Center(child: Text('SoniqOculos', style: textTheme.headline3))),
                 Expanded(
                   child: Center(
-                    child: !app.processing
+                    child: !this._connecting
                         ? Button(
                             text: 'Connect Device',
                             padding: 32,

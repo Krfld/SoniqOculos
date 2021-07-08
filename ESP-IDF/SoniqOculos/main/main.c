@@ -131,20 +131,18 @@ void handleMsgs(char *msg)
         set_equalizer(strtol(msg, &ptr, 0), strtol(ptr, &ptr, 0), strtol(ptr, &ptr, 0));
         break;
 
-    case 's': // SD card
+    case 'r': // SD card
         sd_card_toggle(strtol(msg, &ptr, 0));
         break;
 
-    case 'b': // Bone Conductors
+    case 'p': // Bone Conductors
         i2s_toggle_bone_conductors(strtol(msg, &ptr, 0));
         break;
 
     default:
-        ESP_LOGE(MAIN_TAG, "Unknown message (%s)", msg);
+        ESP_LOGE(MAIN_TAG, "Unknown message (%s)", --msg);
         break;
     }
-
-    spp_send_msg(SPP_OK); // Send response
 }
 
 void change_to_mode(int m)
@@ -154,6 +152,7 @@ void change_to_mode(int m)
     switch (m)
     {
     case MUSIC:
+        i2s_toggle_bone_conductors(OFF);
         sd_card_deinit(); // Close SD file if opened
 
         speakers_init(); // Start speakers and stop microphones

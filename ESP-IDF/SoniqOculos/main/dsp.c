@@ -8,10 +8,27 @@
 #define DSP_TAG "DSP"
 
 RTC_DATA_ATTR static int volume = DEFAULT_VOLUME; //* % | Keep value while in deep-sleep
+int get_volume()
+{
+    return volume;
+}
 
 RTC_DATA_ATTR static int eq_bass = 0;   //* -2..2 | Keep value while in deep-sleep
 RTC_DATA_ATTR static int eq_mid = 0;    //* -2..2 | Keep value while in deep-sleep
 RTC_DATA_ATTR static int eq_treble = 0; //* -2..2 | Keep value while in deep-sleep
+
+int get_bass()
+{
+    return eq_bass;
+}
+int get_mid()
+{
+    return eq_mid;
+}
+int get_treble()
+{
+    return eq_treble;
+}
 
 static SemaphoreHandle_t equalizer_semaphore_handle;
 
@@ -130,7 +147,10 @@ void set_equalizer(int bass, int mid, int treble)
 
     xSemaphoreGive(equalizer_semaphore_handle);
 
-    spp_send_msg("e %d %d %d", eq_bass, eq_mid, eq_treble);
+    //spp_send_msg("e %d %d %d", eq_bass, eq_mid, eq_treble);
+    spp_send_msg("eb %d", eq_bass);
+    spp_send_msg("em %d", eq_mid);
+    spp_send_msg("et %d", eq_treble);
 }
 
 void apply_equalizer(uint8_t *data, size_t *len)
@@ -183,7 +203,7 @@ void set_volume(int vol)
     else
         volume = vol;
 
-    spp_send_msg("v %d", volume);
+    spp_send_msg("v %d", volume / 10);
 
     ESP_LOGI(DSP_TAG, "Volume: %d%%", volume);
 }

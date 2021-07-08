@@ -15,7 +15,7 @@
 #define CHANGE_MODE_STACK_DEPTH 2 * 1024
 #define RELEASING_STACK_DEPTH 1 * 1024
 #define POWER_OFF_STACK_DEPTH 2 * 1024
-#define VOLUME_STACK_DEPTH 2 * 1024
+#define VOLUME_STACK_DEPTH 3 * 1024
 
 #define DEBOUNCE 50              // ms
 #define RELEASE_DELAY 250        // ms

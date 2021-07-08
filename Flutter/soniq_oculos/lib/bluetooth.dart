@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import './imports.dart';
 
 final String deviceAddress = '10:52:1C:67:9C:EA'; //* ESP Address
@@ -24,55 +26,90 @@ class _Bluetooth {
   void sendCmd(var cmd) {
     if (!isDeviceConnected) return;
 
-    this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString(), prefix: 'Output')));
+    try {
+      this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString(), prefix: 'Output')));
+    } catch (e) {
+      app.msg(e, prefix: 'Error');
+    }
   }
 
-  void getCmd(String msg) {
-    app.msg(msg, prefix: 'Input');
-
-    if (msg.compareTo('OK') == 0) {
-      if (!this._ready) this._ready = true;
-      app.done();
-      return;
+  void getCmd(Uint8List msg) {
+    String cmd = '';
+    try {
+      cmd = ascii.decode(msg);
+    } catch (e) {
+      app.msg(e, prefix: 'Error');
     }
 
-    List characters = msg.split(' ');
-    switch (characters[0]) {
+    List words = cmd.split(' ');
+    app.msg(words, prefix: 'Input');
+
+    switch (words[0]) {
+      case 'SETUP':
+        data.mode = int.parse(words[2]); // Mode
+
+        data.volume = int.parse(words[4]) * 10; // Volume
+        data.devices = int.parse(words[6]); // Devices
+        data.bass = int.parse(words[8]); // Bass
+        data.mid = int.parse(words[10]); // Mid
+        data.treble = int.parse(words[12]); // Treble
+
+        data.record = int.parse(words[14]); // SD
+        data.playback = int.parse(words[16]); // BCD
+        this._ready = true;
+        break;
+
       case 'm': // Mode
-        data.mode = int.parse(characters[1]);
+        data.mode = int.parse(words[1]);
+        app.push(data.mode == 0 ? 'Music' : 'Record');
         break;
 
       case 'v': // Volume
-        data.volume = int.parse(characters[1]);
+        data.volume = int.parse(words[1]) * 10;
         break;
 
       case 'd': // Devices
+        data.devices = int.parse(words[1]);
         break;
 
-      case 'e': // Equalizer
-        data.bass = int.parse(characters[1]);
-        data.mid = int.parse(characters[2]);
-        data.treble = int.parse(characters[3]);
+      case 'eb': // Bass
+        data.bass = int.parse(words[1]);
+        break;
+
+      case 'em': // Mid
+        data.mid = int.parse(words[1]);
+        break;
+
+      case 'et': // Treble
+        data.treble = int.parse(words[1]);
         break;
 
       case 'r': // SD card
-        data.record = int.parse(characters[1]);
+        data.record = int.parse(words[1]);
         break;
 
       case 'p': // Bone Conductors
-        data.playback = int.parse(characters[1]);
+        data.playback = int.parse(words[1]);
         break;
 
       default:
+        app.msg('Unknown message ($cmd)', prefix: 'Command');
+        disconnect();
         break;
     }
+
+    app.done();
   }
 
   void setup() {
     bluetoothStateStream.listen((state) {
       this._bluetoothState = state;
 
-      if (state == BluetoothState.STATE_OFF) app.pop();
+      if (state == BluetoothState.STATE_OFF) {
+        this._ready = false;
+        disconnect();
+        app.pop();
+      }
     });
   }
 
@@ -142,18 +179,16 @@ class _Bluetooth {
     /// Setup input
     ///
 
-    this._bluetoothConnection.input.listen((msg) => getCmd(ascii.decode(msg))).onDone(() {
-      app.msg('Disconnected', prefix: 'Connection');
-      app.pop();
-    });
+    if (!this._ready)
+      this._bluetoothConnection.input.listen((msg) => getCmd(msg)).onDone(() {
+        app.msg('Disconnected', prefix: 'Connection');
+        this._ready = false;
+        disconnect();
+        app.pop();
+      });
 
-    //await Future.doWhile(() => !this._ready).timeout(Duration(seconds: 5)); // Wait for setup message
+    await Future.delayed(Duration(seconds: 3)); // Wait for setup message
 
-    /*if (!this._ready) {
-      input.cancel(); // Cancel if ready not received
-      return false;
-    }*/
-
-    return true;
+    return this._ready;
   }
 }

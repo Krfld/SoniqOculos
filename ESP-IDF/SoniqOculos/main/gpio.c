@@ -259,13 +259,7 @@ static void gpio_task(void *arg)
                     break;
                 case B2_MASK: // 010
                     if (!changed_volume)
-                    {
-                        //ESP_LOGI(GPIO_TAG, "Volume up");
                         volume_up();
-                        //! TESTING
-                        sd_card_toggle(!sd_card_state());
-                        delay(COMMAND_DELAY);
-                    }
                     break;
                 case B3_MASK: // 100
                     if (!changed_volume)

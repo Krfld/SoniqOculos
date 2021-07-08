@@ -33,7 +33,7 @@ static bool has_last_device()
 
 static bool spp_connected = false;
 
-static bool spp_receiving = false;
+/*static bool spp_receiving = false;
 
 static bool spp_sending = false;
 void spp_set_sending_state(bool state)
@@ -43,7 +43,7 @@ void spp_set_sending_state(bool state)
 bool spp_get_sending_state()
 {
     return spp_sending;
-}
+}*/
 
 static uint32_t spp_handle;
 void spp_send_msg(char *msg, ...)
@@ -69,16 +69,18 @@ void spp_send_msg(char *msg, ...)
     va_list vl;
     va_start(vl, msg);
     char str[MSG_BUFFER_SIZE];
-    vsnprintf(str, MSG_BUFFER_SIZE - sizeof("\n"), msg, vl);
+    vsprintf(str, msg, vl);
     va_end(vl);
 
-    strcat(str, "\n");
+    strcat(str, " \n");
 
     esp_spp_write(spp_handle, strlen(msg), (uint8_t *)str); // Send spp message
+    ESP_LOGW(BT_SPP_TAG, "Message sent: %s", str);
 }
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
+    //ESP_LOGW(BT_SPP_TAG, "Event %d", event);
     spp_handle = param->write.handle;
     switch (event)
     {
@@ -92,28 +94,29 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         ESP_LOGW(BT_SPP_TAG, "Connected to server");
 
         spp_connected = true;
-        spp_sending = false;
-        spp_receiving = false;
+        //spp_sending = false;
+        //spp_receiving = false;
 
-        //! Send setup message
-        spp_send_msg("Bouas");
-        delay(1000); //TODO Check delay
-        spp_send_msg(SPP_OK);
+        spp_send_msg("SETUP m %d v %d d %d eb %d em %d et %d r %d p %d", get_mode(), get_volume() / 10, get_devices(), get_bass(), get_mid(), get_treble(), sd_card_state(), i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM));
         break;
+
+    case ESP_SPP_WRITE_EVT:
+        break;
+
     case ESP_SPP_CLOSE_EVT: // Disconnected from server
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_CLOSE_EVT");
         ESP_LOGW(BT_SPP_TAG, "Disconnected from server");
 
         spp_connected = false;
-        spp_sending = false;
-        spp_receiving = false;
+        //spp_sending = false;
+        //spp_receiving = false;
         break;
 
     case ESP_SPP_DATA_IND_EVT: // Receive message
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%d", param->data_ind.len, param->data_ind.handle);
         if (param->data_ind.len < MSG_BUFFER_SIZE)
         {
-            spp_receiving = true;
+            //spp_receiving = true;
             char msg[MSG_BUFFER_SIZE];
             snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data); // Filter received message contents
             handleMsgs(msg);                                                      // Handle message received and response

@@ -89,12 +89,13 @@ static void wav_header_init()
 void test()
 {
     char filename[64];
-    sprintf(filename, MOUNT_POINT "/Sine_0.1s_0.5kHz.wav");
+    sprintf(filename, MOUNT_POINT "/test.wav");
 
     f = fopen(filename, READ); // Open file
     if (f == NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "Failed to open file");
+        sd_card_deinit();
         return;
     }
 
@@ -195,6 +196,7 @@ void sd_open_file(char *file, char *type)
     if (f == NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "Failed to open file");
+        sd_card_deinit();
         return;
     }
 

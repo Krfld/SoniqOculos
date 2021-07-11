@@ -6,7 +6,7 @@
 #define FILE_NAME "rec"
 
 #define WRITE "wb"
-#define READ "r+"
+#define READ "r"
 
 #define SD_CLK_PIN GPIO_NUM_16 // RX2
 #define SD_MISO_PIN GPIO_NUM_4

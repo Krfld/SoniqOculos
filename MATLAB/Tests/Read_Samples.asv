@@ -4,11 +4,9 @@ clc
 clear
 % close all
 
-[data, Fs] = audioread('E:\REC_14.wav');
+[n, Fs] = audioread('Sine_0.1s_0.5kHz.wav');
 
-figure, plot(data); % Time
-% figure, plot(abs(fft(data))), xlim([0, Fs/2]); % Frequency
-% sound(data, Fs, 16);
+plot(
 
 %% Read from TXT file
 clc

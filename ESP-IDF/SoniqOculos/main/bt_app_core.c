@@ -20,7 +20,6 @@ static xQueueHandle s_bt_app_task_queue = NULL;
 static xTaskHandle s_bt_app_task_handle = NULL;
 static xTaskHandle s_bt_i2s_task_handle = NULL;
 static RingbufHandle_t s_ringbuf_i2s = NULL;
-static QueueHandle_t bt_i2s_queue_handle = NULL;
 
 bool bt_app_work_dispatch(bt_app_cb_t p_cback, uint16_t event, void *p_params, int param_len, bt_app_copy_cb_t p_copy_cback)
 {
@@ -126,13 +125,6 @@ void bt_app_task_shut_down(void)
 
 void bt_i2s_task_start_up(void)
 {
-    if (FIXED_DATA_LENGTH)
-    {
-        bt_i2s_queue_handle = xQueueCreate(1, sizeof(size_t));
-        if (!bt_i2s_queue_handle)
-            ESP_LOGE(BT_APP_CORE_TAG, "Error creating queue");
-    }
-
     s_ringbuf_i2s = xRingbufferCreate(RINGBUFFER_SIZE, RINGBUF_TYPE_BYTEBUF);
     if (!s_ringbuf_i2s)
         ESP_LOGE(BT_APP_CORE_TAG, "Error creating ringbuffer");
@@ -158,12 +150,6 @@ void bt_i2s_task_shut_down(void)
         vRingbufferDelete(s_ringbuf_i2s);
         s_ringbuf_i2s = NULL;
     }
-    if (FIXED_DATA_LENGTH)
-        if (bt_i2s_queue_handle)
-        {
-            vQueueDelete(bt_i2s_queue_handle);
-            bt_i2s_queue_handle = NULL;
-        }
 
     //ESP_LOGW(BT_APP_CORE_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
@@ -176,8 +162,7 @@ static void bt_i2s_task_handler(void *arg)
     for (;;)
     {
         if (FIXED_DATA_LENGTH)
-            if (!xQueueReceive(bt_i2s_queue_handle, &size, portMAX_DELAY)) // Wait for ringbuffer to have at least 4096 bytes
-                continue;
+            ulTaskNotifyTake(pdTRUE, portMAX_DELAY); // Wait for ringbuffer to have at least 4096 bytes
 
         data = (uint8_t *)xRingbufferReceiveUpTo(s_ringbuf_i2s, &size, portMAX_DELAY, DATA_LENGTH); // Get 4096 bytes
 
@@ -198,7 +183,7 @@ static void bt_i2s_task_handler(void *arg)
             i2s_write_data(data, &size);
 
             if (BT_DEBUG)
-                ESP_LOGI(BT_APP_CORE_TAG, "Process data delay took %lldus", esp_timer_get_time() - start); // ~19ms
+                ESP_LOGI(BT_APP_CORE_TAG, "Process data delay took %lldus", esp_timer_get_time() - start);
         }
 
         vRingbufferReturnItem(s_ringbuf_i2s, data); // Remove from ringbuffer
@@ -226,7 +211,7 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
                 last = now;
             }
 
-            xQueueOverwrite(bt_i2s_queue_handle, &size); // Signal buffer has at least 4096 bytes
+            xTaskNotifyGive(s_bt_i2s_task_handle); // Signal buffer has at least 4096 bytes
         }
 
     return done ? size : 0;

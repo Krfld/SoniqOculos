@@ -7,8 +7,8 @@
 #define B2_MASK 1 << 1 // 010 (2)
 #define B3_MASK 1 << 2 // 100 (4)
 
-#define VIBRATE OFF
 #define VIBRATOR_PIN GPIO_NUM_25
+#define VIBRATE ON
 #define VIBRATION_DELAY 100
 
 #define GPIO_STACK_DEPTH 3 * 1024

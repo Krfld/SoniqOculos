@@ -35,18 +35,14 @@ class _MusicState extends State<Music> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Button(
-                            text: 'Loading...',
-                            padding: 24,
-                            margin: 8,
-                            function: !app.processing ? () => null : null,
-                          ),
-                          Button(
-                            text: 'Loading...',
-                            padding: 24,
-                            margin: 8,
-                            function: !app.processing ? () => null : null,
-                          ),
+                          for (int i = 0; i < 3; i++)
+                            if (i != data.devices)
+                              Button(
+                                text: 'Switch to\n${data.deviceName[i]}',
+                                padding: 24,
+                                margin: 8,
+                                function: !app.processing ? () => data.switchDevices(i) : null,
+                              ),
                         ],
                       ),
                       Separator(),

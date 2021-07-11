@@ -135,6 +135,9 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
 
 void set_equalizer(int bass, int mid, int treble)
 {
+    if (!PROCESSING)
+        return;
+
     eq_bass = bass;
     eq_mid = mid;
     eq_treble = treble;

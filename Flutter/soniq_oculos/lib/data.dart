@@ -27,9 +27,13 @@ class Data {
   /// Devices
   ///
 
+  List deviceName = ['Both Devices', 'Bone Conductors', 'Speakers'];
+
   int _devices = 0;
   int get devices => this._devices;
   set devices(int devices) => this._devices = devices;
+
+  void switchDevices(int devices) => bt.sendCmd('d $devices');
 
   ///
   /// Equalizer

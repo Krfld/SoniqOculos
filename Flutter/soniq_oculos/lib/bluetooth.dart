@@ -46,50 +46,50 @@ class _Bluetooth {
 
     switch (words[0]) {
       case 'SETUP':
-        data.mode = int.parse(words[2]); // Mode
+        data.mode = int.tryParse(words[2]) ?? 0; // Mode
 
-        data.volume = int.parse(words[4]) * 10; // Volume
-        data.devices = int.parse(words[6]); // Devices
-        data.bass = int.parse(words[8]); // Bass
-        data.mid = int.parse(words[10]); // Mid
-        data.treble = int.parse(words[12]); // Treble
+        data.volume = (int.tryParse(words[4]) ?? 5) * 10; // Volume
+        data.devices = int.tryParse(words[6]) ?? 0; // Devices
+        data.bass = int.tryParse(words[8]) ?? 0; // Bass
+        data.mid = int.tryParse(words[10]) ?? 0; // Mid
+        data.treble = int.tryParse(words[12]) ?? 0; // Treble
 
-        data.record = int.parse(words[14]); // SD
-        data.playback = int.parse(words[16]); // BCD
+        data.record = int.tryParse(words[14]) ?? 0; // SD
+        data.playback = int.tryParse(words[16]) ?? 0; // BCD
         this._ready = true;
         break;
 
       case 'm': // Mode
-        data.mode = int.parse(words[1]);
+        data.mode = int.tryParse(words[1]) ?? 0;
         app.push(data.mode == 0 ? 'Music' : 'Record');
         break;
 
       case 'v': // Volume
-        data.volume = int.parse(words[1]) * 10;
+        data.volume = (int.tryParse(words[1]) ?? 5) * 10;
         break;
 
       case 'd': // Devices
-        data.devices = int.parse(words[1]);
+        data.devices = int.tryParse(words[1]) ?? 0;
         break;
 
       case 'eb': // Bass
-        data.bass = int.parse(words[1]);
+        data.bass = int.tryParse(words[1]) ?? 0;
         break;
 
       case 'em': // Mid
-        data.mid = int.parse(words[1]);
+        data.mid = int.tryParse(words[1]) ?? 0;
         break;
 
       case 'et': // Treble
-        data.treble = int.parse(words[1]);
+        data.treble = int.tryParse(words[1]) ?? 0;
         break;
 
       case 'r': // SD card
-        data.record = int.parse(words[1]);
+        data.record = int.tryParse(words[1]) ?? 0;
         break;
 
       case 'p': // Bone Conductors
-        data.playback = int.parse(words[1]);
+        data.playback = int.tryParse(words[1]) ?? 0;
         break;
 
       default:
@@ -114,7 +114,7 @@ class _Bluetooth {
   }
 
   void disconnect() {
-    this._bluetoothConnection.dispose();
+    this._bluetoothConnection?.dispose();
   }
 
   Future connect() async {
@@ -187,7 +187,7 @@ class _Bluetooth {
         app.pop();
       });
 
-    await Future.delayed(Duration(seconds: 3)); // Wait for setup message
+    await Future.delayed(Duration(seconds: 2)); // Wait for setup message
 
     return this._ready;
   }

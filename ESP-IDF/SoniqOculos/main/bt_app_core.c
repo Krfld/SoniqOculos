@@ -180,9 +180,9 @@ static void bt_i2s_task_handler(void *arg)
             if (BT_DEBUG)
                 start = esp_timer_get_time();
 
-            sd_write_data(data, &size);
+            //sd_write_data(data, &size); //! Testing
 
-            //i2s_write_data(data, &size);
+            i2s_write_data(data, &size);
 
             if (BT_DEBUG)
                 ESP_LOGI(BT_APP_CORE_TAG, "Process data delay took %lldus", esp_timer_get_time() - start);

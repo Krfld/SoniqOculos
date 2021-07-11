@@ -34,7 +34,7 @@
 
 #define READ_TASK_IDLE_DELAY 500 // ms
 #define SINCRONIZE_DELAY 300     // ms
-//#define DEVICE_DEINIT_DELAY 100  // ms
+//#define DEVICE_DEINIT_DELAY 100   // ms
 
 int get_devices();
 

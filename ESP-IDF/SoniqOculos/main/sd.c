@@ -86,7 +86,7 @@ static void wav_header_init()
     wav_header.data_size = 0;
 }
 
-void test()
+void test() //! Testing
 {
     char filename[64];
     sprintf(filename, MOUNT_POINT "/test.wav");
@@ -99,11 +99,9 @@ void test()
         return;
     }
 
-    wav_header_t wav_header_test;
+    fread(&wav_header, sizeof(wav_header_t), 1, f);
 
-    fread(&wav_header_test, sizeof(wav_header_t), 1, f);
-
-    ESP_LOGE(SD_CARD_TAG, "Size %d | Data size %d", wav_header_test.size, wav_header_test.data_size);
+    ESP_LOGE(SD_CARD_TAG, "Size %d | Data size %d", wav_header.size, wav_header.data_size);
 }
 
 void sd_card_init()
@@ -138,9 +136,9 @@ void sd_card_init()
 
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
-    test(); //! Testing
+    //test(); //! Testing
 
-    //sd_open_file(FILE_NAME, WRITE); // Open file
+    sd_open_file(FILE_NAME); // Open file
 
     ESP_LOGW(SD_CARD_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
@@ -177,7 +175,7 @@ void sd_card_deinit()
     ESP_LOGW(SD_CARD_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
 
-void sd_open_file(char *file, char *type)
+void sd_open_file(char *file)
 {
     if (card == NULL)
         return;
@@ -192,7 +190,7 @@ void sd_open_file(char *file, char *type)
     int32_t file_number = nvs_read(FILE_NAME);
     sprintf(filename, MOUNT_POINT "/%s_%d.wav", file, file_number);
 
-    f = fopen(filename, type); // Open file
+    f = fopen(filename, WRITE); // Open file
     if (f == NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "Failed to open file");

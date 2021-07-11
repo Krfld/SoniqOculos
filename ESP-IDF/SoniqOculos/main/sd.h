@@ -5,7 +5,7 @@
 #define MOUNT_POINT "/sdcard"
 #define FILE_NAME "rec"
 
-#define WRITE "wb"
+#define WRITE "w"
 #define READ "r"
 
 #define SD_CLK_PIN GPIO_NUM_16 // RX2
@@ -48,12 +48,11 @@ void sd_card_deinit();
 void spi_init();
 
 /**
- * @brief Open a file
+ * @brief Open a file to write
  * 
  * @param file name of the file
- * @param type type of operation
  */
-void sd_open_file(char *file, char *type);
+void sd_open_file(char *file);
 /**
  * @brief Close the file
  * 

@@ -130,6 +130,8 @@ void i2s_set_device_state(int device, bool state)
 
 void i2s_change_to_devices(int dev)
 {
+    vibrate(VIBRATION_DELAY);
+
     i2s_sincronize_devices(); // Sincronize before changing
 
     switch (dev)
@@ -182,6 +184,8 @@ void i2s_toggle_devices()
 
 void i2s_toggle_bone_conductors(bool state)
 {
+    vibrate(VIBRATION_DELAY);
+
     if (state)
     {
         ESP_LOGI(I2S_TAG, "Start playback");

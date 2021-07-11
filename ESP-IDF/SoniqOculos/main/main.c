@@ -16,8 +16,8 @@
 
 /**
  * TODO
- * measure power consumption
  * write .wav
+ * measure power consumption (sin 1kHz max volume)
  * test white noise
  */
 
@@ -112,8 +112,6 @@ void handleMsgs(char *msg)
 
     // Message received (examples) | 'm 0' | 'v 100' | 'e 0 0 0' |
 
-    vibrate(VIBRATION_DELAY);
-
     char *ptr;
     switch (*msg++)
     {
@@ -154,8 +152,8 @@ void change_to_mode(int m)
     switch (m)
     {
     case MUSIC:
-        i2s_toggle_bone_conductors(OFF);
-        sd_card_deinit(); // Close SD file if opened
+        i2s_toggle_bone_conductors(OFF); // Stop playback | Vibrate
+        sd_card_deinit();                // Close SD file if opened
 
         speakers_init(); // Start speakers and stop microphones
         bt_music_init(); // Start BT audio transmission
@@ -164,6 +162,8 @@ void change_to_mode(int m)
         break;
 
     case RECORD:
+        vibrate(VIBRATION_DELAY); // Vibrate
+
         bt_music_deinit(); // Stop BT audio transmission and disconnect from devices
 
         microphones_init(); // Start microphones and stop speakers
@@ -177,7 +177,7 @@ void change_to_mode(int m)
 
     mode = m;
 
-    vibrate(VIBRATION_DELAY);
+    vibrate(VIBRATION_DELAY); // Vibrate again to indicate mode has changed
 
     spp_send_msg("m %d", mode); // Update mode in the app if connected
 

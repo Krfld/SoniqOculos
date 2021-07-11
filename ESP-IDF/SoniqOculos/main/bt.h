@@ -3,6 +3,7 @@
 #include "bt_app_core.h"
 #include "bt_app_av.h"
 
+#include "gpio.h"
 #include "i2s.h"
 #include "sd.h"
 #include "dsp.h"

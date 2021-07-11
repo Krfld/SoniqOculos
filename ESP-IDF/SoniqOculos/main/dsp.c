@@ -198,6 +198,8 @@ void apply_equalizer(uint8_t *data, size_t *len)
 
 void set_volume(int vol)
 {
+    vibrate(VIBRATION_DELAY);
+
     // Limit volume
     if (vol > 100)
         volume = 100;

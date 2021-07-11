@@ -243,8 +243,6 @@ static void gpio_task(void *arg)
                 switch (buttons_command)
                 {
                 case B1_MASK: // 001
-                    vibrate(VIBRATION_DELAY);
-
                     if (!bt_is_music_playing())
                     {
                         ESP_LOGI(GPIO_TAG, "Play");
@@ -257,42 +255,32 @@ static void gpio_task(void *arg)
                     }
                     delay(COMMAND_DELAY / 2);
                     break;
-                case B2_MASK: // 010
-                    vibrate(VIBRATION_DELAY);
+                case B2_MASK:                         // 010
+                    sd_card_toggle(!sd_card_state()); //! Testing
 
                     if (!changed_volume)
                         volume_up();
                     break;
                 case B3_MASK: // 100
-                    vibrate(VIBRATION_DELAY);
-
                     if (!changed_volume)
                         volume_down();
                     break;
 
                 case B1_MASK | B2_MASK: // 011
-                    vibrate(VIBRATION_DELAY);
-
                     ESP_LOGI(GPIO_TAG, "Next track");
                     bt_send_avrc_cmd(ESP_AVRC_PT_CMD_FORWARD); // Send next track command
                     break;
                 case B2_MASK | B3_MASK: // 110
-                    vibrate(VIBRATION_DELAY);
-
                     ESP_LOGI(GPIO_TAG, "Previous track");
                     bt_send_avrc_cmd(ESP_AVRC_PT_CMD_BACKWARD); // Send previous track command
                     break;
                 case B1_MASK | B3_MASK: // 101
-                    vibrate(VIBRATION_DELAY);
-
                     //ESP_LOGI(GPIO_TAG, "Change devices");
                     i2s_toggle_devices();
                     delay(COMMAND_DELAY);
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
-                    vibrate(VIBRATION_DELAY);
-
                     ESP_LOGW(GPIO_TAG, "Change to RECORD mode");
                     change_to_mode(!get_mode());
                     delay(COMMAND_DELAY);
@@ -310,9 +298,7 @@ static void gpio_task(void *arg)
                 case B3_MASK:
                 case B1_MASK | B2_MASK:
                 case B3_MASK | B2_MASK:
-                case B1_MASK | B3_MASK: // 101
-                    vibrate(VIBRATION_DELAY);
-
+                case B1_MASK | B3_MASK:            // 101
                     if (buttons_command & B1_MASK) // 001
                         sd_card_toggle(!sd_card_state());
                     if (buttons_command & B3_MASK) // 100
@@ -321,8 +307,6 @@ static void gpio_task(void *arg)
                     break;
 
                 case B1_MASK | B2_MASK | B3_MASK: // 111
-                    vibrate(VIBRATION_DELAY);
-
                     ESP_LOGW(GPIO_TAG, "Change to MUSIC mode");
                     change_to_mode(!get_mode());
                     delay(COMMAND_DELAY);

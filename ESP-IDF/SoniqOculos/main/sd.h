@@ -6,7 +6,7 @@
 #define FILE_NAME "rec"
 
 #define WRITE "wb"
-#define READ "rb"
+#define READ "r+"
 
 #define SD_CLK_PIN GPIO_NUM_16 // RX2
 #define SD_MISO_PIN GPIO_NUM_4
@@ -73,3 +73,5 @@ void sd_write_data(uint8_t *data, size_t *len);
  * 
  */
 void sd_card_toggle(bool state);
+
+void test();

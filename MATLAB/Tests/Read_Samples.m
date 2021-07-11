@@ -2,7 +2,7 @@ clc
 clear
 % close all
 
-[n, Fs] = audioread('E:\REC_1.wav');
+[n, Fs] = audioread('Sine_0.1s_0.5kHz.wav');
 
 %%
 Fs = 44100;

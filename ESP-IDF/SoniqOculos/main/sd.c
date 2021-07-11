@@ -13,12 +13,12 @@ typedef struct
 
     uint8_t fmt[4];           // 'fmt ' string with trailing null char
     uint32_t fmt_size;        // length of the format data
-    uint16_t fmt_type;        // format type. 1-PCM, 3- IEEE float, 6 - 8bit A law, 7 - 8bit mu law
-    uint16_t channels;        // no.of channels
-    uint32_t sample_rate;     // sampling rate (blocks per second)
+    uint16_t fmt_type;        // format type. 1-PCM, 3-IEEE float, 6-8bit A law, 7-8bit mu law
+    uint16_t channels;        // n. of channels
+    uint32_t sample_rate;     // sampling rate
     uint32_t byte_rate;       // SampleRate * NumChannels * BitsPerSample/8
     uint16_t block_align;     // NumChannels * BitsPerSample/8
-    uint16_t bits_per_sample; // bits per sample, 8- 8bits, 16- 16 bits etc
+    uint16_t bits_per_sample; // bits per sample, 8 - 8bits, 16 - 16 bits etc
 
     uint8_t data[4];    // 'data' string
     uint32_t data_size; // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
@@ -32,8 +32,7 @@ static wav_header_t wav_header;
 
 static SemaphoreHandle_t sd_semaphore_handle;
 
-static void
-wav_header_init();
+static void wav_header_init();
 
 bool sd_card_state()
 {
@@ -54,6 +53,37 @@ void spi_init()
     spi_bus_initialize(host.slot, &bus_cfg, 1);
 
     sd_semaphore_handle = xSemaphoreCreateMutex();
+}
+
+static void wav_header_init()
+{
+    wav_header.riff[0] = 'R';
+    wav_header.riff[1] = 'I';
+    wav_header.riff[2] = 'F';
+    wav_header.riff[3] = 'F';
+    wav_header.size = sizeof(wav_header_t) - 8;
+    wav_header.wave[0] = 'W';
+    wav_header.wave[1] = 'A';
+    wav_header.wave[2] = 'V';
+    wav_header.wave[3] = 'E';
+
+    wav_header.fmt[0] = 'f';
+    wav_header.fmt[1] = 'm';
+    wav_header.fmt[2] = 't';
+    wav_header.fmt[3] = ' ';
+    wav_header.fmt_size = FMT_SIZE;
+    wav_header.fmt_type = AUDIO_FORMAT;
+    wav_header.channels = NUM_CHANNELS;
+    wav_header.sample_rate = SAMPLE_RATE;
+    wav_header.byte_rate = BYTE_RATE;
+    wav_header.block_align = BLOCK_ALIGN;
+    wav_header.bits_per_sample = BITS_PER_SAMPLE;
+
+    wav_header.data[0] = 'd';
+    wav_header.data[1] = 'a';
+    wav_header.data[2] = 't';
+    wav_header.data[3] = 'a';
+    wav_header.data_size = 0;
 }
 
 void sd_card_init()
@@ -88,7 +118,9 @@ void sd_card_init()
 
     ESP_LOGI(SD_CARD_TAG, "Card mounted");
 
-    sd_open_file(FILE_NAME, WRITE); // Open file
+    test(); //! Testing
+
+    //sd_open_file(FILE_NAME, WRITE); // Open file
 
     ESP_LOGW(SD_CARD_TAG, "Free heap: %d", esp_get_free_heap_size());
 }
@@ -163,8 +195,8 @@ void sd_close_file()
         nvs_write(FILE_NAME, nvs_read(FILE_NAME) + 1); // Increment file ID if not empty
 
         // Rewrite wav header
-        //!fseek(f, 0, SEEK_SET);
-        //!fwrite(&wav_header, sizeof(wav_header_t), 1, f);
+        fseek(f, 0, SEEK_SET);
+        fwrite(&wav_header, sizeof(wav_header_t), 1, f);
     }
 
     fclose(f);
@@ -180,8 +212,8 @@ void sd_write_data(uint8_t *data, size_t *len)
     if (xSemaphoreTake(sd_semaphore_handle, 0)) //! Not working
     {
         fwrite(data, sizeof(*data), *len, f); // Write samples
-        wav_header.size += *len;              // Increment size
-        wav_header.data_size += *len;         // Increment data size
+        wav_header.size += *len;              // Increment wav size
+        wav_header.data_size += *len;         // Increment wav data size
 
         xSemaphoreGive(sd_semaphore_handle);
     }
@@ -189,12 +221,14 @@ void sd_write_data(uint8_t *data, size_t *len)
 
 void sd_card_toggle(bool state)
 {
+    vibrate(VIBRATION_DELAY);
+
     if (state)
         sd_card_init(); // Mount SD card and create file to write
     else
         sd_card_deinit(); // Close file and unmount SD card
 
-    if (sd_card_state() != state)
+    if (sd_card_state() != state) // Vibrate again if init failed
     {
         delay(100);
         vibrate(VIBRATION_DELAY);
@@ -203,33 +237,21 @@ void sd_card_toggle(bool state)
     spp_send_msg("r %d", sd_card_state());
 }
 
-static void wav_header_init()
+void test()
 {
-    wav_header.riff[0] = 'R';
-    wav_header.riff[1] = 'I';
-    wav_header.riff[2] = 'F';
-    wav_header.riff[3] = 'F';
-    wav_header.size = sizeof(wav_header_t) - 8;
-    wav_header.wave[0] = 'W';
-    wav_header.wave[1] = 'A';
-    wav_header.wave[2] = 'V';
-    wav_header.wave[3] = 'E';
+    char filename[64];
+    sprintf(filename, MOUNT_POINT "/Sine_0.1s_0.5kHz.wav");
 
-    wav_header.fmt[0] = 'f';
-    wav_header.fmt[1] = 'm';
-    wav_header.fmt[2] = 't';
-    wav_header.fmt[3] = ' ';
-    wav_header.fmt_size = FMT_SIZE;
-    wav_header.fmt_type = AUDIO_FORMAT;
-    wav_header.channels = NUM_CHANNELS;
-    wav_header.sample_rate = SAMPLE_RATE;
-    wav_header.byte_rate = BYTE_RATE;
-    wav_header.block_align = BLOCK_ALIGN;
-    wav_header.bits_per_sample = BITS_PER_SAMPLE;
+    f = fopen(filename, READ); // Open file
+    if (f == NULL)
+    {
+        ESP_LOGE(SD_CARD_TAG, "Failed to open file");
+        return;
+    }
 
-    wav_header.data[0] = 'd';
-    wav_header.data[1] = 'a';
-    wav_header.data[2] = 't';
-    wav_header.data[3] = 'a';
-    wav_header.data_size = 0;
+    wav_header_t wav_header_test;
+
+    fread(&wav_header_test, sizeof(wav_header_t), 1, f);
+
+    ESP_LOGE(SD_CARD_TAG, "Size %d | Data size %d", wav_header_test.size, wav_header_test.data_size);
 }

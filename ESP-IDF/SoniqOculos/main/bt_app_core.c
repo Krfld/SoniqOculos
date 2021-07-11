@@ -219,9 +219,14 @@ size_t write_ringbuf(const uint8_t *data, size_t size)
 
 void bt_send_avrc_cmd(uint8_t cmd)
 {
+    vibrate(VIBRATION_DELAY);
+
     if (!bt_is_connected())
     {
         ESP_LOGW(BT_APP_CORE_TAG, "Not connected");
+
+        delay(100);
+        vibrate(VIBRATION_DELAY); // Vibrate again if not connected
         return;
     }
 

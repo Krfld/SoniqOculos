@@ -86,6 +86,25 @@ static void wav_header_init()
     wav_header.data_size = 0;
 }
 
+void test()
+{
+    char filename[64];
+    sprintf(filename, MOUNT_POINT "/Sine_0.1s_0.5kHz.wav");
+
+    f = fopen(filename, READ); // Open file
+    if (f == NULL)
+    {
+        ESP_LOGE(SD_CARD_TAG, "Failed to open file");
+        return;
+    }
+
+    wav_header_t wav_header_test;
+
+    fread(&wav_header_test, sizeof(wav_header_t), 1, f);
+
+    ESP_LOGE(SD_CARD_TAG, "Size %d | Data size %d", wav_header_test.size, wav_header_test.data_size);
+}
+
 void sd_card_init()
 {
     if (sd_card_state())
@@ -235,23 +254,4 @@ void sd_card_toggle(bool state)
     }
 
     spp_send_msg("r %d", sd_card_state());
-}
-
-void test()
-{
-    char filename[64];
-    sprintf(filename, MOUNT_POINT "/Sine_0.1s_0.5kHz.wav");
-
-    f = fopen(filename, READ); // Open file
-    if (f == NULL)
-    {
-        ESP_LOGE(SD_CARD_TAG, "Failed to open file");
-        return;
-    }
-
-    wav_header_t wav_header_test;
-
-    fread(&wav_header_test, sizeof(wav_header_t), 1, f);
-
-    ESP_LOGE(SD_CARD_TAG, "Size %d | Data size %d", wav_header_test.size, wav_header_test.data_size);
 }

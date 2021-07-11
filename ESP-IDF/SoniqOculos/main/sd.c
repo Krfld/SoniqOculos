@@ -194,6 +194,12 @@ void sd_card_toggle(bool state)
     else
         sd_card_deinit(); // Close file and unmount SD card
 
+    if (sd_card_state() != state)
+    {
+        delay(100);
+        vibrate(VIBRATION_DELAY);
+    }
+
     spp_send_msg("r %d", sd_card_state());
 }
 

@@ -9,7 +9,7 @@
 
 #define VIBRATOR_PIN GPIO_NUM_25
 #define VIBRATE ON
-#define VIBRATION_DELAY 100
+#define VIBRATION_DELAY 150
 
 #define GPIO_STACK_DEPTH 3 * 1024
 #define CHANGE_MODE_STACK_DEPTH 2 * 1024
@@ -22,6 +22,8 @@
 #define POWER_OFF_HOLD_TIME 2000 // ms
 #define VOLUME_CHANGE_PERIOD 250 // ms
 #define COMMAND_DELAY 500        // ms
+
+void vibrate(int millis);
 
 /**
  * @brief See if SD card is inserted

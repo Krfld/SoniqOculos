@@ -112,6 +112,8 @@ void handleMsgs(char *msg)
 
     // Message received (examples) | 'm 0' | 'v 100' | 'e 0 0 0' |
 
+    vibrate(VIBRATION_DELAY);
+
     char *ptr;
     switch (*msg++)
     {
@@ -174,6 +176,8 @@ void change_to_mode(int m)
     }
 
     mode = m;
+
+    vibrate(VIBRATION_DELAY);
 
     spp_send_msg("m %d", mode); // Update mode in the app if connected
 

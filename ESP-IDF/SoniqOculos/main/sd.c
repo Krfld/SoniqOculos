@@ -39,22 +39,6 @@ bool sd_card_state()
     return card != NULL && f != NULL;
 }
 
-void spi_init()
-{
-    spi_bus_config_t bus_cfg = {
-        .mosi_io_num = SD_MOSI_PIN,
-        .miso_io_num = SD_MISO_PIN,
-        .sclk_io_num = SD_CLK_PIN,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 0,
-    };
-
-    spi_bus_initialize(host.slot, &bus_cfg, 1);
-
-    sd_semaphore_handle = xSemaphoreCreateMutex();
-}
-
 static void wav_header_init()
 {
     wav_header.riff[0] = 'R';
@@ -84,6 +68,23 @@ static void wav_header_init()
     wav_header.data[2] = 't';
     wav_header.data[3] = 'a';
     wav_header.data_size = 0;
+}
+
+void spi_init()
+{
+    spi_bus_config_t bus_cfg = {
+        .mosi_io_num = SD_MOSI_PIN,
+        .miso_io_num = SD_MISO_PIN,
+        .sclk_io_num = SD_CLK_PIN,
+        .quadwp_io_num = -1,
+        .quadhd_io_num = -1,
+        .max_transfer_sz = 0,
+    };
+
+    spi_bus_initialize(host.slot, &bus_cfg, 1);
+
+    sd_semaphore_handle = xSemaphoreCreateBinary();
+    xSemaphoreGive(sd_semaphore_handle);
 }
 
 void sd_card_init()
@@ -138,16 +139,15 @@ void sd_card_deinit()
 
     xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
 
-    delay(100);
     sd_close_file();
+
+    xSemaphoreGive(sd_semaphore_handle);
 
     if (card == NULL)
         return;
 
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
     card = NULL;
-
-    xSemaphoreGive(sd_semaphore_handle);
 
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");
     ESP_LOGW(SD_CARD_TAG, "Safe to remove card");
@@ -208,14 +208,15 @@ void sd_write_data(uint8_t *data, size_t *len)
     if (f == NULL || !get_sd_det_state())
         return;
 
-    if (xSemaphoreTake(sd_semaphore_handle, 0)) //! Not working
+    if (!xSemaphoreTake(sd_semaphore_handle, 0))
     {
         fwrite(data, sizeof(*data), *len, f); // Write samples
-        wav_header.size += *len;              // Increment wav size
-        wav_header.data_size += *len;         // Increment wav data size
 
         xSemaphoreGive(sd_semaphore_handle);
     }
+
+    wav_header.size += *len;      // Increment wav size
+    wav_header.data_size += *len; // Increment wav data size
 }
 
 void sd_card_toggle(bool state)

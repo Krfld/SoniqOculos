@@ -264,7 +264,7 @@ void microphones_init()
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
 
-    i2s_read_task_init();
+    i2s_read_task_init(); // Setup task to read from microphones
 
     i2s0_device = MICROPHONES;
 
@@ -368,6 +368,7 @@ static void i2s_read_task(void *arg)
         sd_write_data(data, &bytes_read); // Write to SD card
     }
 }
+
 static void i2s_read_task_init()
 {
     if (!s_i2s_read_task_handle)

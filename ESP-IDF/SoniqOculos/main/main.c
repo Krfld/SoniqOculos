@@ -132,11 +132,11 @@ void handleMsgs(char *msg)
         break;
 
     case 'r': // SD card
-        sd_card_toggle(strtol(msg, &ptr, 0));
+        sd_set_card(strtol(msg, &ptr, 0));
         break;
 
     case 'p': // Bone Conductors
-        i2s_toggle_bone_conductors(strtol(msg, &ptr, 0));
+        i2s_set_bone_conductors(strtol(msg, &ptr, 0));
         break;
 
     default:
@@ -152,8 +152,8 @@ void change_to_mode(int m)
     switch (m)
     {
     case MUSIC:
-        i2s_toggle_bone_conductors(OFF); // Stop playback | Vibrate
-        sd_card_deinit();                // Close SD file if opened
+        i2s_set_bone_conductors(OFF); // Stop playback | Vibrate
+        sd_card_deinit();             // Close SD file if opened
 
         speakers_init(); // Start speakers and stop microphones
         bt_music_init(); // Start BT audio transmission

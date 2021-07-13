@@ -73,9 +73,10 @@ void dsp_init()
     if (!PROCESSING)
         return;
 
-    equalizer_semaphore_handle = xSemaphoreCreateMutex();
+    equalizer_semaphore_handle = xSemaphoreCreateBinary();
     if (!equalizer_semaphore_handle)
         ESP_LOGE(DSP_TAG, "Error creating semaphore");
+    xSemaphoreGive(equalizer_semaphore_handle);
 
     // Equalizer
     dsps_biquad_gen_lowShelf_f32(e_b_low_shelf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_bass - 2) * EQUALIZER_GAIN, Q);      // Generate coeffs for BASS
@@ -86,6 +87,7 @@ void dsp_init()
     dsps_biquad_gen_lpf_f32(c_lpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for LPF
     dsps_biquad_gen_hpf_f32(c_hpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for HPF
 
+    // Allocate samples (2 byte) per channel (DATA_LENGTH / 4)
     data_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     data_right = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
     output_left_low = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
@@ -212,18 +214,18 @@ void set_volume(int vol)
     else
         volume = vol;
 
-    spp_send_msg("v %d", volume / 10);
+    spp_send_msg("v %d", volume / 10); // Update volume in the app if connected
 
     ESP_LOGI(DSP_TAG, "Volume: %d%%", volume);
 }
 
 void volume_up()
 {
-    set_volume(volume + VOLUME_INTERVAL);
+    set_volume(volume + VOLUME_INTERVAL); // Increase volume
 }
 void volume_down()
 {
-    set_volume(volume - VOLUME_INTERVAL);
+    set_volume(volume - VOLUME_INTERVAL); // Decrease volume
 }
 
 void apply_volume(uint8_t *data, size_t *len)

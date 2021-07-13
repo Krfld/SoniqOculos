@@ -29,7 +29,7 @@
 #define BYTE_RATE (SAMPLE_RATE * NUM_CHANNELS * BITS_PER_SAMPLE / 8)
 #define BLOCK_ALIGN (NUM_CHANNELS * BITS_PER_SAMPLE / 8)
 
-#define BITS_PER_SAMPLE 16
+#define BITS_PER_SAMPLE 32
 
 /**
  * @brief See if card is mounted and file opened
@@ -68,7 +68,8 @@ void sd_close_file();
 void sd_write_data(uint8_t *data, size_t *len);
 
 /**
- * @brief Open file if closed or close file if opened
+ * @brief Open or close file
  * 
+ * @param state true opens the file, false closes it
  */
-void sd_card_toggle(bool state);
+void sd_set_card(bool state);

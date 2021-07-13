@@ -23,6 +23,11 @@
 #define VOLUME_CHANGE_PERIOD 250 // ms
 #define COMMAND_DELAY 500        // ms
 
+/**
+ * @brief Vibrate
+ * 
+ * @param millis milliseconds to vibrate
+ */
 void vibrate(int millis);
 
 /**

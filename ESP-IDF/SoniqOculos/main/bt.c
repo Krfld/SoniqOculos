@@ -97,7 +97,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         //spp_sending = false;
         //spp_receiving = false;
 
-        spp_send_msg("SETUP m %d v %d d %d eb %d em %d et %d r %d p %d", get_mode(), get_volume() / 10, get_devices(), get_bass(), get_mid(), get_treble(), sd_card_state(), i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM));
+        spp_send_msg("SETUP m %d v %d d %d eb %d em %d et %d r %d p %d", get_mode(), get_volume() / 10, get_devices(), get_bass(), get_mid(), get_treble(), sd_card_state(), i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM)); // Send setup message
         break;
 
     case ESP_SPP_WRITE_EVT:

@@ -59,7 +59,7 @@ static i2s_pin_config_t bone_conductors_pin_config = {
 static i2s_config_t i2s_config_tx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_TX,
     .sample_rate = SAMPLE_FREQUENCY,
-    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, // 32 bit when playing back from microphones
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
@@ -182,7 +182,7 @@ void i2s_toggle_devices()
     }
 }
 
-void i2s_toggle_bone_conductors(bool state)
+void i2s_set_bone_conductors(bool state)
 {
     vibrate(VIBRATION_DELAY);
 
@@ -232,14 +232,13 @@ void speakers_init()
         return;
 
     microphones_deinit();
-    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set 16 bit I2S
+    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set back to 16 bit
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config);
 
     i2s0_device = SPEAKERS;
-
-    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF); // Start speakers OFF
 }
 static void speakers_deinit()
 {
@@ -249,7 +248,6 @@ static void speakers_deinit()
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s0_device = NONE;
 
-    //delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
 }
 
@@ -264,11 +262,10 @@ void microphones_init()
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
 
-    i2s_read_task_init(); // Setup task to read from microphones
+    i2s_read_task_init(); // Start task to read from microphones
 
     i2s0_device = MICROPHONES;
-
-    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
+    i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON); // Signal microphones are ON
 }
 static void microphones_deinit()
 {
@@ -278,9 +275,8 @@ static void microphones_deinit()
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s0_device = NONE;
 
-    i2s_read_task_deinit();
+    i2s_read_task_deinit(); // Stop task that reads microphones
 
-    //delay(DEVICE_DEINIT_DELAY);
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
 }
 
@@ -289,7 +285,7 @@ void bone_conductors_init()
     i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config);
 
-    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
+    i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF); // Start BCD off
 }
 
 void i2s_init()
@@ -303,14 +299,7 @@ void i2s_init()
 void i2s_write_data(uint8_t *data, size_t *len)
 {
     //! I2S writes data with stereo inverted
-
-    /*int16_t temp;
-    for (size_t i = 0; i < *len; i += 2)
-    {
-        temp = data[i];
-        data[i] = data[i + 1];
-        data[i + 1] = temp;
-    }*/
+    //TODO Invert
 
     if (get_mode() == MUSIC)
         apply_equalizer(data, len);
@@ -340,12 +329,6 @@ void i2s_write_data(uint8_t *data, size_t *len)
     }
 }
 
-/*typedef struct mics_data_s
-{
-    int16_t dummy;
-    int16_t data;
-} mics_data_t;*/
-
 static void i2s_read_task(void *arg)
 {
     uint8_t data[DATA_LENGTH] = {0};
@@ -359,9 +342,6 @@ static void i2s_read_task(void *arg)
         }
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphone
-
-        /*mics_data_t *data_16 = (mics_data_t *)data;
-        bytes_read /= 2;*/
 
         i2s_write_data(data, &bytes_read); // Only write to bone conductors
 

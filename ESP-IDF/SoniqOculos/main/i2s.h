@@ -3,7 +3,6 @@
 #define NONE 0
 #define SPEAKERS 1
 #define MICROPHONES 2
-//#define BONE_CONDUCTORS 3
 
 #define BOTH_DEVICES 0
 #define ONLY_BONE_CONDUCTORS 1
@@ -34,28 +33,81 @@
 
 #define READ_TASK_IDLE_DELAY 500 // ms
 #define SINCRONIZE_DELAY 300     // ms
-//#define DEVICE_DEINIT_DELAY 100   // ms
 
+/**
+ * @brief Get active devices
+ * 
+ * @return int BOTH_DEVICES or ONLY_BONE_CONDUCTORS or ONLY_SPEAKERS
+ */
 int get_devices();
 
+/**
+ * @brief Get the state of the specified device
+ * 
+ * @param device SPEAKERS_MICROPHONES_I2S_NUM or BONE_CONDUCTORS_I2S_NUM
+ * @return true if ON, false if OFF
+ */
 bool i2s_get_device_state(int device);
+/**
+ * @brief Set the state of the specified device
+ * 
+ * @param device SPEAKERS_MICROPHONES_I2S_NUM or BONE_CONDUCTORS_I2S_NUM
+ * @param state ON of OFF
+ */
 void i2s_set_device_state(int device, bool state);
 
+/**
+ * @brief Change to a specific device
+ * 
+ * @param dev BOTH_DEVICES or ONLY_BONE_CONDUCTORS or ONLY_SPEAKERS
+ */
 void i2s_change_to_devices(int dev);
+/**
+ * @brief Toggle between devices
+ * 
+ */
 void i2s_toggle_devices();
 
-void i2s_toggle_bone_conductors(bool state);
+/**
+ * @brief Set BCD state
+ * 
+ * @param state ON or OFF
+ */
+void i2s_set_bone_conductors(bool state);
 
+/**
+ * @brief Turn devices ON
+ * 
+ */
 void i2s_turn_devices_on();
+/**
+ * @brief Turn devices OFF
+ * 
+ */
 void i2s_turn_devices_off();
 
+/**
+ * @brief Setup speakers interface
+ * 
+ */
 void speakers_init();
 
+/**
+ * @brief Setup microphones interface
+ * 
+ */
 void microphones_init();
 
+/**
+ * @brief Setup BCD interface
+ * 
+ */
 void bone_conductors_init();
-//void bone_conductors_deinit();
 
+/**
+ * @brief Setup i2s components
+ * 
+ */
 void i2s_init();
 
 /**

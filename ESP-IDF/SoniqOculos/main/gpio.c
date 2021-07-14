@@ -17,9 +17,11 @@ bool get_sd_det_state()
 static int buttons_map = 0;
 static int buttons_command = 0;
 
+static bool ready = false;
+
 void vibrate(int millis)
 {
-    if (!VIBRATE)
+    if (!VIBRATE || !ready)
         return;
 
     gpio_set_level(VIBRATOR_PIN, HIGH);
@@ -149,6 +151,8 @@ static void gpio_task(void *arg)
 
     while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
         delay(DEBOUNCE);
+
+    ready = true;
 
     for (;;)
     {

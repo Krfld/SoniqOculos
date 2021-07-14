@@ -40,6 +40,19 @@ void app_main(void)
     gpio_task_init(); // Start task to handle GPIOs
 
     change_to_mode(mode);
+    /*switch (mode)
+    {
+    case MUSIC:
+        speakers_init(); // Setup speakers
+        bt_music_init(); // Start A2DP for BT audio transmission
+        ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
+        break;
+
+    case RECORD:
+        microphones_init(); // Setup microphones and task to read them
+        ESP_LOGW(MAIN_TAG, "RECORD mode ready");
+        break;
+    }*/
 
     ESP_LOGW(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
 

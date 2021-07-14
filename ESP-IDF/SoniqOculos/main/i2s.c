@@ -351,7 +351,7 @@ static void i2s_read_task(void *arg)
         bytes_read /= 2;
 
         for (int i = 0; i < bytes_read; i++)
-            data_16[i] = data_read_16[i << 1];
+            data_16[i] = data_read_16[(i << 1) + 1];
 
         i2s_write_data(data, &bytes_read); // Only write to bone conductors
 

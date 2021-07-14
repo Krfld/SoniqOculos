@@ -39,8 +39,7 @@ void app_main(void)
     i2s_init();       // Setup I2S interface
     gpio_task_init(); // Start task to handle GPIOs
 
-    change_to_mode(mode);
-    /*switch (mode)
+    switch (mode)
     {
     case MUSIC:
         speakers_init(); // Setup speakers
@@ -52,7 +51,7 @@ void app_main(void)
         microphones_init(); // Setup microphones and task to read them
         ESP_LOGW(MAIN_TAG, "RECORD mode ready");
         break;
-    }*/
+    }
 
     ESP_LOGW(MAIN_TAG, "Free heap: %d", esp_get_free_heap_size());
 

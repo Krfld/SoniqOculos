@@ -109,26 +109,20 @@ void i2s_set_device_state(int device, bool state)
 {
     if (device == SPEAKERS_MICROPHONES_I2S_NUM)
     {
-        if (get_gpio_state())
-        {
-            if (state && i2s0_device == SPEAKERS)
-                gpio_set_level(SPEAKERS_SD_PIN, HIGH); // Turn on speakers
-            else
-                gpio_set_level(SPEAKERS_SD_PIN, LOW); // Turn off speakers
-        }
+        if (state && i2s0_device == SPEAKERS)
+            gpio_set_level(SPEAKERS_SD_PIN, HIGH); // Turn on speakers
+        else
+            gpio_set_level(SPEAKERS_SD_PIN, LOW); // Turn off speakers
 
         i2s0_state = state;
     }
 
     if (device == BONE_CONDUCTORS_I2S_NUM)
     {
-        if (get_gpio_state())
-        {
-            if (state)
-                gpio_set_level(BONE_CONDUCTORS_SD_PIN, HIGH); // Turn on bone conductors
-            else
-                gpio_set_level(BONE_CONDUCTORS_SD_PIN, LOW); // Turn off bone conductors
-        }
+        if (state)
+            gpio_set_level(BONE_CONDUCTORS_SD_PIN, HIGH); // Turn on bone conductors
+        else
+            gpio_set_level(BONE_CONDUCTORS_SD_PIN, LOW); // Turn off bone conductors
 
         i2s1_state = state;
     }

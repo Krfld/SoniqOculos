@@ -17,15 +17,9 @@ bool get_sd_det_state()
     return sd_det_state;
 }
 
-static bool gpio_ready = false;
-bool get_gpio_state()
-{
-    return gpio_ready;
-}
-
 void vibrate(int millis)
 {
-    if (!VIBRATE || !get_gpio_state())
+    if (!VIBRATE)
         return;
 
     gpio_set_level(VIBRATOR_PIN, HIGH);
@@ -155,8 +149,6 @@ static void gpio_task(void *arg)
 
     while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
         delay(DEBOUNCE);
-
-    gpio_ready = true;
 
     for (;;)
     {

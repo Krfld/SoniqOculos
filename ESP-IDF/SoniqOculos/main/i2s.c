@@ -21,8 +21,8 @@ static bool i2s1_state = OFF;
 static size_t bytes_written;
 static size_t bytes_read;
 
-static uint8_t *bone_conductors_samples;
-static uint8_t *speakers_samples;
+static uint8_t bone_conductors_samples[DATA_LENGTH];
+static uint8_t speakers_samples[DATA_LENGTH];
 
 static xTaskHandle s_i2s_read_task_handle = NULL;
 static void i2s_read_task(void *arg);
@@ -292,15 +292,15 @@ void i2s_init()
 {
     bone_conductors_init();
 
-    bone_conductors_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
-    speakers_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
+    //bone_conductors_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
+    //speakers_samples = (uint8_t *)pvPortMalloc(DATA_LENGTH);
 }
 
 void i2s_write_data(uint8_t *data, size_t *len)
 {
     int32_t *data_32 = (int32_t *)data;
-    for (int i = 0; i < *len; i += 4)
-        data_32[i] = ((data_32[i] & 0xffff) << 16) | ((data_32[i] >> 16) & 0xffff); // Invert left channel with right channel
+    for (int i = 0; i < *len / 4; i++)
+        data_32[i] = ((data_32[i] << 16) & 0xffff0000) | ((data_32[i] >> 16) & 0x0000ffff); // Invert channels
 
     if (get_mode() == MUSIC)
         apply_equalizer(data, len);

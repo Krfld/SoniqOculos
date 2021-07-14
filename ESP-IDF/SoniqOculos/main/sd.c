@@ -200,9 +200,12 @@ void sd_close_file()
         nvs_write(FILE_NAME, nvs_read(FILE_NAME) + 1); // Increment file ID if not empty
     }
 
-    fclose(f);
+    if (fclose(f) == EOF)
+        ESP_LOGE(SD_CARD_TAG, "Failed to close file");
+    else
+        ESP_LOGI(SD_CARD_TAG, "File closed");
+
     f = NULL;
-    ESP_LOGI(SD_CARD_TAG, "File closed");
 }
 
 void sd_write_data(uint8_t *data, size_t *len)

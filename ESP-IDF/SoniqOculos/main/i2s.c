@@ -109,20 +109,22 @@ void i2s_set_device_state(int device, bool state)
 {
     if (device == SPEAKERS_MICROPHONES_I2S_NUM)
     {
-        if (state && i2s0_device == SPEAKERS)
-            gpio_set_level(SPEAKERS_SD_PIN, HIGH); // Turn on speakers
-        else
-            gpio_set_level(SPEAKERS_SD_PIN, LOW); // Turn off speakers
+        if (get_gpio_state())
+            if (state && i2s0_device == SPEAKERS)
+                gpio_set_level(SPEAKERS_SD_PIN, HIGH); // Turn on speakers
+            else
+                gpio_set_level(SPEAKERS_SD_PIN, LOW); // Turn off speakers
 
         i2s0_state = state;
     }
 
     if (device == BONE_CONDUCTORS_I2S_NUM)
     {
-        if (state)
-            gpio_set_level(BONE_CONDUCTORS_SD_PIN, HIGH); // Turn on bone conductors
-        else
-            gpio_set_level(BONE_CONDUCTORS_SD_PIN, LOW); // Turn off bone conductors
+        if (get_gpio_state())
+            if (state)
+                gpio_set_level(BONE_CONDUCTORS_SD_PIN, HIGH); // Turn on bone conductors
+            else
+                gpio_set_level(BONE_CONDUCTORS_SD_PIN, LOW); // Turn off bone conductors
 
         i2s1_state = state;
     }
@@ -350,7 +352,7 @@ static void i2s_read_task(void *arg)
 
         bytes_read /= 2;
 
-        for (int i = 0; i < bytes_read; i++)
+        for (int i = 0; i < bytes_read / 2; i++)
             data_16[i] = data_read_16[(i << 1) + 1];
 
         i2s_write_data(data, &bytes_read); // Only write to bone conductors

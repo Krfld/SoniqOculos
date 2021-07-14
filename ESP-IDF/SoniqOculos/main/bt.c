@@ -33,38 +33,11 @@ static bool has_last_device()
 
 static bool spp_connected = false;
 
-/*static bool spp_receiving = false;
-
-static bool spp_sending = false;
-void spp_set_sending_state(bool state)
-{
-    spp_sending = state;
-}
-bool spp_get_sending_state()
-{
-    return spp_sending;
-}*/
-
 static uint32_t spp_handle;
 void spp_send_msg(char *msg, ...)
 {
     if (!spp_connected)
         return;
-
-    /*if (strcmp(msg, SPP_OK) != 0 && strcmp(msg, SPP_FAIL) != 0) // Msg not OK nor FAIL
-    {
-        if (spp_receiving) // Don't send msg if receiving
-            return;
-
-        if (spp_sending) // Don't send msg if didn't get OK back
-        {
-            ESP_LOGE(BT_SPP_TAG, "Waiting for OK");
-            return;
-        }
-        spp_sending = true;
-    }
-    else
-        spp_receiving = false; // Stop receiving if sending OK or FAIL*/
 
     va_list vl;
     va_start(vl, msg);
@@ -94,8 +67,6 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         ESP_LOGW(BT_SPP_TAG, "Connected to server");
 
         spp_connected = true;
-        //spp_sending = false;
-        //spp_receiving = false;
 
         spp_send_msg("SETUP m %d v %d d %d eb %d em %d et %d r %d p %d", get_mode(), get_volume() / 10, get_devices(), get_bass(), get_mid(), get_treble(), sd_card_state(), i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM)); // Send setup message
         break;
@@ -108,15 +79,12 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         ESP_LOGW(BT_SPP_TAG, "Disconnected from server");
 
         spp_connected = false;
-        //spp_sending = false;
-        //spp_receiving = false;
         break;
 
     case ESP_SPP_DATA_IND_EVT: // Receive message
         ESP_LOGI(BT_SPP_TAG, "ESP_SPP_DATA_IND_EVT len=%d handle=%d", param->data_ind.len, param->data_ind.handle);
         if (param->data_ind.len < MSG_BUFFER_SIZE)
         {
-            //spp_receiving = true;
             char msg[MSG_BUFFER_SIZE];
             snprintf(msg, param->data_ind.len + 1, (char *)param->data_ind.data); // Filter received message contents
             handleMsgs(msg);                                                      // Handle message received and response

@@ -323,17 +323,17 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         {
             ESP_LOGW(BT_AV_TAG, "Connected to audio");
             connected = true;
-            save_last_device(bda);
+            save_last_device(bda); // Save connected device address
             s_audio_state = ESP_A2D_AUDIO_STATE_STOPPED;
-            esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE);
-            bt_i2s_task_start_up();
+            esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE); // Non connectable BT
+            bt_i2s_task_start_up();                                                    // Start task to read samples
         }
         else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
         {
             ESP_LOGW(BT_AV_TAG, "Disconnected from audio");
             connected = false;
-            esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
-            bt_i2s_task_shut_down();
+            esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE); // Connectable BT
+            bt_i2s_task_shut_down();                                                   // Stop task that read samples
         }
         break;
     }

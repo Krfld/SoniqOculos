@@ -38,6 +38,13 @@ void vibrate(int millis);
 bool get_sd_det_state();
 
 /**
+ * @brief See if gpio's are ready
+ * 
+ * @return true if ready, false if not
+ */
+bool get_gpio_state();
+
+/**
  * @brief Create task to handle buttons
  * 
  */

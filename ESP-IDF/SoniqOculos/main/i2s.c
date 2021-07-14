@@ -298,18 +298,12 @@ void i2s_init()
 
 void i2s_write_data(uint8_t *data, size_t *len)
 {
-    //! I2S FUCK writes data with stereo inverted
-    //TODO Invert
-
-    for (int i = 0; i < *len; i++)
-    {
-    }
+    int32_t *data_32 = (int32_t *)data;
+    for (int i = 0; i < *len; i += 4)
+        data_32[i] = ((data_32[i] & 0xffff) << 16) | ((data_32[i] >> 16) & 0xffff); // Invert left channel with right channel
 
     if (get_mode() == MUSIC)
         apply_equalizer(data, len);
-
-    //sd_write_data(data, len); //! Testing
-    //return;
 
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {

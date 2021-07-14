@@ -353,11 +353,11 @@ static void i2s_read_task(void *arg)
         int32_t *data_read_32 = (int32_t *)data_read;
         int16_t *data_16 = (int16_t *)data;
         for (int i = 0; i < bytes_read / 2; i++)
-            data_16[i] = (data_read_32[i] >> 16) * MAX_VOLUME;
-
-        i2s_write_data(data, &bytes_read); // Only write to bone conductors
+            data_16[i] = (data_read_32[i] >> 16);
 
         sd_write_data(data, &bytes_read); // Write to SD card
+
+        i2s_write_data(data, &bytes_read); // Only write to bone conductors
     }
 }
 

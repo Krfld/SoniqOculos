@@ -298,8 +298,12 @@ void i2s_init()
 
 void i2s_write_data(uint8_t *data, size_t *len)
 {
-    //! I2S writes data with stereo inverted
+    //! I2S FUCK writes data with stereo inverted
     //TODO Invert
+
+    for (int i = 0; i < *len; i++)
+    {
+    }
 
     if (get_mode() == MUSIC)
         apply_equalizer(data, len);

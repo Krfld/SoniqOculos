@@ -333,7 +333,7 @@ static void i2s_read_task(void *arg)
 {
     uint8_t data_read[DATA_LENGTH] = {0};
 
-    //uint8_t data[DATA_LENGTH / 2] = {0};
+    uint8_t data[DATA_LENGTH / 2] = {0};
 
     for (;;)
     {
@@ -345,17 +345,17 @@ static void i2s_read_task(void *arg)
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data_read, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphones
 
-        /*int16_t *data_read_16 = (int16_t *)data_read;
+        int32_t *data_read_16 = (int32_t *)data_read;
         int16_t *data_16 = (int16_t *)data;
 
         bytes_read /= 2;
 
         for (int i = 0; i < bytes_read / 2; i++)
-            data_16[i] = data_read_16[(i << 1) + 1];*/
+            data_16[i] = (data_read_16[i] >> 16);
 
-        i2s_write_data(data_read, &bytes_read); // Only write to bone conductors
+        i2s_write_data(data, &bytes_read); // Only write to bone conductors
 
-        sd_write_data(data_read, &bytes_read); // Write to SD card
+        sd_write_data(data, &bytes_read); // Write to SD card
     }
 }
 

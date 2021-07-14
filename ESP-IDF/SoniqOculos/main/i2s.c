@@ -61,7 +61,7 @@ static i2s_config_t i2s_config_tx = {
     .sample_rate = SAMPLE_FREQUENCY,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+    .communication_format = I2S_COMM_FORMAT_STAND_MSB,
     .intr_alloc_flags = 0, //Default interrupt priority
     .dma_buf_count = I2S_DMA_BUFFER_COUNT,
     .dma_buf_len = I2S_DMA_BUFFER_LEN,
@@ -75,7 +75,7 @@ static i2s_config_t i2s_config_rx = {
     .sample_rate = SAMPLE_FREQUENCY,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT, // Microphones only work with 32 bit
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+    .communication_format = I2S_COMM_FORMAT_STAND_MSB,
     .intr_alloc_flags = 0, //Default interrupt priority
     .dma_buf_count = I2S_DMA_BUFFER_COUNT,
     .dma_buf_len = I2S_DMA_BUFFER_LEN,
@@ -307,7 +307,7 @@ void i2s_write_data(uint8_t *data, size_t *len)
     //sd_write_data(data, len); //! Testing
     //return;
 
-    if (get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
+    if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
         apply_crossover(data, bone_conductors_samples, speakers_samples, len); // Apply crossover
 

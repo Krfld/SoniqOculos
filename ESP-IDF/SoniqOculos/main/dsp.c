@@ -99,11 +99,7 @@ void dsp_init()
 void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, size_t *len)
 {
     if (!PROCESSING)
-    {
-        output_low = input;
-        output_high = input;
         return;
-    }
 
     // Convert to 2 bytes per sample (16 bit)
     // (int16_t *) samples -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...

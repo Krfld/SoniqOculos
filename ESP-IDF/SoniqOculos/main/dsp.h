@@ -5,7 +5,6 @@
 #define PROCESSING ON
 #define FIXED_DATA_LENGTH ON
 
-//* Volume
 #define DEFAULT_VOLUME 50  // %
 #define VOLUME_INTERVAL 10 // %
 #define MAX_VOLUME 0.3

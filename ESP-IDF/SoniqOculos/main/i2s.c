@@ -333,13 +333,13 @@ static void i2s_read_task(void *arg)
 {
     uint8_t data_read[DATA_LENGTH] = {0};
 
-    uint8_t data[DATA_LENGTH / 2] = {0};
+    //uint8_t data[DATA_LENGTH / 2] = {0};
 
     for (;;)
     {
         if (i2s0_device != MICROPHONES || (!i2s1_state && !sd_card_state()))
         {
-            delay(READ_TASK_IDLE_DELAY); // Idle task
+            delay(READ_TASK_IDLE_DELAY); // Idling task
             continue;
         }
 
@@ -353,9 +353,9 @@ static void i2s_read_task(void *arg)
         for (int i = 0; i < bytes_read / 2; i++)
             data_16[i] = data_read_16[(i << 1) + 1];*/
 
-        i2s_write_data(data, &bytes_read); // Only write to bone conductors
+        i2s_write_data(data_read, &bytes_read); // Only write to bone conductors
 
-        sd_write_data(data, &bytes_read); // Write to SD card
+        sd_write_data(data_read, &bytes_read); // Write to SD card
     }
 }
 

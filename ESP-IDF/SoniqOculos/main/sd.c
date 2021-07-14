@@ -210,7 +210,7 @@ void sd_write_data(uint8_t *data, size_t *len)
     if (f == NULL || !get_sd_det_state()) // Check if file was closed or card was removed
         return;
 
-    if (xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY) && !sd_card_state())
+    if (xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY) || !sd_card_state())
     {
         xSemaphoreGive(sd_semaphore_handle);
         return;

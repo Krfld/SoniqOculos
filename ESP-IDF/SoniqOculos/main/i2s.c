@@ -362,7 +362,7 @@ static void i2s_read_task(void *arg)
 static void i2s_read_task_init()
 {
     if (!s_i2s_read_task_handle)
-        xTaskCreate(i2s_read_task, "i2s_read_task", I2S_READ_STACK_DEPTH, NULL, 10, &s_i2s_read_task_handle);
+        xTaskCreate(i2s_read_task, "i2s_read_task", I2S_READ_STACK_DEPTH, NULL, 20, &s_i2s_read_task_handle);
 }
 static void i2s_read_task_deinit()
 {

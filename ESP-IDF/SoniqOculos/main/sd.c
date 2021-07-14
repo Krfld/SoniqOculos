@@ -133,7 +133,7 @@ void sd_card_deinit()
 
     ESP_LOGI(SD_CARD_TAG, "Stop recording");
 
-    //xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
+    xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY); // Can´t deinit when writing to file
 
     if (!get_sd_det_state()) // Check if card was removed unexpectedly
     {
@@ -143,13 +143,13 @@ void sd_card_deinit()
 
     sd_close_file();
 
-    //xSemaphoreGive(sd_semaphore_handle);
-
     if (card == NULL)
         return;
 
     esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
     card = NULL;
+
+    xSemaphoreGive(sd_semaphore_handle);
 
     ESP_LOGI(SD_CARD_TAG, "Card unmounted");
     ESP_LOGW(SD_CARD_TAG, "Safe to remove card");
@@ -207,17 +207,20 @@ void sd_close_file()
 
 void sd_write_data(uint8_t *data, size_t *len)
 {
-    if (f == NULL || !get_sd_det_state())
+    if (f == NULL || !get_sd_det_state()) // Check if file was closed or card was removed
         return;
 
-    if (xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY))
+    if (xSemaphoreTake(sd_semaphore_handle, portMAX_DELAY) && !sd_card_state())
     {
-        fwrite(data, sizeof(*data), *len, f); // Write samples to file
-        wav_header.size += *len;              // Increment wav size
-        wav_header.data_size += *len;         // Increment wav data size
-
         xSemaphoreGive(sd_semaphore_handle);
+        return;
     }
+
+    fwrite(data, sizeof(*data), *len, f); // Write samples to file
+    wav_header.size += *len;              // Increment wav size
+    wav_header.data_size += *len;         // Increment wav data size
+
+    xSemaphoreGive(sd_semaphore_handle);
 }
 
 void sd_set_card(bool state)

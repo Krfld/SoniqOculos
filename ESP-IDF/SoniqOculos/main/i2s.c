@@ -232,7 +232,7 @@ void speakers_init()
         return;
 
     microphones_deinit();
-    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set back to 16 bit
+    //i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set back to 16 bit
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config);
@@ -257,7 +257,7 @@ void microphones_init()
         return;
 
     speakers_deinit();
-    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
+    //i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
@@ -331,7 +331,9 @@ void i2s_write_data(uint8_t *data, size_t *len)
 
 static void i2s_read_task(void *arg)
 {
-    uint8_t data[DATA_LENGTH] = {0};
+    uint8_t data_read[DATA_LENGTH] = {0};
+
+    uint8_t data[DATA_LENGTH / 2] = {0};
 
     for (;;)
     {
@@ -341,7 +343,16 @@ static void i2s_read_task(void *arg)
             continue;
         }
 
-        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphone
+        i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data_read, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphones
+
+        int16_t *data_read_16 = (int16_t *)data_read;
+        int16_t *data_16 = (int16_t *)data;
+        data_read_16++;
+
+        bytes_read /= 2;
+
+        for (int i = 0; i < bytes_read; i++)
+            data_16[i] = data_read_16[i << 1];
 
         i2s_write_data(data, &bytes_read); // Only write to bone conductors
 
@@ -352,7 +363,7 @@ static void i2s_read_task(void *arg)
 static void i2s_read_task_init()
 {
     if (!s_i2s_read_task_handle)
-        xTaskCreate(i2s_read_task, "i2s_read_task", I2S_READ_STACK_DEPTH, NULL, configMAX_PRIORITIES - 3, &s_i2s_read_task_handle);
+        xTaskCreate(i2s_read_task, "i2s_read_task", I2S_READ_STACK_DEPTH, NULL, 10, &s_i2s_read_task_handle);
 }
 static void i2s_read_task_deinit()
 {

@@ -29,7 +29,7 @@
 #define BYTE_RATE (SAMPLE_RATE * NUM_CHANNELS * BITS_PER_SAMPLE / 8)
 #define BLOCK_ALIGN (NUM_CHANNELS * BITS_PER_SAMPLE / 8)
 
-#define BITS_PER_SAMPLE 32
+#define BITS_PER_SAMPLE 16
 
 /**
  * @brief See if card is mounted and file opened

@@ -21,7 +21,7 @@
  * test white noise
  */
 
-RTC_DATA_ATTR static int mode = MUSIC; // Keep value while in deep-sleep
+RTC_DATA_ATTR static int mode = RECORD; // Keep value while in deep-sleep
 int get_mode()
 {
     return mode;

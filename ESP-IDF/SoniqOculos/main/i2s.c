@@ -232,7 +232,7 @@ void speakers_init()
         return;
 
     microphones_deinit();
-    //i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set back to 16 bit
+    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set back to 16 bit
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config);
@@ -257,7 +257,7 @@ void microphones_init()
         return;
 
     speakers_deinit();
-    //i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
+    i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
 
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
@@ -345,13 +345,13 @@ static void i2s_read_task(void *arg)
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data_read, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphones
 
-        int16_t *data_read_16 = (int16_t *)data_read;
+        /*int16_t *data_read_16 = (int16_t *)data_read;
         int16_t *data_16 = (int16_t *)data;
 
         bytes_read /= 2;
 
         for (int i = 0; i < bytes_read / 2; i++)
-            data_16[i] = data_read_16[(i << 1) + 1];
+            data_16[i] = data_read_16[(i << 1) + 1];*/
 
         i2s_write_data(data, &bytes_read); // Only write to bone conductors
 

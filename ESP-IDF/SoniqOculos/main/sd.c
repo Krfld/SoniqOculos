@@ -216,6 +216,8 @@ void sd_write_data(uint8_t *data, size_t *len)
         return;
     }
 
+    ESP_LOGE(SD_CARD_TAG, "FWRITE");
+
     fwrite(data, sizeof(*data), *len, f); // Write samples to file
     wav_header.size += *len;              // Increment wav size
     wav_header.data_size += *len;         // Increment wav data size

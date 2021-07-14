@@ -61,7 +61,7 @@ static i2s_config_t i2s_config_tx = {
     .sample_rate = SAMPLE_FREQUENCY,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-    .communication_format = I2S_COMM_FORMAT_STAND_MSB,
+    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
     .dma_buf_count = I2S_DMA_BUFFER_COUNT,
     .dma_buf_len = I2S_DMA_BUFFER_LEN,
@@ -75,7 +75,7 @@ static i2s_config_t i2s_config_rx = {
     .sample_rate = SAMPLE_FREQUENCY,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT, // Microphones only work with 32 bit
     .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-    .communication_format = I2S_COMM_FORMAT_STAND_MSB,
+    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = 0, //Default interrupt priority
     .dma_buf_count = I2S_DMA_BUFFER_COUNT,
     .dma_buf_len = I2S_DMA_BUFFER_LEN,
@@ -311,15 +311,18 @@ void i2s_write_data(uint8_t *data, size_t *len)
     {
         apply_crossover(data, bone_conductors_samples, speakers_samples, len); // Apply crossover
 
+        // Apply volume only after filtering
         apply_volume(bone_conductors_samples, len);
         apply_volume(speakers_samples, len);
+
+        // Write to devices
         i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, speakers_samples, *len, &bytes_written, portMAX_DELAY);
         i2s_write(BONE_CONDUCTORS_I2S_NUM, bone_conductors_samples, *len, &bytes_written, portMAX_DELAY);
     }
     else
     {
         if (get_mode() == MUSIC)
-            apply_volume(data, len);
+            apply_volume(data, len); // Apply volume only after filtering
 
         if (i2s0_state && i2s0_device == SPEAKERS) // If speakers are on
             i2s_write(SPEAKERS_MICROPHONES_I2S_NUM, data, *len, &bytes_written, portMAX_DELAY);
@@ -345,13 +348,12 @@ static void i2s_read_task(void *arg)
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data_read, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphones
 
-        int32_t *data_read_16 = (int32_t *)data_read;
-        int16_t *data_16 = (int16_t *)data;
-
+        // Convert 32 bit to 16, ignoring the first 2 bytes of each sample (index multiple of 4)
         bytes_read /= 2;
-
+        int32_t *data_read_32 = (int32_t *)data_read;
+        int16_t *data_16 = (int16_t *)data;
         for (int i = 0; i < bytes_read / 2; i++)
-            data_16[i] = (data_read_16[i] >> 16);
+            data_16[i] = (data_read_32[i] >> 16) * MAX_VOLUME;
 
         i2s_write_data(data, &bytes_read); // Only write to bone conductors
 

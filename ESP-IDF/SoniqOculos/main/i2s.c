@@ -347,7 +347,6 @@ static void i2s_read_task(void *arg)
 
         int16_t *data_read_16 = (int16_t *)data_read;
         int16_t *data_16 = (int16_t *)data;
-        data_read_16++;
 
         bytes_read /= 2;
 

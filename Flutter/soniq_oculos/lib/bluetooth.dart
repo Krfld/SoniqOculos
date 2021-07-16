@@ -111,6 +111,7 @@ class _Bluetooth {
         this._ready = false;
         disconnect();
         app.pop();
+        app.done();
       });
 
     await Future.delayed(Duration(seconds: 2)); // Wait for setup message

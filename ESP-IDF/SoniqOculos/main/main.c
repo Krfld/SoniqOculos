@@ -39,17 +39,26 @@ void app_main(void)
     i2s_init();       // Setup I2S interface
     gpio_task_init(); // Start task to handle GPIOs
 
+    vibrate(VIBRATION_DELAY * 3);
+    delay(500);
+
     switch (mode)
     {
     case MUSIC:
         speakers_init(); // Setup speakers
         bt_music_init(); // Start A2DP for BT audio transmission
         ESP_LOGW(MAIN_TAG, "MUSIC mode ready");
+
+        vibrate(VIBRATION_DELAY); // Vibrate once to tell user its in MUSIC mode
         break;
 
     case RECORD:
         microphones_init(); // Setup microphones and task to read them
         ESP_LOGW(MAIN_TAG, "RECORD mode ready");
+
+        vibrate(VIBRATION_DELAY);
+        delay(100);
+        vibrate(VIBRATION_DELAY);
         break;
     }
 
@@ -86,6 +95,9 @@ void shutdown()
     esp_bluedroid_disable();
     esp_bt_controller_disable();
 
+    // Vibrate 3 times to tell user device has been turned off
+    vibrate(VIBRATION_DELAY * 3);
+
     while (gpio_get_level(B1) || gpio_get_level(B2) || gpio_get_level(B3)) // Wait if user pressing any button
         delay(DEBOUNCE);
 
@@ -100,15 +112,6 @@ void shutdown()
 void handleMsgs(char *msg)
 {
     ESP_LOGW(MAIN_TAG, "Message recevied: '%s'", msg);
-
-    /*if (spp_get_sending_state())
-    {
-        if (strcmp(msg, SPP_OK) == 0)
-            spp_set_sending_state(false); // Stop sending if got OK or FAIL
-        else
-            spp_send_msg(SPP_FAIL); // Error if msg received while sending
-        return;
-    }*/
 
     // Message received (examples) | 'm 0' | 'v 100' | 'e 0 0 0' |
 
@@ -149,10 +152,15 @@ void change_to_mode(int m)
 {
     i2s_turn_devices_off();
 
+    vibrate(VIBRATION_DELAY);
+    delay(100);
+    vibrate(VIBRATION_DELAY);
+    delay(100);
+
     switch (m)
     {
     case MUSIC:
-        i2s_set_bone_conductors(OFF); // Stop playback | Vibrate
+        i2s_set_bone_conductors(OFF); // Stop playback | Vibrate once to indicate switch to MUSIC mode
         sd_card_deinit();             // Close SD file if opened
 
         speakers_init(); // Start speakers and stop microphones
@@ -168,6 +176,9 @@ void change_to_mode(int m)
 
         microphones_init(); // Start microphones and stop speakers
 
+        delay(100);
+        vibrate(VIBRATION_DELAY); // Vibrate a second time to indicate switch to RECORD mode
+
         ESP_LOGW(MAIN_TAG, "RECORD mode ready");
         break;
 
@@ -176,8 +187,6 @@ void change_to_mode(int m)
     }
 
     mode = m;
-
-    vibrate(VIBRATION_DELAY); // Vibrate again to indicate mode has changed
 
     spp_send_msg("m %d", mode); // Update mode in the app if connected
 

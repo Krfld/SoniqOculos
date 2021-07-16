@@ -27,7 +27,7 @@ class _App {
     this._processing = true;
     this.streamController.sink.add(null); // Update screens
     await Future.delayed(Duration(milliseconds: 250));
-    function();
+    function(); // Execute function
   }
 
   void done() {
@@ -40,12 +40,12 @@ class _App {
   ///
 
   void push(String route) {
-    if (this._context != null) Navigator.pushReplacementNamed(context, route);
+    if (this._context != null) Navigator.pushReplacementNamed(context, route); // Go to next screen
   }
 
   void pop() {
     if (this._context != null) {
-      Navigator.pop(context);
+      Navigator.pop(context); // Go to previous screen (Home)
       this._context = null;
       this._processing = false;
     }
@@ -72,7 +72,7 @@ class _App {
 class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: SpinKitChasingDots(color: Colors.teal)));
+    return Scaffold(body: Center(child: SpinKitChasingDots(color: Colors.teal))); // Loading animation
   }
 }
 
@@ -107,7 +107,7 @@ class Button extends StatelessWidget {
   final double margin;
   final double border;
 
-  //final Color borderColor;
+  final Color borderColor;
 
   Button({
     @required this.text,
@@ -117,7 +117,7 @@ class Button extends StatelessWidget {
     this.padding = 16,
     this.margin = 0,
     this.border = 32,
-    //this.borderColor,
+    this.borderColor,
   });
 
   @override
@@ -129,7 +129,7 @@ class Button extends StatelessWidget {
         padding: EdgeInsets.all(this.margin),
         child: OutlineButton(
           //splashColor: Colors.teal,
-          //borderSide: BorderSide(color: this.borderColor == null ? Colors.grey : this.borderColor),
+          borderSide: BorderSide(color: this.borderColor == null ? Colors.grey : this.borderColor),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(this.border)),
           padding: EdgeInsets.all(this.padding),
           onPressed: this.enable ? this.function : null,

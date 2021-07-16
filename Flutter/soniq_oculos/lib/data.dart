@@ -72,6 +72,10 @@ class Data {
   int get record => this._record;
   set record(int record) => this._record = record;
 
+  bool _recordFail = false;
+  bool get recordFail => this._recordFail;
+  set recordFail(bool recordFail) => this._recordFail = recordFail;
+
   void toggleRecording() => bt.sendCmd('r ${1 - record}');
 
   ///

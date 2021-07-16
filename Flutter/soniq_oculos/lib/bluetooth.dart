@@ -23,83 +23,9 @@ class _Bluetooth {
 
   bool _ready = false;
 
-  void sendCmd(var cmd) {
-    if (!isDeviceConnected) return;
-
-    try {
-      this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString(), prefix: 'Output')));
-    } catch (e) {
-      app.msg(e, prefix: 'Error');
-    }
-  }
-
-  void getCmd(Uint8List msg) {
-    String cmd = '';
-    try {
-      cmd = ascii.decode(msg);
-    } catch (e) {
-      app.msg(e, prefix: 'Error');
-    }
-
-    List words = cmd.split(' ');
-    app.msg(words, prefix: 'Input');
-
-    switch (words[0]) {
-      case 'SETUP':
-        data.mode = int.tryParse(words[2]) ?? 0; // Mode
-
-        data.volume = (int.tryParse(words[4]) ?? 5) * 10; // Volume
-        data.devices = int.tryParse(words[6]) ?? 0; // Devices
-        data.bass = int.tryParse(words[8]) ?? 0; // Bass
-        data.mid = int.tryParse(words[10]) ?? 0; // Mid
-        data.treble = int.tryParse(words[12]) ?? 0; // Treble
-
-        data.record = int.tryParse(words[14]) ?? 0; // SD
-        data.playback = int.tryParse(words[16]) ?? 0; // BCD
-        this._ready = true;
-        break;
-
-      case 'm': // Mode
-        data.mode = int.tryParse(words[1]) ?? 0;
-        app.push(data.mode == 0 ? 'Music' : 'Record');
-        break;
-
-      case 'v': // Volume
-        data.volume = (int.tryParse(words[1]) ?? 5) * 10;
-        break;
-
-      case 'd': // Devices
-        data.devices = int.tryParse(words[1]) ?? 0;
-        break;
-
-      case 'eb': // Bass
-        data.bass = int.tryParse(words[1]) ?? 0;
-        break;
-
-      case 'em': // Mid
-        data.mid = int.tryParse(words[1]) ?? 0;
-        break;
-
-      case 'et': // Treble
-        data.treble = int.tryParse(words[1]) ?? 0;
-        break;
-
-      case 'r': // SD card
-        data.record = int.tryParse(words[1]) ?? 0;
-        break;
-
-      case 'p': // Bone Conductors
-        data.playback = int.tryParse(words[1]) ?? 0;
-        break;
-
-      default:
-        app.msg('Unknown message ($cmd)', prefix: 'Command');
-        disconnect();
-        break;
-    }
-
-    app.done();
-  }
+  ///
+  /// Setup
+  ///
 
   void setup() {
     bluetoothStateStream.listen((state) {
@@ -113,9 +39,9 @@ class _Bluetooth {
     });
   }
 
-  void disconnect() {
-    this._bluetoothConnection?.dispose();
-  }
+  ///
+  /// Connect
+  ///
 
   Future connect() async {
     ///
@@ -190,5 +116,104 @@ class _Bluetooth {
     await Future.delayed(Duration(seconds: 2)); // Wait for setup message
 
     return this._ready;
+  }
+
+  ///
+  /// Disconnect
+  ///
+
+  void disconnect() {
+    this._bluetoothConnection?.dispose();
+  }
+
+  ///
+  /// Send
+  ///
+
+  void sendCmd(var cmd) {
+    if (!isDeviceConnected || app.processing) return;
+
+    app.process(() => null); // Stop from sending the same command multiple times
+    data.recordFail = false; // Reset record state
+
+    try {
+      this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString(), prefix: 'Output'))); // Send message
+    } catch (e) {
+      app.msg(e, prefix: 'Error');
+    }
+  }
+
+  ///
+  /// Receive
+  ///
+
+  void getCmd(Uint8List msg) {
+    String cmd = '';
+    try {
+      cmd = ascii.decode(msg); // Decode message
+    } catch (e) {
+      app.msg(e, prefix: 'Error');
+    }
+
+    List words = cmd.split(' ');
+    app.msg(words, prefix: 'Input');
+
+    switch (words[0]) {
+      case 'SETUP':
+        data.mode = int.tryParse(words[2]) ?? 0; // Mode
+
+        data.volume = (int.tryParse(words[4]) ?? 5) * 10; // Volume
+        data.devices = int.tryParse(words[6]) ?? 0; // Devices
+        data.bass = int.tryParse(words[8]) ?? 0; // Bass
+        data.mid = int.tryParse(words[10]) ?? 0; // Mid
+        data.treble = int.tryParse(words[12]) ?? 0; // Treble
+
+        data.record = int.tryParse(words[14]) ?? 0; // SD
+        data.playback = int.tryParse(words[16]) ?? 0; // BCD
+        this._ready = true;
+        break;
+
+      case 'm': // Mode
+        data.mode = int.tryParse(words[1]) ?? 0;
+        app.push(data.mode == 0 ? 'Music' : 'Record');
+        break;
+
+      case 'v': // Volume
+        data.volume = (int.tryParse(words[1]) ?? 5) * 10;
+        break;
+
+      case 'd': // Devices
+        data.devices = int.tryParse(words[1]) ?? 0;
+        break;
+
+      case 'eb': // Bass
+        data.bass = int.tryParse(words[1]) ?? 0;
+        break;
+
+      case 'em': // Mid
+        data.mid = int.tryParse(words[1]) ?? 0;
+        break;
+
+      case 'et': // Treble
+        data.treble = int.tryParse(words[1]) ?? 0;
+        break;
+
+      case 'r': // SD card
+        int value = int.tryParse(words[1]) ?? 0;
+        if (value == data.record) data.recordFail = true; // If returned the same state means error
+        data.record = value;
+        break;
+
+      case 'p': // Bone Conductors
+        data.playback = int.tryParse(words[1]) ?? 0;
+        break;
+
+      default:
+        app.msg('Unknown message ($cmd)', prefix: 'Command');
+        disconnect();
+        break;
+    }
+
+    app.done();
   }
 }

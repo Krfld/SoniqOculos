@@ -42,7 +42,7 @@ class _MusicState extends State<Music> {
                                 text: 'Switch to\n${data.deviceName[i]}',
                                 padding: 24,
                                 margin: 8,
-                                function: !app.processing ? () => data.switchDevices(i) : null,
+                                function: () => data.switchDevices(i),
                               ),
                         ],
                       ),
@@ -50,8 +50,8 @@ class _MusicState extends State<Music> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          EqualizerSliders(enable: !app.processing),
-                          VolumeSlider(enable: !app.processing),
+                          EqualizerSliders(),
+                          VolumeSlider(),
                         ],
                       ),
                       Separator(),
@@ -59,7 +59,7 @@ class _MusicState extends State<Music> {
                         text: data.mode != -1 ? 'Switch to Record' : 'Switching...',
                         padding: 24,
                         border: 8,
-                        function: !app.processing ? () => data.changeMode() : null,
+                        function: () => data.changeMode(),
                       ),
                     ],
                   ),

@@ -167,7 +167,7 @@ static void gpio_task(void *arg)
             }
 
             if (!sd_det_state) // SD removed
-                sd_card_deinit();
+                sd_set_card(false);
         }
 
         if (gpio_get_level(B1) != ((buttons_map & B1_MASK) ? 1 : 0))

@@ -134,7 +134,7 @@ class _Bluetooth {
   void sendCmd(var cmd) {
     if (!isDeviceConnected || app.processing) return;
 
-    app.process(() => null); // Stop from sending the same command multiple times
+    //app.process(() => null); // Stop from sending the same command multiple times
     data.recordFail = false; // Reset record state
 
     try {
@@ -156,7 +156,7 @@ class _Bluetooth {
       app.msg(e, prefix: 'Error');
     }
 
-    List words = cmd.split(' ');
+    List words = cmd.split(' '); // Split message by spaces
     app.msg(words, prefix: 'Input');
 
     switch (words[0]) {

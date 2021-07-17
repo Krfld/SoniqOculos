@@ -232,7 +232,7 @@ void sd_write_data(uint8_t *data, size_t *len)
 
 void sd_set_card(bool state)
 {
-    vibrate(VIBRATION_DELAY);
+    state ? vibrate(VIBRATION_DELAY) : vibrate(VIBRATION_DELAY * 3); // Vibrate longer if closing
 
     if (state)
         sd_card_init(); // Mount SD card and create file to write

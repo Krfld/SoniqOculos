@@ -11,7 +11,7 @@ class Data {
   int get mode => this._mode;
   set mode(int mode) => this._mode = mode;
 
-  void changeMode() => bt.sendCmd('m ${1 - mode}');
+  void changeMode() => bt.sendCmd('m ${1 - mode}'); // Send SPP message
 
   ///
   /// Volume
@@ -21,7 +21,7 @@ class Data {
   int get volume => this._volume;
   set volume(int volume) => this._volume = volume;
 
-  void changeVolume(int volume) => bt.sendCmd('v $volume');
+  void changeVolume(int volume) => bt.sendCmd('v $volume'); // Send SPP message
 
   ///
   /// Devices
@@ -33,7 +33,7 @@ class Data {
   int get devices => this._devices;
   set devices(int devices) => this._devices = devices;
 
-  void switchDevices(int devices) => bt.sendCmd('d $devices');
+  void switchDevices(int devices) => bt.sendCmd('d $devices'); // Send SPP message
 
   ///
   /// Equalizer
@@ -61,7 +61,7 @@ class Data {
 
     if (bass == this._bass && mid == this._mid && treble == this._treble) return; // Return if no change is made
 
-    bt.sendCmd('e $bass $mid $treble');
+    bt.sendCmd('e $bass $mid $treble'); // Send SPP message
   }
 
   ///
@@ -72,11 +72,11 @@ class Data {
   int get record => this._record;
   set record(int record) => this._record = record;
 
+  void toggleRecording() => bt.sendCmd('r ${1 - record}'); // Send SPP message
+
   bool _recordFail = false;
   bool get recordFail => this._recordFail;
   set recordFail(bool recordFail) => this._recordFail = recordFail;
-
-  void toggleRecording() => bt.sendCmd('r ${1 - record}');
 
   ///
   /// Playback
@@ -86,5 +86,5 @@ class Data {
   int get playback => this._playback;
   set playback(int playback) => this._playback = playback;
 
-  void togglePlayback() => bt.sendCmd('p ${1 - playback}');
+  void togglePlayback() => bt.sendCmd('p ${1 - playback}'); // Send SPP message
 }

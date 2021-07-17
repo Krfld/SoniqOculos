@@ -13,17 +13,17 @@ class _HomeState extends State<Home> {
     super.initState();
     app.msg('InitState', context: context);
 
-    bt.setup();
-    this._connect();
+    bt.setup(); // Setup bluetooth when app starts
+    this._connect(); // Try connecting automatically
   }
 
   Future _connect() async {
     setState(() => this._connecting = true);
 
-    if (await bt.connect())
-      await Navigator.pushNamed(context, data.mode == 0 ? 'Music' : 'Record');
+    if (await bt.connect()) // Wait to be connected
+      await Navigator.pushNamed(context, data.mode == 0 ? 'Music' : 'Record'); // Go to next screen
     else
-      bt.disconnect();
+      bt.disconnect(); // Disconnect if error
 
     setState(() => this._connecting = false);
   }
@@ -49,7 +49,7 @@ class _HomeState extends State<Home> {
                             border: 64,
                             function: () => this._connect(),
                           )
-                        : SpinKitChasingDots(color: Colors.teal),
+                        : SpinKitChasingDots(color: Colors.teal), // Loading animation
                   ),
                 ),
               ],

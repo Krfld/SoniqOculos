@@ -32,7 +32,7 @@ class _Bluetooth {
       this._bluetoothState = state;
 
       if (state == BluetoothState.STATE_OFF) {
-        this._ready = false;
+        this._ready = false; // If bluetooth turned off
         disconnect();
         app.pop();
       }
@@ -107,7 +107,7 @@ class _Bluetooth {
 
     if (!this._ready)
       this._bluetoothConnection.input.listen((msg) => getCmd(msg)).onDone(() {
-        app.msg('Disconnected', prefix: 'Connection');
+        app.msg('Disconnected', prefix: 'Connection'); // If connection closed
         this._ready = false;
         disconnect();
         app.pop();
@@ -134,7 +134,6 @@ class _Bluetooth {
   void sendCmd(var cmd) {
     if (!isDeviceConnected || app.processing) return;
 
-    //app.process(() => null); // Stop from sending the same command multiple times
     data.recordFail = false; // Reset record state
 
     try {

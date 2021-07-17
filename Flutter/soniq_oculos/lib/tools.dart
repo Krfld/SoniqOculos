@@ -58,21 +58,10 @@ class _App {
   final String tag = '+';
   int _debugID = 1; // if 0, debug won't work
   dynamic msg(var msg, {BuildContext context, String prefix = 'DEBUG'}) {
-    context == null && _debugID > 0
+    context == null && _debugID > 0 // Print debug message
         ? print('$tag[${prefix.toUpperCase()} (${this._debugID++})] $msg')
         : print('$tag{${context.widget}} $msg');
     return msg;
-  }
-}
-
-///
-/// Loading
-///
-
-class Loading extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: SpinKitChasingDots(color: Colors.teal))); // Loading animation
   }
 }
 

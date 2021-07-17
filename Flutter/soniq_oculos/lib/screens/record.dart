@@ -11,17 +11,14 @@ class _RecordState extends State<Record> {
     super.initState();
     app.msg('InitState', context: context);
 
-    app.context = app.msg(context, context: context);
+    app.context = app.msg(context, context: context); // Update context
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        bt.disconnect();
-        /*bt.context = null;
-        bt.disconnect();
-        Navigator.pop(context);*/
+        bt.disconnect(); // Disconnect to go back
         return;
       },
       child: SafeArea(

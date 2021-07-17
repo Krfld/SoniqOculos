@@ -34,28 +34,28 @@ static void microphones_deinit();
 
 static void i2s_sincronize_devices();
 
-//* Speakers pin configuration
+// Speakers pin configuration
 static i2s_pin_config_t speakers_pin_config = {
     .ws_io_num = SPEAKERS_WS_PIN,
     .bck_io_num = SPEAKERS_BCK_PIN,
     .data_out_num = SPEAKERS_DATA_PIN,
     .data_in_num = I2S_PIN_NO_CHANGE};
 
-//* Microphones pin configuration
+// Microphones pin configuration
 static i2s_pin_config_t microphones_pin_config = {
     .ws_io_num = MICROPHONES_WS_PIN,
     .bck_io_num = MICROPHONES_BCK_PIN,
     .data_out_num = I2S_PIN_NO_CHANGE,
     .data_in_num = MICROPHONES_DATA_PIN};
 
-//* Bone conductors pin configuration
+// Bone conductors pin configuration
 static i2s_pin_config_t bone_conductors_pin_config = {
     .ws_io_num = BONE_CONDUCTORS_WS_PIN,
     .bck_io_num = BONE_CONDUCTORS_BCK_PIN,
     .data_out_num = BONE_CONDUCTORS_DATA_PIN,
     .data_in_num = I2S_PIN_NO_CHANGE};
 
-//* Output configuration
+// Output configuration
 static i2s_config_t i2s_config_tx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_TX,
     .sample_rate = SAMPLE_FREQUENCY,
@@ -69,7 +69,7 @@ static i2s_config_t i2s_config_tx = {
     .tx_desc_auto_clear = true, //Auto clear tx descriptor on underflow
     .fixed_mclk = 0};
 
-//* Input configuration
+// Input configuration
 static i2s_config_t i2s_config_rx = {
     .mode = I2S_MODE_MASTER | I2S_MODE_RX,
     .sample_rate = SAMPLE_FREQUENCY,
@@ -202,7 +202,7 @@ void i2s_set_bone_conductors(bool state)
 
 void i2s_turn_devices_on()
 {
-    switch (devices)
+    switch (devices) // Turn last set of devices on
     {
     case BOTH_DEVICES:
         i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, ON);
@@ -220,6 +220,7 @@ void i2s_turn_devices_on()
 }
 void i2s_turn_devices_off()
 {
+    // Turn of both set of devices
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s_set_device_state(BONE_CONDUCTORS_I2S_NUM, OFF);
 
@@ -228,12 +229,12 @@ void i2s_turn_devices_off()
 
 void speakers_init()
 {
-    if (i2s0_device == SPEAKERS)
+    if (i2s0_device == SPEAKERS) // Stop if speakers already inited
         return;
 
     microphones_deinit();
-    //i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_STEREO); // Set back to 16 bit
 
+    // Setup i2s interface
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &speakers_pin_config);
 
@@ -242,23 +243,24 @@ void speakers_init()
 }
 static void speakers_deinit()
 {
-    if (i2s0_device != SPEAKERS)
+    if (i2s0_device != SPEAKERS) // Stop if speakers already deinited
         return;
 
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
     i2s0_device = NONE;
 
+    // Remove i2s interface
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
 }
 
 void microphones_init()
 {
-    if (i2s0_device == MICROPHONES)
+    if (i2s0_device == MICROPHONES) // Stop if microphones already inited
         return;
 
     speakers_deinit();
-    //i2s_set_clk(BONE_CONDUCTORS_I2S_NUM, SAMPLE_FREQUENCY, I2S_BITS_PER_SAMPLE_32BIT, I2S_CHANNEL_STEREO); // Set bone conductors to 32 bit
 
+    // Setup i2s interface
     i2s_driver_install(SPEAKERS_MICROPHONES_I2S_NUM, &i2s_config_rx, 0, NULL);
     i2s_set_pin(SPEAKERS_MICROPHONES_I2S_NUM, &microphones_pin_config);
 
@@ -269,7 +271,7 @@ void microphones_init()
 }
 static void microphones_deinit()
 {
-    if (i2s0_device != MICROPHONES)
+    if (i2s0_device != MICROPHONES) // Stop if microphones already deinited
         return;
 
     i2s_set_device_state(SPEAKERS_MICROPHONES_I2S_NUM, OFF);
@@ -277,11 +279,13 @@ static void microphones_deinit()
 
     i2s_read_task_deinit(); // Stop task that reads microphones
 
+    // Remove i2s interface
     i2s_driver_uninstall(SPEAKERS_MICROPHONES_I2S_NUM);
 }
 
 void bone_conductors_init()
 {
+    // Setup i2s interface
     i2s_driver_install(BONE_CONDUCTORS_I2S_NUM, &i2s_config_tx, 0, NULL);
     i2s_set_pin(BONE_CONDUCTORS_I2S_NUM, &bone_conductors_pin_config);
 

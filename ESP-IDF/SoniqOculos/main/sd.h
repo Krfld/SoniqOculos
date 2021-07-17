@@ -38,7 +38,15 @@
  */
 bool sd_card_state();
 
+/**
+ * @brief Mount SD card and create file to write
+ * 
+ */
 void sd_card_init();
+/**
+ * @brief Close file and unmount SD card
+ * 
+ */
 void sd_card_deinit();
 
 /**

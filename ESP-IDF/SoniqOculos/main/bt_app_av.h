@@ -3,11 +3,6 @@
 
 #include "main.h"
 
-bool bt_is_connected();
-bool bt_is_music_playing();
-
-void bt_reset();
-
 /**
  * @brief     callback function for A2DP sink
  */
@@ -27,5 +22,24 @@ void bt_app_rc_ct_cb(esp_avrc_ct_cb_event_t event, esp_avrc_ct_cb_param_t *param
  * @brief     callback function for AVRCP target
  */
 void bt_app_rc_tg_cb(esp_avrc_tg_cb_event_t event, esp_avrc_tg_cb_param_t *param);
+
+/**
+ * @brief Check if device is connected
+ * 
+ * @return true is connected, false otherwise
+ */
+bool bt_is_connected();
+/**
+ * @brief Check if music is playing
+ * 
+ * @return true if playing, false if paused
+ */
+bool bt_is_music_playing();
+
+/**
+ * @brief Resets bluetooth music state
+ * 
+ */
+void bt_reset();
 
 #endif /* __BT_APP_AV_H__*/

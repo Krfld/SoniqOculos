@@ -32,6 +32,10 @@ static wav_header_t wav_header;
 
 static SemaphoreHandle_t sd_semaphore_handle;
 
+/**
+ * @brief Resets wav header to an original state
+ * 
+ */
 static void wav_header_init();
 
 bool sd_card_state()
@@ -81,7 +85,7 @@ void spi_init()
         .max_transfer_sz = 0,
     };
 
-    spi_bus_initialize(host.slot, &bus_cfg, 1);
+    spi_bus_initialize(host.slot, &bus_cfg, 1); // Setup spi interface
 
     sd_semaphore_handle = xSemaphoreCreateBinary();
     if (!sd_semaphore_handle)
@@ -141,12 +145,12 @@ void sd_card_deinit()
         wav_header.data_size = 0;
     }
 
-    sd_close_file();
+    sd_close_file(); // Close the file
 
     if (card == NULL)
         return;
 
-    esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
+    esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card); // Unmount card
     card = NULL;
 
     xSemaphoreGive(sd_semaphore_handle);
@@ -176,7 +180,7 @@ void sd_open_file(char *file)
     if (f == NULL)
     {
         ESP_LOGE(SD_CARD_TAG, "Failed to open file");
-        sd_card_deinit();
+        sd_card_deinit(); // Unmount card if file failed to open
         return;
     }
 
@@ -191,9 +195,9 @@ void sd_close_file()
     if (f == NULL)
         return;
 
-    if (wav_header.data_size > 0)
+    if (wav_header.data_size > 0) // Has samples written
     {
-        // Rewrite wav header
+        // Rewrite wav header in the beginning of the file
         fseek(f, 0, SEEK_SET);
         fwrite(&wav_header, sizeof(wav_header_t), 1, f);
 

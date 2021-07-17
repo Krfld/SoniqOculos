@@ -28,7 +28,6 @@ static const char *s_a2d_conn_state_str[] = {"Disconnected", "Connecting", "Conn
 static const char *s_a2d_audio_state_str[] = {"Suspended", "Stopped", "Started"};
 static esp_avrc_rn_evt_cap_mask_t s_avrc_peer_rn_cap;
 static _lock_t s_volume_lock;
-////static xTaskHandle s_vcs_task_hdl = NULL;
 static uint8_t s_volume = 0;
 static bool s_volume_notify;
 
@@ -173,12 +172,6 @@ static void bt_av_hdl_avrc_ct_evt(uint16_t event, void *p_param)
         }
         break;
     }
-    case ESP_AVRC_CT_PASSTHROUGH_RSP_EVT: // Receive AVRCP rsp
-    {
-        ESP_LOGI(BT_RC_CT_TAG, "AVRC passthrough rsp: key_code 0x%x, key_state %d", rc->psth_rsp.key_code, rc->psth_rsp.key_state);
-        set_interrupt_i2s_state(false); // Uninterrupt i2s
-        break;
-    }
     case ESP_AVRC_CT_METADATA_RSP_EVT:
     {
         ESP_LOGI(BT_RC_CT_TAG, "AVRC metadata rsp: attribute id 0x%x, %s", rc->meta_rsp.attr_id, rc->meta_rsp.attr_text);
@@ -206,6 +199,12 @@ static void bt_av_hdl_avrc_ct_evt(uint16_t event, void *p_param)
         bt_av_play_pos_changed();
         break;
     }
+    case ESP_AVRC_CT_PASSTHROUGH_RSP_EVT: // Receive AVRCP rsp
+    {
+        ESP_LOGI(BT_RC_CT_TAG, "AVRC passthrough rsp: key_code 0x%x, key_state %d", rc->psth_rsp.key_code, rc->psth_rsp.key_state);
+        set_interrupt_i2s_state(false); // Uninterrupt i2s
+        break;
+    }
     default:
         ESP_LOGE(BT_RC_CT_TAG, "%s unhandled evt %d", __func__, event);
         break;
@@ -220,35 +219,6 @@ static void volume_set_by_controller(uint8_t volume)
     _lock_release(&s_volume_lock);
 }
 
-/*static void volume_set_by_local_host(uint8_t volume)
-{
-    ESP_LOGI(BT_RC_TG_TAG, "Volume is set locally to: %d%%", (uint32_t)volume * 100 / 0x7f);
-    _lock_acquire(&s_volume_lock);
-    s_volume = volume;
-    _lock_release(&s_volume_lock);
-
-    if (s_volume_notify)
-    {
-        esp_avrc_rn_param_t rn_param;
-        rn_param.volume = s_volume;
-        esp_avrc_tg_send_rn_rsp(ESP_AVRC_RN_VOLUME_CHANGE, ESP_AVRC_RN_RSP_CHANGED, &rn_param);
-        s_volume_notify = false;
-    }
-}*/
-
-/*static void volume_change_simulation(void *arg)
-{
-    ESP_LOGI(BT_RC_TG_TAG, "start volume change simulation");
-
-    for (;;)
-    {
-        delay(10000);
-
-        uint8_t volume = (s_volume + 5) & 0x7f;
-        volume_set_by_local_host(volume);
-    }
-}*/
-
 static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param)
 {
     ESP_LOGD(BT_RC_TG_TAG, "%s evt %d", __func__, event);
@@ -260,16 +230,6 @@ static void bt_av_hdl_avrc_tg_evt(uint16_t event, void *p_param)
         uint8_t *bda = rc->conn_stat.remote_bda;
         ESP_LOGI(BT_RC_TG_TAG, "AVRC conn_state evt: state %d, [%02x:%02x:%02x:%02x:%02x:%02x]",
                  rc->conn_stat.connected, bda[0], bda[1], bda[2], bda[3], bda[4], bda[5]);
-        /*if (rc->conn_stat.connected)
-        {
-            // create task to simulate volume change
-            //// xTaskCreate(volume_change_simulation, "vcsT", 2048, NULL, 5, &s_vcs_task_hdl);
-        }
-        else
-        {
-            vTaskDelete(s_vcs_task_hdl);
-            ESP_LOGI(BT_RC_TG_TAG, "Stop volume change simulation");
-        }*/
         break;
     }
     case ESP_AVRC_TG_PASSTHROUGH_CMD_EVT:
@@ -319,7 +279,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         ESP_LOGI(BT_AV_TAG, "A2DP connection state: %s, [%02x:%02x:%02x:%02x:%02x:%02x]",
                  s_a2d_conn_state_str[a2d->conn_stat.state], bda[0], bda[1], bda[2], bda[3], bda[4], bda[5]);
 
-        if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED)
+        if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_CONNECTED) // Connected to device
         {
             ESP_LOGW(BT_AV_TAG, "Connected to audio");
             connected = true;
@@ -328,7 +288,7 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
             esp_bt_gap_set_scan_mode(ESP_BT_NON_CONNECTABLE, ESP_BT_NON_DISCOVERABLE); // Non connectable BT
             bt_i2s_task_start_up();                                                    // Start task to read samples
         }
-        else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED)
+        else if (a2d->conn_stat.state == ESP_A2D_CONNECTION_STATE_DISCONNECTED) // Disconnected from device
         {
             ESP_LOGW(BT_AV_TAG, "Disconnected from audio");
             connected = false;
@@ -345,10 +305,10 @@ static void bt_av_hdl_a2d_evt(uint16_t event, void *p_param)
         s_pkt_cnt = 0;
         s_audio_state = a2d->audio_stat.state;
 
-        if (a2d->audio_stat.state == ESP_A2D_AUDIO_STATE_STARTED) // Turn on devices when music playing
-            i2s_turn_devices_on();
-        else // Turn off devices when no music playing
-            i2s_turn_devices_off();
+        if (a2d->audio_stat.state == ESP_A2D_AUDIO_STATE_STARTED) // Music started playing
+            i2s_turn_devices_on();                                // Turn on devices when music playing
+        else                                                      // Music stoped playing
+            i2s_turn_devices_off();                               // Turn off devices when no music playing
         break;
     }
     case ESP_A2D_AUDIO_CFG_EVT:
@@ -398,7 +358,7 @@ void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
         last = now;
     }*/
 
-    write_ringbuf(data, len);
+    write_ringbuf(data, len); // Write incoming samples to ringbuffer
     if (++s_pkt_cnt % 100 == 0)
         ESP_LOGI(BT_AV_TAG, "Audio packet count %u", s_pkt_cnt);
 }

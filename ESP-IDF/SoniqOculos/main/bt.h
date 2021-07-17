@@ -13,14 +13,34 @@
 #define BT_I2S_STACK_DEPTH 3 * 1024
 #define RINGBUFFER_SIZE 3 * DATA_LENGTH
 
+/**
+ * @brief Stores device address
+ * 
+ * @param addr address of the device
+ */
 void save_last_device(uint8_t *addr);
 
-void spp_set_sending_state(bool state);
-bool spp_get_sending_state();
-
+/**
+ * @brief Send SPP message
+ * 
+ * @param msg message to send
+ * @param ... parameters of the message
+ */
 void spp_send_msg(char *msg, ...);
 
+/**
+ * @brief Init bluetooth peripherals
+ * 
+ */
 void bt_init();
 
+/**
+ * @brief Init bluetooth music components
+ * 
+ */
 void bt_music_init();
+/**
+ * @brief Deinit bluetooth music components
+ * 
+ */
 void bt_music_deinit();

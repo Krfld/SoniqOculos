@@ -3,22 +3,24 @@ clear
 close all
 
 Fs = 44100; % Sample Rate
-frequency = 0.5; % kHz
-duration = 0.1; % Seconds
+frequency = 1; % kHz
+duration = 5; % Seconds
 name = strcat('Sine_', num2str(duration), 's_', num2str(frequency), 'kHz');
 
 t = 0:1 / Fs:duration - 1 / Fs;
-w = 2 * pi * frequency*1e3;
+w = 2 * pi * frequency * 1e3;
 size = length(t);
 
-wave = sin(w*t);
+% Sin
+% wave = sin(w*t);
+% out(:, 1) = wave;
+% out(:, 2) = wave;
 
-out(:, 1) = wave;
-out(:, 2) = wave;
+% White noise
+out = rand(size, 2) * 2 - 1;
 
+% Variations
 % out = zeros(size, 2);
-
-% out = rand(size, 2) * 2 - 1;
 
 % for i = 1:size / 2
 %     out(i, 1) = wave(i);
@@ -36,5 +38,5 @@ out(:, 2) = wave;
 plot(out);
 % xlim([20e3, 20e3 + 1024]);
 
-audiowrite(strcat(name, '.wav'), out, Fs, 'BitsPerSample', 16)
+audiowrite(strcat(name, '.wav'), out, Fs, 'BitsPerSample', 16);
 % sound(out, Fs)

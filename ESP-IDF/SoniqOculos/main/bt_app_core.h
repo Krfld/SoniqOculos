@@ -39,8 +39,18 @@ void bt_i2s_task_shut_down(void);
 
 size_t write_ringbuf(const uint8_t *data, size_t size);
 
+/**
+ * @brief Send avrcp command
+ * 
+ * @param command command to send
+ */
 void bt_send_avrc_cmd(uint8_t command);
 
+/**
+ * @brief Set interruption of i2s interface
+ * 
+ * @param state true if needs to interrupt, false otherwise
+ */
 void set_interrupt_i2s_state(bool state);
 
 #endif /* __BT_APP_CORE_H__ */

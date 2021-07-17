@@ -45,7 +45,7 @@ void spp_send_msg(char *msg, ...)
     vsprintf(str, msg, vl);
     va_end(vl);
 
-    strcat(str, " \n");
+    strcat(str, " \n"); // Msg has to finish with '\n'
 
     esp_spp_write(spp_handle, strlen(msg), (uint8_t *)str); // Send spp message
     ESP_LOGW(BT_SPP_TAG, "Message sent: %s", str);
@@ -68,7 +68,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 
         spp_connected = true;
 
-        spp_send_msg("SETUP m %d v %d d %d eb %d em %d et %d r %d p %d", get_mode(), get_volume() / 10, get_devices(), get_bass(), get_mid(), get_treble(), sd_card_state(), i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM)); // Send setup message
+        spp_send_msg("SETUP m %d v %d d %d eb %d em %d et %d r %d p %d", get_mode(), get_volume() / 10, get_devices(), get_bass(), get_mid(), get_treble(), sd_card_state(), i2s_get_device_state(BONE_CONDUCTORS_I2S_NUM)); // Send setup message with current settings
         break;
 
     case ESP_SPP_WRITE_EVT:
@@ -223,7 +223,7 @@ void bt_init()
     pin_code[3] = '4';
     esp_bt_gap_set_pin(pin_type, 4, pin_code);
 
-    // Print bluetooth address
+    // Print ESP bluetooth address
     const uint8_t *esp_address = esp_bt_dev_get_address();
     ESP_LOGW(BT_TAG, "ESP BT Address [%02X:%02X:%02X:%02X:%02X:%02X]", esp_address[0], esp_address[1], esp_address[2], esp_address[3], esp_address[4], esp_address[5]);
 }
@@ -239,10 +239,6 @@ void bt_music_init()
     // initialize AVRCP target
     esp_avrc_tg_init();
     esp_avrc_tg_register_callback(bt_app_rc_tg_cb);
-
-    /*esp_avrc_rn_evt_cap_mask_t evt_set = {0};
-    esp_avrc_rn_evt_bit_mask_operation(ESP_AVRC_BIT_MASK_OP_SET, &evt_set, ESP_AVRC_RN_VOLUME_CHANGE);
-    assert(esp_avrc_tg_set_rn_evt_cap(&evt_set) == ESP_OK);*/
 
     // initialize A2DP sink
     esp_a2d_register_callback(&bt_app_a2d_cb);
@@ -263,12 +259,13 @@ void bt_music_deinit()
     if (has_last_device())
         esp_a2d_sink_disconnect(last_device); // Disconnect from device
 
+    // Deinit bluetooth music components
     esp_avrc_ct_deinit();
     esp_avrc_tg_deinit();
     esp_a2d_sink_deinit();
 
-    bt_reset();
+    bt_reset(); // Close tasks that handle samples
 
-    esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE);
+    esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE); // Connectable BT
     bt_music_ready = false;
 }

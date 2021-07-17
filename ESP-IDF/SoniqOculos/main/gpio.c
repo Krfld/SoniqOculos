@@ -101,12 +101,12 @@ static void volume_task(void *arg)
             while (!xQueuePeek(volume_queue_handle, &changing_volume, pdMS_TO_TICKS(VOLUME_CHANGE_PERIOD))) // Keep changing volume if timeout
             {
                 changed_volume = true;
-                if (buttons_map == B2_MASK)
+                if (buttons_map == B2_MASK) // If pressing button 2
                 {
                     ESP_LOGI(GPIO_TAG, "Volume up");
                     volume_up();
                 }
-                if (buttons_map == B3_MASK)
+                if (buttons_map == B3_MASK) // If pressing button 3
                 {
                     ESP_LOGI(GPIO_TAG, "Volume down");
                     volume_down();

@@ -16,9 +16,8 @@
 
 /**
  * TODO
- * write .wav
- * measure power consumption (sin 1kHz max volume)
  * test white noise
+ * measure power consumption (sin 1kHz max volume)
  */
 
 RTC_DATA_ATTR static int mode = MUSIC; // Keep value while in deep-sleep

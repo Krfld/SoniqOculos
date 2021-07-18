@@ -200,7 +200,7 @@ class _Bluetooth {
 
       case 'r': // SD card
         int value = int.tryParse(words[1]) ?? 0;
-        if (value == data.record && data.record != 0) data.recordFail = true; // Error starting recording
+        if (value == data.record && data.record == 0) data.recordFail = true; // Error starting recording
         data.record = value;
         break;
 

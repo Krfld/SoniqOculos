@@ -7,7 +7,7 @@
 
 #define DEFAULT_VOLUME 50  // %
 #define VOLUME_INTERVAL 10 // %
-#define MAX_VOLUME 0.3
+#define MAX_VOLUME 0.5
 
 #define SAMPLE_FREQUENCY 44100.0 // Hz
 
@@ -15,7 +15,7 @@
 #define EQUALIZER_NOTCH_FREQUENCY 2500      // Hz
 #define EQUALIZER_HIGH_SHELF_FREQUENCY 4000 // Hz
 
-#define EQUALIZER_GAIN 3 // dB or 4
+#define EQUALIZER_GAIN 3 // dB
 
 #define CROSSOVER_FREQUENCY 1000 // Hz
 

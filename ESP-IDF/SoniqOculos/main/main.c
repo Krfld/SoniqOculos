@@ -10,16 +10,6 @@
 
 #define MAIN_TAG "MAIN"
 
-/**
- * !Warnings
- */
-
-/**
- * TODO
- * test white noise
- * measure power consumption (sin 1kHz max volume)
- */
-
 RTC_DATA_ATTR static int mode = MUSIC; // Keep value while in deep-sleep
 int get_mode()
 {

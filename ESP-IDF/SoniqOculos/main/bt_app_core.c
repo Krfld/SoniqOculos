@@ -143,8 +143,6 @@ void bt_i2s_task_shut_down(void)
         s_bt_i2s_task_handle = NULL;
     }
 
-    //delay(10); // Make sure task is deleted before deleting ringbuffer
-
     if (s_ringbuf_i2s)
     {
         vRingbufferDelete(s_ringbuf_i2s);

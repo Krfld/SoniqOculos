@@ -134,8 +134,6 @@ class _Bluetooth {
   void sendCmd(var cmd) {
     if (!isDeviceConnected || app.processing) return;
 
-    data.recordFail = false; // Reset record state
-
     try {
       this._bluetoothConnection.output.add(ascii.encode(app.msg(cmd.toString(), prefix: 'Output'))); // Send message
     } catch (e) {
@@ -154,6 +152,8 @@ class _Bluetooth {
     } catch (e) {
       app.msg(e, prefix: 'Error');
     }
+
+    data.recordFail = false; // Reset record state
 
     List words = cmd.split(' '); // Split message by spaces
     app.msg(words, prefix: 'Input');

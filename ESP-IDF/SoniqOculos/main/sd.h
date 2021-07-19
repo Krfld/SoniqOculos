@@ -14,7 +14,6 @@
 #define SD_CS_PIN GPIO_NUM_15
 
 #define SD_DET_PIN GPIO_NUM_35
-
 #define SD_DET_DELAY 50 // ms
 
 #define SD_DET_STACK_DEPTH 3 * 1024

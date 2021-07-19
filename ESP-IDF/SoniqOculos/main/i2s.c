@@ -302,16 +302,22 @@ void i2s_init()
 
 void i2s_write_data(uint8_t *data, size_t *len)
 {
+    /* //! Testing
     int32_t *data_32 = (int32_t *)data;
     for (int i = 0; i < *len / 4; i++)
         data_32[i] = ((data_32[i] << 16) & 0xffff0000) | ((data_32[i] >> 16) & 0x0000ffff); // Invert channels
+    
 
     if (get_mode() == MUSIC)
         apply_equalizer(data, len); // Apply equalizer
+    */
 
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
         apply_crossover(data, bone_conductors_samples, speakers_samples, len); // Apply crossover
+
+        sd_write_data(bone_conductors_samples, len); //! Testing
+        return;
 
         // Apply volume only after filtering
         apply_volume(bone_conductors_samples, len);

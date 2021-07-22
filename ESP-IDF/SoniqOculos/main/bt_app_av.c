@@ -359,7 +359,7 @@ void bt_app_a2d_data_cb(const uint8_t *data, uint32_t len)
     }*/
 
     write_ringbuf(data, len); // Write incoming samples to ringbuffer
-    if (++s_pkt_cnt % 100 == 0)
+    if (++s_pkt_cnt % 50 == 0)
         ESP_LOGI(BT_AV_TAG, "Audio packet count %u", s_pkt_cnt);
 }
 

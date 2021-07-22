@@ -306,6 +306,9 @@ void i2s_write_data(uint8_t *data, size_t *len)
     if (get_mode() == MUSIC)
         apply_equalizer(data, len); // Apply equalizer
 
+    ////sd_write_data(data, len); //! Testing
+    ////return;
+
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
         apply_crossover(data, bone_conductors_samples, speakers_samples, len); // Apply crossover

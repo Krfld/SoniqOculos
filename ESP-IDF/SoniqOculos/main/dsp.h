@@ -19,6 +19,8 @@
 
 #define CROSSOVER_FREQUENCY 1000 // Hz
 
+#define OFFSET_CUT_FREQUENCY 20 // Hz
+
 #define Q sqrt(2) / 2 // 0.7071067812
 
 /**
@@ -70,6 +72,14 @@ void apply_crossover(uint8_t *input, uint8_t *output_low, uint8_t *output_high, 
  * @param len data size
  */
 void apply_equalizer(uint8_t *data, size_t *len);
+
+/**
+ * @brief Removes signal offset
+ * 
+ * @param data data to be processed
+ * @param len datqa size
+ */
+void remove_offset(uint8_t *data, size_t *len);
 
 /**
  * @brief Set volume

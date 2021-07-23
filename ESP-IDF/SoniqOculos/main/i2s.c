@@ -298,16 +298,16 @@ void i2s_init()
 }
 
 void i2s_write_data(uint8_t *data, size_t *len)
-{
+{ /*
     int32_t *data_32 = (int32_t *)data;
     for (int i = 0; i < *len / 4; i++)
         data_32[i] = ((data_32[i] << 16) & 0xffff0000) | ((data_32[i] >> 16) & 0x0000ffff); // Invert channels
-
+*/
     if (get_mode() == MUSIC)
         apply_equalizer(data, len); // Apply equalizer
 
-    ////sd_write_data(data, len); //! Testing
-    ////return;
+    sd_write_data(data, len); //! Testing
+    return;
 
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {
@@ -352,6 +352,8 @@ static void i2s_read_task(void *arg)
         int16_t *data_16 = (int16_t *)data;
         for (int i = 0; i < bytes_read / 2; i++)
             data_16[i] = data_16[(i << 1) + 1]; // Convert 32 bit to 16, discarting the first 2 bytes of each sample (index multiple of 4)
+
+        remove_offset(data, &bytes_read); // Remove DC component
 
         sd_write_data(data, &bytes_read); // Write to SD card
 

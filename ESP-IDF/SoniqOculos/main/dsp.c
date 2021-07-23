@@ -68,6 +68,13 @@ static float c_hpf_coeffs[5];
 static float c_hpf_w_left[2];
 static float c_hpf_w_right[2];
 
+// Offset
+
+// HPF
+static float o_hpf_coeffs[5];
+static float o_hpf_w_left[2];
+static float o_hpf_w_right[2];
+
 void dsp_init()
 {
     if (!PROCESSING)
@@ -80,12 +87,15 @@ void dsp_init()
 
     // Equalizer
     dsps_biquad_gen_lowShelf_f32(e_b_low_shelf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_bass - 2) * EQUALIZER_GAIN, Q);      // Generate coeffs for BASS
-    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, (eq_mid - 2) * EQUALIZER_GAIN, Q);                  // Generate coeffs for MID
+    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, (eq_mid - 2) * EQUALIZER_GAIN, Q / 2);              // Generate coeffs for MID
     dsps_biquad_gen_highShelf_f32(e_t_high_shelf_coeffs, EQUALIZER_HIGH_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_treble - 2) * EQUALIZER_GAIN, Q); // Generate coeffs for TREBLE
 
     // Crossover
     dsps_biquad_gen_lpf_f32(c_lpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for LPF
     dsps_biquad_gen_hpf_f32(c_hpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for HPF
+
+    // Offset
+    dsps_biquad_gen_hpf_f32(o_hpf_coeffs, OFFSET_CUT_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for Offset
 
     // Allocate samples (2 byte) per channel (DATA_LENGTH / 4)
     data_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));
@@ -147,7 +157,7 @@ void set_equalizer(int bass, int mid, int treble)
     xSemaphoreTake(equalizer_semaphore_handle, portMAX_DELAY); // Wait to update equalizer
 
     dsps_biquad_gen_lowShelf_f32(e_b_low_shelf_coeffs, EQUALIZER_LOW_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_bass - 2) * EQUALIZER_GAIN, Q);      // Generate coeffs for BASS
-    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, (eq_mid - 2) * EQUALIZER_GAIN, Q);                  // Generate coeffs for MID
+    dsps_biquad_gen_notch_f32(e_m_notch_coeffs, EQUALIZER_NOTCH_FREQUENCY / SAMPLE_FREQUENCY, (eq_mid - 2) * EQUALIZER_GAIN, Q / 2);              // Generate coeffs for MID
     dsps_biquad_gen_highShelf_f32(e_t_high_shelf_coeffs, EQUALIZER_HIGH_SHELF_FREQUENCY / SAMPLE_FREQUENCY, (eq_treble - 2) * EQUALIZER_GAIN, Q); // Generate coeffs for TREBLE
 
     xSemaphoreGive(equalizer_semaphore_handle);
@@ -190,6 +200,34 @@ void apply_equalizer(uint8_t *data, size_t *len)
     dsps_biquad_f32(data_right, data_right, channel_length_16, e_t_high_shelf_coeffs, e_t_high_w_right); // Right
 
     xSemaphoreGive(equalizer_semaphore_handle);
+
+    for (size_t i = 0; i < channel_length_16; i++)
+    {
+        data_16[i * 2] = data_left[i] * INT16;      // Denormalize left
+        data_16[i * 2 + 1] = data_right[i] * INT16; // Denormalize right
+    }
+}
+
+void remove_offset(uint8_t *data, size_t *len)
+{
+    if (!PROCESSING)
+        return;
+
+    // Convert to 2 bytes per sample (16 bit)
+    // (int16_t *) samples -> [0] - Left | [1] - Right | [2] - Left | [3] - Right ...
+    int16_t *data_16 = (int16_t *)data;
+
+    int channel_length_16 = *len / 4;
+
+    for (size_t i = 0; i < channel_length_16; i++)
+    {
+        data_left[i] = data_16[i * 2] / INT16;      // Normalize left
+        data_right[i] = data_16[i * 2 + 1] / INT16; // Normalize right
+    }
+
+    // TREBLE
+    dsps_biquad_f32(data_left, data_left, channel_length_16, o_hpf_coeffs, o_hpf_w_left);    // Left
+    dsps_biquad_f32(data_right, data_right, channel_length_16, o_hpf_coeffs, o_hpf_w_right); // Right
 
     for (size_t i = 0; i < channel_length_16; i++)
     {

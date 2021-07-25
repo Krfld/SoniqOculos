@@ -298,16 +298,19 @@ void i2s_init()
 }
 
 void i2s_write_data(uint8_t *data, size_t *len)
-{ /*
+{
+    if (get_mode() == RECORD && !i2s1_state) // Don't process if bone conductors are OFF and in RECORD mode
+        return;
+
     int32_t *data_32 = (int32_t *)data;
     for (int i = 0; i < *len / 4; i++)
         data_32[i] = ((data_32[i] << 16) & 0xffff0000) | ((data_32[i] >> 16) & 0x0000ffff); // Invert channels
-*/
+
     if (get_mode() == MUSIC)
         apply_equalizer(data, len); // Apply equalizer
 
-    sd_write_data(data, len); //! Testing
-    return;
+    ////sd_write_data(data, len); //! Testing
+    ////return;
 
     if (PROCESSING && get_mode() == MUSIC && devices == BOTH_DEVICES) // Process only when both devices are playing
     {

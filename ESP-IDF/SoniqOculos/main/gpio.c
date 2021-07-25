@@ -256,7 +256,7 @@ static void gpio_task(void *arg)
                     delay(COMMAND_DELAY / 2);
                     break;
                 case B2_MASK:                      // 010
-                    sd_set_card(!sd_card_state()); //! Testing
+                    ////sd_set_card(!sd_card_state()); //! Testing
 
                     if (!changed_volume)
                         volume_up();

@@ -1,6 +1,6 @@
-clc
-clear
-close all
+% clc
+% clear
+% close all
 
 Fs = 44100; % Sample Rate
 frequency = 1; % kHz
@@ -35,8 +35,9 @@ out = rand(size, 2) * 2 - 1;
 
 % out(size/2, 2) = 1;
 
+figure
 plot(out);
 % xlim([20e3, 20e3 + 1024]);
 
-audiowrite(strcat(name, '.wav'), out, Fs, 'BitsPerSample', 16);
+% audiowrite(strcat(name, '.wav'), out, Fs, 'BitsPerSample', 16);
 % sound(out, Fs)

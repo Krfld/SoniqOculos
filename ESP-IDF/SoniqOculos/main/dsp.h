@@ -19,7 +19,7 @@
 
 #define CROSSOVER_FREQUENCY 1000 // Hz
 
-#define OFFSET_CUT_FREQUENCY 20 // Hz
+#define OFFSET_FREQUENCY 50 // Hz
 
 #define Q sqrt(2) / 2 // 0.7071067812
 

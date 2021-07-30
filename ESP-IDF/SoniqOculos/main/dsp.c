@@ -95,7 +95,7 @@ void dsp_init()
     dsps_biquad_gen_hpf_f32(c_hpf_coeffs, CROSSOVER_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for HPF
 
     // Offset
-    dsps_biquad_gen_hpf_f32(o_hpf_coeffs, OFFSET_CUT_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for Offset
+    dsps_biquad_gen_hpf_f32(o_hpf_coeffs, OFFSET_FREQUENCY / SAMPLE_FREQUENCY, Q); // Generate coeffs for Offset
 
     // Allocate samples (2 byte) per channel (DATA_LENGTH / 4)
     data_left = (float *)pvPortMalloc(DATA_LENGTH / 4 * sizeof(float));

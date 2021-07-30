@@ -348,12 +348,14 @@ static void i2s_read_task(void *arg)
 
         i2s_read(SPEAKERS_MICROPHONES_I2S_NUM, data, DATA_LENGTH, &bytes_read, portMAX_DELAY); // Read from microphones
 
+        //! Has cuts
+
         bytes_read /= 2;
         int16_t *data_16 = (int16_t *)data;
         for (int i = 0; i < bytes_read / 2; i++)
             data_16[i] = data_16[(i << 1) + 1]; // Convert 32 bit to 16, discarting the first 2 bytes of each sample (index multiple of 4)
 
-        remove_offset(data, &bytes_read); // Remove DC component
+        remove_offset(data, &bytes_read); // Remove DC component //! Creates noise try with diferent than 20Hz
 
         sd_write_data(data, &bytes_read); // Write to SD card
 

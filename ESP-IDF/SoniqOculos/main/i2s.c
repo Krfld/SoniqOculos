@@ -355,7 +355,7 @@ static void i2s_read_task(void *arg)
         for (int i = 0; i < bytes_read / 2; i++)
             data_16[i] = data_16[(i << 1) + 1]; // Convert 32 bit to 16, discarting the first 2 bytes of each sample (index multiple of 4)
 
-        remove_offset(data, &bytes_read); // Remove DC component //! Creates noise try with diferent than 20Hz
+        remove_offset(data, &bytes_read); // Remove DC component //! Creates noise try with greater than 20Hz
 
         sd_write_data(data, &bytes_read); // Write to SD card
 
